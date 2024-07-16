@@ -1,9 +1,22 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Configuration
+src/main/resources/application.properties
+
 # macOS
 .DS_Store
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
-# IntelliJ
-.idea/
 
-src/main/resources/application.properties
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+/src/main/java/com/lennartmoeller/finance/DataMigrator.java
