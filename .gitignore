@@ -1,11 +1,11 @@
 # Maven
-target/
+/target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 # Configuration
-src/main/resources/application.properties
+/src/main/resources/application.properties
 
 # macOS
 .DS_Store
@@ -13,10 +13,15 @@ src/main/resources/application.properties
 **/.DS_Store
 **/._.DS_Store
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA
 .idea
 *.iws
 *.iml
 *.ipr
 
+# Node
+/node_modules/
+
 /src/main/java/com/lennartmoeller/finance/DataMigrator.java
+
+/package-lock.json
