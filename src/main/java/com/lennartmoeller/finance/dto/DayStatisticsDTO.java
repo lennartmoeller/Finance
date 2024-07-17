@@ -11,11 +11,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TransactionDTO {
-	private Long id;
-	private Long accountId;
-	private Long categoryId;
-	private LocalDate date;
-	private Long amount;
-	private String description;
+public class DayStatisticsDTO {
+	LocalDate date;
+	Long balance;
+	Long smoothedBalance;
 }

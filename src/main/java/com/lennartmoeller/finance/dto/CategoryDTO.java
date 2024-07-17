@@ -1,12 +1,13 @@
 package com.lennartmoeller.finance.dto;
 
-import com.lennartmoeller.finance.model.CategoryType;
+import com.lennartmoeller.finance.model.CategorySmoothType;
+import com.lennartmoeller.finance.model.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,10 +15,11 @@ import java.util.Date;
 @Setter
 public class CategoryDTO {
 	private Long id;
-	private Long parent;
+	private Long parentId;
 	private String label;
-	private CategoryType type;
-	private Date start;
-	private Date end;
-	private Long monthlyBudget;
+	private TransactionType transactionType;
+	private CategorySmoothType smoothType;
+	private LocalDate start;
+	private LocalDate end;
+	private Long target;
 }

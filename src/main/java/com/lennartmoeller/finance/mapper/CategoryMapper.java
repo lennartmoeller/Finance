@@ -6,6 +6,8 @@ import com.lennartmoeller.finance.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class CategoryMapper {
@@ -13,31 +15,37 @@ public class CategoryMapper {
 	private final CategoryService categoryService;
 
 	public CategoryDTO toDto(Category category) {
-		Long parentId = category.getParent() != null ? category.getParent().getId() : null;
+		Long parentId = Optional.ofNullable(category.getParent()).map(Category::getId).orElse(null);
+
 		return new CategoryDTO(
 			category.getId(),
 			parentId,
 			category.getLabel(),
-			category.getType(),
+			category.getTransactionType(),
+			category.getSmoothType(),
 			category.getStart(),
 			category.getEnd(),
-			category.getMonthlyBudget()
+			category.getTarget()
 		);
 	}
 
 	public Category toEntity(CategoryDTO categoryDTO) {
-		Category parent = categoryDTO.getParent() != null ?
-			categoryService.findById(categoryDTO.getParent())
-				.orElseThrow(() -> new IllegalArgumentException("Invalid parent category ID")) : null;
+		Category parent = Optional.ofNullable(categoryDTO.getParentId())
+			.map(parentId -> categoryService.findById(categoryDTO.getParentId())
+				.orElseThrow(() -> new IllegalArgumentException("Invalid parent category ID"))
+			)
+			.orElse(null);
 
 		return new Category(
 			categoryDTO.getId(),
 			parent,
 			categoryDTO.getLabel(),
-			categoryDTO.getType(),
+			categoryDTO.getTransactionType(),
+			categoryDTO.getSmoothType(),
 			categoryDTO.getStart(),
 			categoryDTO.getEnd(),
-			categoryDTO.getMonthlyBudget()
+			categoryDTO.getTarget()
 		);
 	}
+
 }

@@ -28,9 +28,9 @@ public class TransactionMapper {
 	}
 
 	public Transaction toEntity(TransactionDTO transactionDTO) {
-		Account account = accountService.findById(transactionDTO.getAccount())
+		Account account = accountService.findById(transactionDTO.getAccountId())
 			.orElseThrow(() -> new IllegalArgumentException("Invalid account ID"));
-		Category category = categoryService.findById(transactionDTO.getCategory())
+		Category category = categoryService.findById(transactionDTO.getCategoryId())
 			.orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
 
 		return new Transaction(

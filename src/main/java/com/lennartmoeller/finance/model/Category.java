@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "categories")
@@ -27,17 +27,21 @@ public class Category {
 
 	@Enumerated(EnumType.ORDINAL)
 	@Column(nullable = false)
-	private CategoryType type;
+	private TransactionType transactionType;
+
+	@Enumerated(EnumType.ORDINAL)
+	@Column(nullable = false)
+	private CategorySmoothType smoothType = CategorySmoothType.DAILY;
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date start;
+	private LocalDate start;
 
 	@Column
 	@Temporal(TemporalType.DATE)
-	private Date end;
+	private LocalDate end;
 
 	@Column
-	private Long monthlyBudget;
+	private Long target;
 
 }

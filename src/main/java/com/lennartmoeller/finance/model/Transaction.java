@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "transactions")
@@ -28,7 +28,7 @@ public class Transaction {
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date date = new Date();
+	private LocalDate date = LocalDate.now();
 
 	@Column(nullable = false)
 	private Long amount;
