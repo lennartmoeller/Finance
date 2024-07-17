@@ -4,6 +4,7 @@ import com.lennartmoeller.finance.dto.DayStatisticsDTO;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.projection.MonthlyBalanceProjection;
 import com.lennartmoeller.finance.projection.YearlyBalanceProjection;
+import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +25,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class StatisticsService {
 
+	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
 
 	public List<DayStatisticsDTO> getDailyStatistics() {
@@ -44,15 +47,18 @@ public class StatisticsService {
 		LocalDate endDate = LocalDate.now();
 		long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
 
+		long initialBalance = accountRepository.getSummedStartBalance();
+		AtomicLong balance = new AtomicLong(initialBalance);
+		AtomicLong smoothedBalance = new AtomicLong(initialBalance);
+
 		return Stream.iterate(startDate, date -> date.plusDays(1)).limit(totalDays)
 			.map(date -> {
-				long balance = Optional.ofNullable(dailyBalancesMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L);
-				long smoothedBalance = Optional.ofNullable(dailySmoothedMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L)
+				long surplus = Optional.ofNullable(dailyBalancesMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L);
+				long smoothedSurplus = Optional.ofNullable(dailySmoothedMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L)
 					+ Optional.ofNullable(monthlySmoothedMap.get(YearMonth.from(date))).map(v -> v.getBalance() / date.lengthOfMonth()).orElse(0L)
 					+ Optional.ofNullable(yearlySmoothedMap.get(Year.from(date))).map(v -> v.getBalance() / date.lengthOfYear()).orElse(0L);
-				return new DayStatisticsDTO(date, balance, smoothedBalance);
+				return new DayStatisticsDTO(date, balance.addAndGet(surplus), smoothedBalance.addAndGet(smoothedSurplus));
 			})
 			.collect(Collectors.toList());
 	}
-
 }

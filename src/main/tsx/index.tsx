@@ -1,10 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App/App';
 
-const App = () => (
-    <div>
-        <h1>Hello, React with Spring Boot!</h1>
-    </div>
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
 );
-
-ReactDOM.render(<App/>, document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

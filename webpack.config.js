@@ -1,10 +1,11 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
     entry: './src/main/tsx/index.tsx',
     output: {
-        path: path.resolve(__dirname, 'src/main/resources/static'),
+        path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js'
     },
     resolve: {
@@ -26,12 +27,24 @@ module.exports = {
                         presets: ['@babel/preset-env', '@babel/preset-react']
                     }
                 }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
+                exclude: /node_modules/
             }
         ]
     },
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'src/main/resources/frontend/index.html', to: '' }
+            ]
+        })
+    ],
     devServer: {
         static: {
-            directory: path.join(__dirname, 'src/main/resources/static'),
+            directory: path.join(__dirname, 'dist'),
         },
         compress: true,
         port: 3000,
