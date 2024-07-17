@@ -2,27 +2,13 @@ package com.lennartmoeller.finance.mapper;
 
 import com.lennartmoeller.finance.dto.AccountDTO;
 import com.lennartmoeller.finance.model.Account;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class AccountMapper {
+@Mapper(componentModel = "spring")
+public abstract class AccountMapper {
 
-	public AccountDTO toDto(Account account) {
-		return new AccountDTO(
-			account.getId(),
-			account.getLabel(),
-			account.getStartBalance(),
-			account.getActive()
-		);
-	}
+	public abstract AccountDTO toDto(Account account);
 
-	public Account toEntity(AccountDTO accountDTO) {
-		return new Account(
-			accountDTO.getId(),
-			accountDTO.getLabel(),
-			accountDTO.getStartBalance(),
-			accountDTO.getActive()
-		);
-	}
+	public abstract Account toEntity(AccountDTO accountDTO);
 
 }
