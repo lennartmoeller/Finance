@@ -23,33 +23,33 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 	List<DailyBalanceProjection> getDailyBalances();
 
 	@Query("""
-			SELECT t.date AS date,
-			       SUM(t.amount) AS balance
-			FROM Transaction t
-			WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.DAILY
-			GROUP BY t.date
-			ORDER BY t.date
+		    SELECT t.date AS date,
+		           SUM(t.amount) AS balance
+		    FROM Transaction t
+		    WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.DAILY
+		    GROUP BY t.date
+		    ORDER BY t.date
 		""")
 	List<DailyBalanceProjection> getBalancesForDailySmoothedTransactions();
 
 	@Query("""
-			SELECT EXTRACT(YEAR FROM t.date) AS year,
-			       EXTRACT(MONTH FROM t.date) AS month,
-			       SUM(t.amount) AS balance
-			FROM Transaction t
-			WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.MONTHLY
-			GROUP BY EXTRACT(YEAR FROM t.date), EXTRACT(MONTH FROM t.date)
-			ORDER BY EXTRACT(YEAR FROM t.date), EXTRACT(MONTH FROM t.date)
+		    SELECT EXTRACT(YEAR FROM t.date) AS year,
+		           EXTRACT(MONTH FROM t.date) AS month,
+		           SUM(t.amount) AS balance
+		    FROM Transaction t
+		    WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.MONTHLY
+		    GROUP BY EXTRACT(YEAR FROM t.date), EXTRACT(MONTH FROM t.date)
+		    ORDER BY EXTRACT(YEAR FROM t.date), EXTRACT(MONTH FROM t.date)
 		""")
 	List<MonthlyBalanceProjection> getBalancesForMonthlySmoothedTransactions();
 
 	@Query("""
-			SELECT EXTRACT(YEAR FROM t.date) AS year,
-			       SUM(t.amount) AS balance
-			FROM Transaction t
-			WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.YEARLY
-			GROUP BY EXTRACT(YEAR FROM t.date)
-			ORDER BY EXTRACT(YEAR FROM t.date)
+		    SELECT EXTRACT(YEAR FROM t.date) AS year,
+		           SUM(t.amount) AS balance
+		    FROM Transaction t
+		    WHERE t.category.smoothType = com.lennartmoeller.finance.model.CategorySmoothType.YEARLY
+		    GROUP BY EXTRACT(YEAR FROM t.date)
+		    ORDER BY EXTRACT(YEAR FROM t.date)
 		""")
 	List<YearlyBalanceProjection> getBalancesForYearlySmoothedTransactions();
 

@@ -86,6 +86,6 @@ public class StatisticsService {
 				long smoothedSurplus = smoothedSurplusDaily + smoothedSurplusMonthly + smoothedSurplusYearly;
 				return new DayStatisticsDTO(date, balance.addAndGet(surplus), smoothedBalance.addAndGet(smoothedSurplus));
 			})
-			.collect(Collectors.toList());
+			.toList();
 	}
 }

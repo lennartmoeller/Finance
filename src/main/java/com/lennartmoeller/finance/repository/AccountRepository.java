@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
 	@Query("""
-			SELECT SUM(a.startBalance)
-			FROM Account a
+		SELECT SUM(a.startBalance)
+		FROM Account a
 		""")
 	Long getSummedStartBalance();
 

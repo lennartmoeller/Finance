@@ -3,13 +3,11 @@ package com.lennartmoeller.finance.mapper;
 import com.lennartmoeller.finance.dto.CategoryDTO;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.service.CategoryService;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = {CategoryService.class})
-@RequiredArgsConstructor
 public abstract class CategoryMapper {
 
 	@Autowired
