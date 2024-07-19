@@ -1,6 +1,7 @@
+import {ExampleTable} from "@/App/ExampleTable";
+
+import {TimeLineChart} from '@/App/TimeLineChart';
 import React, {useEffect, useState} from 'react';
-import './App.css';
-import {TimeLineChart} from '../TimeLineChart';
 
 const getData = async (url: string) => {
     const response = await fetch(url);
@@ -16,11 +17,9 @@ function App() {
         (async () => {
             try {
                 let result = await getData('/api/stats/days');
-                result = result.map((item: {date: string, balance: number, smoothedBalance: number}) => {
+                result = result.map((item: { date: string, balance: number, smoothedBalance: number }) => {
                     return {
-                        date: item.date,
-                        balance: item.balance / 100,
-                        smoothedBalance: item.smoothedBalance / 100
+                        date: item.date, balance: item.balance / 100, smoothedBalance: item.smoothedBalance / 100
                     }
                 })
                 setRawData(result);
@@ -35,16 +34,20 @@ function App() {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
-    return (
-        <div>
-            <TimeLineChart
-                data={rawData}
-                xProperty="date"
-                yProperties={['balance', 'smoothedBalance']}
-                alwaysShowXBar={true}
-            />
-        </div>
-    );
+    return (<div>
+        <TimeLineChart
+            data={rawData}
+            xProperty="date"
+            yProperties={['balance', 'smoothedBalance']}
+            alwaysShowXBar={true}
+        />
+        <ExampleTable data={rawData.map(item => ({
+            id: item.date,
+            date: item.date,
+            balance: item.balance,
+            smoothedBalance: item.smoothedBalance
+        }))}/>
+    </div>);
 }
 
 export default App;

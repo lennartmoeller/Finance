@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+import React, {useEffect, useRef} from 'react';
+
 import Chart from 'chart.js/auto';
 
 interface TimeLineChartProps {
@@ -8,7 +9,7 @@ interface TimeLineChartProps {
     alwaysShowXBar?: boolean;
 }
 
-export const TimeLineChart: React.FC<TimeLineChartProps> = ({ data, xProperty, yProperties, alwaysShowXBar = false }) => {
+export const TimeLineChart: React.FC<TimeLineChartProps> = ({data, xProperty, yProperties, alwaysShowXBar = false}) => {
     const chartRef = useRef<HTMLCanvasElement | null>(null);
     const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -35,22 +36,16 @@ export const TimeLineChart: React.FC<TimeLineChartProps> = ({ data, xProperty, y
                     if (groupedData[monthYear] && groupedData[monthYear].includes(index)) {
                         const middleIndex = groupedData[monthYear][Math.floor(groupedData[monthYear].length / 2)];
                         if (middleIndex === index) {
-                            return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+                            return `${date.toLocaleString('default', {month: 'short'})} ${date.getFullYear()}`;
                         }
                     }
                     return '';
                 });
 
                 const datasets = yProperties.map((yProperty, idx) => {
-                    const colors = [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        // Add more colors if needed
+                    const colors = ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', // Add more colors if needed
                     ];
-                    const backgroundColors = [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        // Add more colors if needed
+                    const backgroundColors = ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', // Add more colors if needed
                     ];
                     return {
                         label: yProperty.charAt(0).toUpperCase() + yProperty.slice(1),
@@ -62,35 +57,25 @@ export const TimeLineChart: React.FC<TimeLineChartProps> = ({ data, xProperty, y
                 });
 
                 chartInstanceRef.current = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
+                    type: 'line', data: {
+                        labels: labels, datasets: datasets
+                    }, options: {
+                        responsive: true, scales: {
                             x: {
                                 title: {
-                                    display: true,
-                                    text: 'Date',
-                                },
-                                ticks: {
+                                    display: true, text: 'Date',
+                                }, ticks: {
                                     autoSkip: false, // Ensure all labels are considered
-                                    callback: function(value, index, ticks) {
+                                    callback: function (value, index, ticks) {
                                         return labels[index];
                                     }
-                                },
-                                grid: {
+                                }, grid: {
                                     display: false, // Hide vertical grid lines
                                 }
-                            },
-                            y: {
+                            }, y: {
                                 title: {
-                                    display: true,
-                                    text: 'Value',
-                                },
-                                // Ensuring x-axis is always shown
+                                    display: true, text: 'Value',
+                                }, // Ensuring x-axis is always shown
                                 min: alwaysShowXBar ? Math.min(0, Math.min(...data.flatMap(item => yProperties.map(prop => item[prop])))) : undefined
                             }
                         }
@@ -107,9 +92,7 @@ export const TimeLineChart: React.FC<TimeLineChartProps> = ({ data, xProperty, y
         };
     }, [data, xProperty, yProperties, alwaysShowXBar]);
 
-    return (
-        <div>
-            <canvas ref={chartRef} />
-        </div>
-    );
+    return (<div>
+        <canvas ref={chartRef}/>
+    </div>);
 }
