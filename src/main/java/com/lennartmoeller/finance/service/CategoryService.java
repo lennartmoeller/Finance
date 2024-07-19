@@ -1,5 +1,7 @@
 package com.lennartmoeller.finance.service;
 
+import com.lennartmoeller.finance.dto.CategoryDTO;
+import com.lennartmoeller.finance.mapper.CategoryMapper;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,20 +15,24 @@ import java.util.Optional;
 public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
+	private final CategoryMapper categoryMapper;
 
-	public List<Category> findAll() {
-		return categoryRepository.findAll();
+	public List<CategoryDTO> findAll() {
+		return categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();
 	}
 
-	public Optional<Category> findById(Long id) {
-		return categoryRepository.findById(id);
+	public Optional<CategoryDTO> findById(Long id) {
+		return categoryRepository.findById(id).map(categoryMapper::toDto);
 	}
 
-	public Category save(Category category) {
-		return categoryRepository.save(category);
+	public CategoryDTO save(CategoryDTO categoryDTO) {
+		Category category = categoryMapper.toEntity(categoryDTO);
+		Category savedCategory = categoryRepository.save(category);
+		return categoryMapper.toDto(savedCategory);
 	}
 
 	public void deleteById(Long id) {
 		categoryRepository.deleteById(id);
 	}
+
 }

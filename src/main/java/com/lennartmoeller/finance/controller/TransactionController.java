@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
-import com.lennartmoeller.finance.mapper.TransactionMapper;
-import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,30 +17,24 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
 	private final TransactionService transactionService;
-	private final TransactionMapper transactionMapper;
 
 	@GetMapping
 	public Map<Long, TransactionDTO> getAllTransactions(@RequestParam(required = false) YearMonth yearMonth) {
-		return transactionService.findAll(yearMonth).stream()
-			.map(transactionMapper::toDto)
-			.collect(Collectors.toMap(TransactionDTO::getId, transaction -> transaction));
+		return transactionService.findAll(yearMonth).stream().collect(Collectors.toMap(TransactionDTO::getId, transaction -> transaction));
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
-		return transactionService.findById(id)
-			.map(transactionMapper::toDto)
-			.map(ResponseEntity::ok)
-			.orElseGet(() -> ResponseEntity.notFound().build());
+		return transactionService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
 	public TransactionDTO createOrUpdateTransaction(@RequestBody TransactionDTO transactionDTO) {
-		Optional<Transaction> optionalTransaction = Optional.ofNullable(transactionDTO.getId()).flatMap(transactionService::findById);
-		if (optionalTransaction.isEmpty()) {
+		Optional<TransactionDTO> optionalTransactionDTO = Optional.ofNullable(transactionDTO.getId()).flatMap(transactionService::findById);
+		if (optionalTransactionDTO.isEmpty()) {
 			transactionDTO.setId(null);
 		}
-		return transactionMapper.toDto(transactionService.save(transactionMapper.toEntity(transactionDTO)));
+		return transactionService.save(transactionDTO);
 	}
 
 	@DeleteMapping("/{id}")

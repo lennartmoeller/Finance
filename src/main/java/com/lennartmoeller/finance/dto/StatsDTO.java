@@ -5,14 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class DayStatisticsDTO {
-	LocalDate date;
-	Long balance;
-	Long smoothedBalance;
+public class StatsDTO {
+	List<DailyStatsDTO> dailyStats;
+	List<CategoryStatsNodeDTO> categoryStats;
+	List<MonthlyStatsDTO> monthlyStats;
 }

@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
 import com.lennartmoeller.finance.dto.CategoryDTO;
-import com.lennartmoeller.finance.mapper.CategoryMapper;
-import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,30 +16,24 @@ import java.util.stream.Collectors;
 public class CategoryController {
 
 	private final CategoryService categoryService;
-	private final CategoryMapper categoryMapper;
 
 	@GetMapping
 	public Map<Long, CategoryDTO> getAllCategories() {
-		return categoryService.findAll().stream()
-			.map(categoryMapper::toDto)
-			.collect(Collectors.toMap(CategoryDTO::getId, category -> category));
+		return categoryService.findAll().stream().collect(Collectors.toMap(CategoryDTO::getId, category -> category));
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
-		return categoryService.findById(id)
-			.map(categoryMapper::toDto)
-			.map(ResponseEntity::ok)
-			.orElseGet(() -> ResponseEntity.notFound().build());
+		return categoryService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
 	public CategoryDTO createOrUpdateCategory(@RequestBody CategoryDTO categoryDTO) {
-		Optional<Category> optionalCategory = Optional.ofNullable(categoryDTO.getId()).flatMap(categoryService::findById);
-		if (optionalCategory.isEmpty()) {
+		Optional<CategoryDTO> optionalCategoryDTO = Optional.ofNullable(categoryDTO.getId()).flatMap(categoryService::findById);
+		if (optionalCategoryDTO.isEmpty()) {
 			categoryDTO.setId(null);
 		}
-		return categoryMapper.toDto(categoryService.save(categoryMapper.toEntity(categoryDTO)));
+		return categoryService.save(categoryDTO);
 	}
 
 	@DeleteMapping("/{id}")

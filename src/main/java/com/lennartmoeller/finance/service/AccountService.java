@@ -1,5 +1,7 @@
 package com.lennartmoeller.finance.service;
 
+import com.lennartmoeller.finance.dto.AccountDTO;
+import com.lennartmoeller.finance.mapper.AccountMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,17 +15,20 @@ import java.util.Optional;
 public class AccountService {
 
 	private final AccountRepository accountRepository;
+	private final AccountMapper accountMapper;
 
-	public List<Account> findAll() {
-		return accountRepository.findAll();
+	public List<AccountDTO> findAll() {
+		return accountRepository.findAll().stream().map(accountMapper::toDto).toList();
 	}
 
-	public Optional<Account> findById(Long id) {
-		return accountRepository.findById(id);
+	public Optional<AccountDTO> findById(Long id) {
+		return accountRepository.findById(id).map(accountMapper::toDto);
 	}
 
-	public Account save(Account account) {
-		return accountRepository.save(account);
+	public AccountDTO save(AccountDTO accountDTO) {
+		Account account = accountMapper.toEntity(accountDTO);
+		Account savedAccount = accountRepository.save(account);
+		return accountMapper.toDto(savedAccount);
 	}
 
 	public void deleteById(Long id) {

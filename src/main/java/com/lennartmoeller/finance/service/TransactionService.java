@@ -1,5 +1,7 @@
 package com.lennartmoeller.finance.service;
 
+import com.lennartmoeller.finance.dto.TransactionDTO;
+import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,20 +16,26 @@ import java.util.Optional;
 public class TransactionService {
 
 	private final TransactionRepository transactionRepository;
+	private final TransactionMapper transactionMapper;
 
-	public List<Transaction> findAll(YearMonth yearMonth) {
+	public List<TransactionDTO> findAll(YearMonth yearMonth) {
+		List<Transaction> transactions;
 		if (yearMonth != null) {
-			return transactionRepository.findAllByYearMonth(yearMonth.getYear(), yearMonth.getMonthValue());
+			transactions = transactionRepository.findAllByYearMonth(yearMonth.getYear(), yearMonth.getMonthValue());
+		} else {
+			transactions = transactionRepository.findAll();
 		}
-		return transactionRepository.findAll();
+		return transactions.stream().map(transactionMapper::toDto).toList();
 	}
 
-	public Optional<Transaction> findById(Long id) {
-		return transactionRepository.findById(id);
+	public Optional<TransactionDTO> findById(Long id) {
+		return transactionRepository.findById(id).map(transactionMapper::toDto);
 	}
 
-	public Transaction save(Transaction transaction) {
-		return transactionRepository.save(transaction);
+	public TransactionDTO save(TransactionDTO transactionDTO) {
+		Transaction transaction = transactionMapper.toEntity(transactionDTO);
+		Transaction savedTransaction = transactionRepository.save(transaction);
+		return transactionMapper.toDto(savedTransaction);
 	}
 
 	public void deleteById(Long id) {

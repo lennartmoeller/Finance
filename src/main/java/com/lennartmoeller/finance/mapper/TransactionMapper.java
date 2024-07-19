@@ -1,28 +1,46 @@
 package com.lennartmoeller.finance.mapper;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
+import com.lennartmoeller.finance.model.Account;
+import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Transaction;
-import com.lennartmoeller.finance.service.AccountService;
-import com.lennartmoeller.finance.service.CategoryService;
+import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.CategoryRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses = {AccountService.class, CategoryService.class})
+@Mapper(componentModel = "spring")
 public abstract class TransactionMapper {
 
 	@Autowired
-	protected AccountService accountService;
+	private AccountRepository accountRepository;
 
 	@Autowired
-	protected CategoryService categoryService;
+	private CategoryRepository categoryRepository;
 
 	@Mapping(source = "account.id", target = "accountId")
 	@Mapping(source = "category.id", target = "categoryId")
 	public abstract TransactionDTO toDto(Transaction transaction);
 
-	@Mapping(target = "account", expression = "java(accountService.findById(transactionDTO.getAccountId()).orElse(null))")
-	@Mapping(target = "category", expression = "java(categoryService.findById(transactionDTO.getCategoryId()).orElse(null))")
+	@Mapping(target = "account", source = "accountId")
+	@Mapping(target = "category", source = "categoryId")
 	public abstract Transaction toEntity(TransactionDTO transactionDTO);
+
+	Long mapAccountToAccountId(Account account) {
+		return account != null ? account.getId() : null;
+	}
+
+	Account mapAccountIdToAccount(Long accountId) {
+		return accountId != null ? accountRepository.findById(accountId).orElse(null) : null;
+	}
+
+	Long mapCategoryToCategoryId(Category category) {
+		return category != null ? category.getId() : null;
+	}
+
+	Category mapCategoryIdToCategory(Long categoryId) {
+		return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
+	}
 
 }
