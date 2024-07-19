@@ -5,7 +5,7 @@
       <option name="IMPORT_PREFER_ABSOLUTE_PATH" value="TRUE" />
     </JSCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
-      <option name="IMPORT_SORT_MEMBERS" value="false" />
+      <option name="IMPORT_SORT_MODULE_NAME" value="true" />
     </TypeScriptCodeStyleSettings>
     <codeStyleSettings language="JAVA">
       <indentOptions>
