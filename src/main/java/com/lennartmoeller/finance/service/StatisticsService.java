@@ -12,6 +12,8 @@ import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.TimeUtils;
+import com.lennartmoeller.finance.util.YearHalf;
+import com.lennartmoeller.finance.util.YearQuarter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +74,20 @@ public class StatisticsService {
 				DailyBalanceProjection::getBalance,
 				Long::sum
 			));
+		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.QUARTER_YEARLY))
+			.collect(Collectors.toMap(
+				projection -> YearQuarter.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.HALF_YEARLY))
+			.collect(Collectors.toMap(
+				projection -> YearHalf.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
 		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
 			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.YEARLY))
 			.collect(Collectors.toMap(
@@ -102,6 +118,26 @@ public class StatisticsService {
 				})
 				.orElse(0L);
 
+			YearQuarter yearQuarter = YearQuarter.from(date);
+			long smoothedSurplusQuarterYearly = Optional.ofNullable(quarterYearlySmoothedTransactionsBalancesMap.get(yearQuarter))
+				.map(v -> {
+					LocalDate quarterStart = yearQuarter.atDay(1);
+					LocalDate quarterEnd = yearQuarter.endOfQuarterYear();
+					long overlappingDays = TimeUtils.calculateOverlapDays(startDate, endDate, quarterStart, quarterEnd);
+					return v / overlappingDays;
+				})
+				.orElse(0L);
+
+			YearHalf yearHalf = YearHalf.from(date);
+			long smoothedSurplusHalfYearly = Optional.ofNullable(halfYearlySmoothedTransactionsBalancesMap.get(yearHalf))
+				.map(v -> {
+					LocalDate halfYearStart = yearHalf.atDay(1);
+					LocalDate halfYearEnd = yearHalf.endOfHalfYear();
+					long overlappingDays = TimeUtils.calculateOverlapDays(startDate, endDate, halfYearStart, halfYearEnd);
+					return v / overlappingDays;
+				})
+				.orElse(0L);
+
 			Year year = Year.from(date);
 			long smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedTransactionsBalancesMap.get(Year.from(date)))
 				.map(v -> {
@@ -112,7 +148,7 @@ public class StatisticsService {
 				})
 				.orElse(0L);
 
-			long smoothedSurplus = smoothedSurplusDaily + smoothedSurplusMonthly + smoothedSurplusYearly;
+			long smoothedSurplus = smoothedSurplusDaily + smoothedSurplusMonthly + smoothedSurplusQuarterYearly + smoothedSurplusHalfYearly + smoothedSurplusYearly;
 			return new DailyStatsDTO(date, balance.addAndGet(surplus), smoothedBalance.addAndGet(smoothedSurplus));
 		}).toList();
 	}
@@ -135,6 +171,20 @@ public class StatisticsService {
 				DailyBalanceProjection::getBalance,
 				Long::sum
 			));
+		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.QUARTER_YEARLY))
+			.collect(Collectors.toMap(
+				projection -> YearQuarter.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.HALF_YEARLY))
+			.collect(Collectors.toMap(
+				projection -> YearHalf.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
 		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
 			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.YEARLY))
 			.collect(Collectors.toMap(
@@ -151,6 +201,32 @@ public class StatisticsService {
 
 			long smoothedSurplusMonthly = Optional.ofNullable(monthlySmoothedTransactionsBalancesMap.get(month)).orElse(0L);
 
+			YearQuarter yearQuarter = YearQuarter.from(month.atDay(1));
+			long smoothedSurplusQuarterYearly = Optional.ofNullable(quarterYearlySmoothedTransactionsBalancesMap.get(yearQuarter))
+				.map(v -> {
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(
+						startMonth,
+						endMonth,
+						YearMonth.from(yearQuarter.atDay(1)),
+						YearMonth.from(yearQuarter.endOfQuarterYear().getMonth())
+					);
+					return v / overlappingMonths;
+				})
+				.orElse(0L);
+
+			YearHalf yearHalf = YearHalf.from(month.atDay(1));
+			long smoothedSurplusHalfYearly = Optional.ofNullable(halfYearlySmoothedTransactionsBalancesMap.get(yearHalf))
+				.map(v -> {
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(
+						startMonth,
+						endMonth,
+						YearMonth.from(yearHalf.atDay(1)),
+						YearMonth.from(yearHalf.endOfHalfYear().getMonth())
+					);
+					return v / overlappingMonths;
+				})
+				.orElse(0L);
+
 			Year year = Year.of(month.getYear());
 			long smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedTransactionsBalancesMap.get(year))
 				.map(v -> {
@@ -164,7 +240,7 @@ public class StatisticsService {
 				})
 				.orElse(0L);
 
-			long smoothedSurplus = smoothedSurplusMonthly + smoothedSurplusYearly;
+			long smoothedSurplus = smoothedSurplusMonthly + smoothedSurplusQuarterYearly + smoothedSurplusHalfYearly + smoothedSurplusYearly;
 			return new MonthlyStatsDTO(month, surplus, smoothedSurplus, 0L, 0L);
 		}).toList();
 	}

@@ -1,6 +1,5 @@
 package com.lennartmoeller.finance.dto;
 
-import com.lennartmoeller.finance.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

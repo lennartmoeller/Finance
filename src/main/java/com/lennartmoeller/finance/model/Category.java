@@ -29,11 +29,11 @@ public class Category {
 	@Column(nullable = false)
 	private String label;
 
-	@Enumerated(EnumType.ORDINAL)
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TransactionType transactionType;
 
-	@Enumerated(EnumType.ORDINAL)
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CategorySmoothType smoothType = CategorySmoothType.DAILY;
 
