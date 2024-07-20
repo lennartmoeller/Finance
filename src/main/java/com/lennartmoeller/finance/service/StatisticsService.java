@@ -4,14 +4,17 @@ import com.lennartmoeller.finance.dto.CategoryStatsNodeDTO;
 import com.lennartmoeller.finance.dto.DailyStatsDTO;
 import com.lennartmoeller.finance.dto.MonthlyStatsDTO;
 import com.lennartmoeller.finance.dto.StatsDTO;
+import com.lennartmoeller.finance.mapper.CategoryMapper;
+import com.lennartmoeller.finance.model.Category;
+import com.lennartmoeller.finance.model.CategorySmoothType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
-import com.lennartmoeller.finance.projection.MonthlyBalanceProjection;
-import com.lennartmoeller.finance.projection.YearlyBalanceProjection;
 import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
-import com.lennartmoeller.finance.util.LocalDateUtils;
+import com.lennartmoeller.finance.util.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Year;
@@ -28,26 +31,54 @@ import java.util.stream.Collectors;
 public class StatisticsService {
 
 	private final AccountRepository accountRepository;
+	private final CategoryRepository categoryRepository;
 	private final TransactionRepository transactionRepository;
+	private final CategoryMapper categoryMapper;
 
+	@Transactional(readOnly = true)
 	public StatsDTO getStatistics() {
-		StatsDTO stats = new StatsDTO();
-		stats.setDailyStats(getDailyStatistics());
-		stats.setMonthlyStats(getMonthlyStatistics());
-		stats.setCategoryStats(getCategoryStatistics());
-		return stats;
-	}
-
-	private List<DailyStatsDTO> getDailyStatistics() {
 		List<DailyBalanceProjection> dailyBalances = transactionRepository.getDailyBalances();
 		if (dailyBalances.isEmpty()) {
-			return Collections.emptyList();
+			return new StatsDTO(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		}
 
-		Map<LocalDate, DailyBalanceProjection> dailyBalancesMap = dailyBalances.stream().collect(Collectors.toMap(DailyBalanceProjection::getDate, v -> v));
-		Map<LocalDate, DailyBalanceProjection> dailySmoothedMap = transactionRepository.getBalancesForDailySmoothedTransactions().stream().collect(Collectors.toMap(DailyBalanceProjection::getDate, v -> v));
-		Map<YearMonth, MonthlyBalanceProjection> monthlySmoothedMap = transactionRepository.getBalancesForMonthlySmoothedTransactions().stream().collect(Collectors.toMap(monthly -> YearMonth.of(monthly.getYear(), monthly.getMonth()), v -> v));
-		Map<Year, YearlyBalanceProjection> yearlySmoothedMap = transactionRepository.getBalancesForYearlySmoothedTransactions().stream().collect(Collectors.toMap(yearly -> Year.of(yearly.getYear()), v -> v));
+		List<Category> rootCategories = categoryRepository.findAll();
+
+		return new StatsDTO(
+			getDailyStatistics(dailyBalances),
+			getCategoryStatistics(rootCategories, dailyBalances),
+			getMonthlyStatistics(dailyBalances)
+		);
+	}
+
+	private List<DailyStatsDTO> getDailyStatistics(List<DailyBalanceProjection> dailyBalances) {
+		Map<LocalDate, Long> dailyBalancesMap = dailyBalances.stream()
+			.collect(Collectors.toMap(
+				DailyBalanceProjection::getDate,
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<LocalDate, Long> dailySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.DAILY))
+			.collect(Collectors.toMap(
+				DailyBalanceProjection::getDate,
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.MONTHLY))
+			.collect(Collectors.toMap(
+				projection -> YearMonth.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.YEARLY))
+			.collect(Collectors.toMap(
+				projection -> Year.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
 
 		LocalDate startDate = dailyBalances.getFirst().getDate().withDayOfMonth(1);
 		LocalDate endDate = LocalDate.now();
@@ -56,33 +87,101 @@ public class StatisticsService {
 		AtomicLong balance = new AtomicLong(initialBalance);
 		AtomicLong smoothedBalance = new AtomicLong(initialBalance);
 
-		return LocalDateUtils.createDateStream(startDate, endDate).map(date -> {
-			long surplus = Optional.ofNullable(dailyBalancesMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L);
-			long smoothedSurplusDaily = Optional.ofNullable(dailySmoothedMap.get(date)).map(DailyBalanceProjection::getBalance).orElse(0L);
+		return TimeUtils.createDateStream(startDate, endDate).map(date -> {
+			long surplus = Optional.ofNullable(dailyBalancesMap.get(date)).orElse(0L);
+
+			long smoothedSurplusDaily = Optional.ofNullable(dailySmoothedTransactionsBalancesMap.get(date)).orElse(0L);
 
 			YearMonth yearMonth = YearMonth.from(date);
-			long smoothedSurplusMonthly = Optional.ofNullable(monthlySmoothedMap.get(yearMonth)).map(v -> {
-				long overlappingDays = LocalDateUtils.calculateOverlapDays(startDate, endDate, yearMonth.atDay(1), yearMonth.atEndOfMonth());
-				return v.getBalance() / overlappingDays;
-			}).orElse(0L);
+			long smoothedSurplusMonthly = Optional.ofNullable(monthlySmoothedTransactionsBalancesMap.get(yearMonth))
+				.map(v -> {
+					LocalDate monthStart = yearMonth.atDay(1);
+					LocalDate monthEnd = yearMonth.atEndOfMonth();
+					long overlappingDays = TimeUtils.calculateOverlapDays(startDate, endDate, monthStart, monthEnd);
+					return v / overlappingDays;
+				})
+				.orElse(0L);
 
 			Year year = Year.from(date);
-			long smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedMap.get(Year.from(date))).map(v -> {
-				long overlappingDays = LocalDateUtils.calculateOverlapDays(startDate, endDate, year.atDay(1), LocalDate.of(year.getValue(), 12, 31));
-				return v.getBalance() / overlappingDays;
-			}).orElse(0L);
+			long smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedTransactionsBalancesMap.get(Year.from(date)))
+				.map(v -> {
+					LocalDate yearStart = year.atDay(1);
+					LocalDate yearEnd = LocalDate.of(year.getValue(), 12, 31);
+					long overlappingDays = TimeUtils.calculateOverlapDays(startDate, endDate, yearStart, yearEnd);
+					return v / overlappingDays;
+				})
+				.orElse(0L);
 
 			long smoothedSurplus = smoothedSurplusDaily + smoothedSurplusMonthly + smoothedSurplusYearly;
 			return new DailyStatsDTO(date, balance.addAndGet(surplus), smoothedBalance.addAndGet(smoothedSurplus));
 		}).toList();
 	}
 
-	private List<MonthlyStatsDTO> getMonthlyStatistics() {
-		return Collections.emptyList();
+	private List<MonthlyStatsDTO> getMonthlyStatistics(List<DailyBalanceProjection> dailyBalances) {
+		if (dailyBalances.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		Map<YearMonth, Long> monthlyBalancesMap = dailyBalances.stream()
+			.collect(Collectors.toMap(
+				projection -> YearMonth.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.DAILY) || projection.getCategory().getSmoothType().equals(CategorySmoothType.MONTHLY))
+			.collect(Collectors.toMap(
+				projection -> YearMonth.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalances.stream()
+			.filter(projection -> projection.getCategory().getSmoothType().equals(CategorySmoothType.YEARLY))
+			.collect(Collectors.toMap(
+				projection -> Year.from(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
+
+		YearMonth startMonth = YearMonth.from(dailyBalances.getFirst().getDate());
+		YearMonth endMonth = YearMonth.now();
+
+		return TimeUtils.createMonthStream(startMonth, endMonth).map(month -> {
+			long surplus = Optional.ofNullable(monthlyBalancesMap.get(month)).orElse(0L);
+
+			long smoothedSurplusMonthly = Optional.ofNullable(monthlySmoothedTransactionsBalancesMap.get(month)).orElse(0L);
+
+			Year year = Year.of(month.getYear());
+			long smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedTransactionsBalancesMap.get(year))
+				.map(v -> {
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(
+						startMonth,
+						endMonth,
+						year.atMonth(1),
+						year.atMonth(12)
+					);
+					return v / overlappingMonths;
+				})
+				.orElse(0L);
+
+			long smoothedSurplus = smoothedSurplusMonthly + smoothedSurplusYearly;
+			return new MonthlyStatsDTO(month, surplus, smoothedSurplus, 0L, 0L);
+		}).toList();
 	}
 
-	private List<CategoryStatsNodeDTO> getCategoryStatistics() {
-		return Collections.emptyList();
+	private List<CategoryStatsNodeDTO> getCategoryStatistics(List<Category> rootCategories, List<DailyBalanceProjection> dailyBalances) {
+		return rootCategories.stream()
+			.map(category -> {
+				List<DailyBalanceProjection> categoriesDailyBalances = dailyBalances.stream()
+					.filter(projection -> projection.getCategory() == category).toList();
+
+				return new CategoryStatsNodeDTO(
+					categoryMapper.toDto(category),
+					getMonthlyStatistics(categoriesDailyBalances),
+					getCategoryStatistics(category.getChildren(), dailyBalances)
+				);
+			})
+			.toList();
 	}
 
 }

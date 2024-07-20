@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryStatsNodeDTO {
-	Category category;
+	CategoryDTO category;
 	List<MonthlyStatsDTO> statistics;
 	List<CategoryStatsNodeDTO> children;
 }

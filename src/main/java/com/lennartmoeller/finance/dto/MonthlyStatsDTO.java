@@ -13,6 +13,8 @@ import java.time.YearMonth;
 @Setter
 public class MonthlyStatsDTO {
 	YearMonth month;
-	Long balance;
-	Long smoothedBalance;
+	Long surplus;
+	Long smoothedSurplus;
+	Long target;
+	Long deviation;
 }
