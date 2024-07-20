@@ -139,6 +139,31 @@
                     <generateBackupPoms>false</generateBackupPoms>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>3.2.1263</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jsonLibrary>jackson2</jsonLibrary>
+                    <classes>
+                        <class>com.lennartmoeller.finance.dto.AccountDTO</class>
+                        <class>com.lennartmoeller.finance.dto.CategoryDTO</class>
+                        <class>com.lennartmoeller.finance.dto.StatsDTO</class>
+                        <class>com.lennartmoeller.finance.dto.TransactionDTO</class>
+                    </classes>
+                    <outputKind>module</outputKind>
+                    <outputFile>${project.basedir}/src/main/tsx/types.d.ts</outputFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

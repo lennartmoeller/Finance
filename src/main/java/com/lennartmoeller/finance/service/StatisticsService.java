@@ -44,7 +44,7 @@ public class StatisticsService {
 			return new StatsDTO(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 		}
 
-		List<Category> rootCategories = categoryRepository.findAll();
+		List<Category> rootCategories = categoryRepository.findRoots();
 
 		return new StatsDTO(
 			getDailyStatistics(dailyBalances),
