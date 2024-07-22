@@ -27,7 +27,8 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env', '@babel/preset-react']
+                        presets: ['@babel/preset-env', '@babel/preset-react'],
+                        plugins: ['babel-plugin-styled-components']
                     }
                 }
             },
@@ -41,7 +42,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
-                { from: 'src/main/resources/frontend/index.html', to: '' }
+                {from: 'src/main/resources/frontend/index.html', to: ''}
             ]
         })
     ],

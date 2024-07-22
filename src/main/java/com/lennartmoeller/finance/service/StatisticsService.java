@@ -41,19 +41,30 @@ public class StatisticsService {
 	public StatsDTO getStatistics() {
 		List<DailyBalanceProjection> dailyBalances = transactionRepository.getDailyBalances();
 		if (dailyBalances.isEmpty()) {
-			return new StatsDTO(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+			return new StatsDTO(
+				Collections.emptyList(),
+				Collections.emptyList(),
+				Collections.emptyList(),
+				LocalDate.now(),
+				LocalDate.now()
+			);
 		}
+
+		LocalDate startDate = dailyBalances.getFirst().getDate().withDayOfMonth(1);
+		LocalDate endDate = LocalDate.now();
 
 		List<Category> rootCategories = categoryRepository.findRoots();
 
 		return new StatsDTO(
-			getDailyStatistics(dailyBalances),
-			getCategoryStatistics(rootCategories, dailyBalances),
-			getMonthlyStatistics(dailyBalances)
+			getDailyStatistics(dailyBalances, startDate, endDate),
+			getCategoryStatistics(rootCategories, dailyBalances, startDate, endDate),
+			getMonthlyStatistics(dailyBalances, startDate, endDate),
+			startDate,
+			endDate
 		);
 	}
 
-	private List<DailyStatsDTO> getDailyStatistics(List<DailyBalanceProjection> dailyBalances) {
+	private List<DailyStatsDTO> getDailyStatistics(List<DailyBalanceProjection> dailyBalances, LocalDate startDate, LocalDate endDate) {
 		Map<LocalDate, Long> dailyBalancesMap = dailyBalances.stream()
 			.collect(Collectors.toMap(
 				DailyBalanceProjection::getDate,
@@ -95,9 +106,6 @@ public class StatisticsService {
 				DailyBalanceProjection::getBalance,
 				Long::sum
 			));
-
-		LocalDate startDate = dailyBalances.getFirst().getDate().withDayOfMonth(1);
-		LocalDate endDate = LocalDate.now();
 
 		long initialBalance = accountRepository.getSummedStartBalance();
 		AtomicLong balance = new AtomicLong(initialBalance);
@@ -153,7 +161,7 @@ public class StatisticsService {
 		}).toList();
 	}
 
-	private List<MonthlyStatsDTO> getMonthlyStatistics(List<DailyBalanceProjection> dailyBalances) {
+	private List<MonthlyStatsDTO> getMonthlyStatistics(List<DailyBalanceProjection> dailyBalances, LocalDate startDate, LocalDate endDate) {
 		if (dailyBalances.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -193,8 +201,8 @@ public class StatisticsService {
 				Long::sum
 			));
 
-		YearMonth startMonth = YearMonth.from(dailyBalances.getFirst().getDate());
-		YearMonth endMonth = YearMonth.now();
+		YearMonth startMonth = YearMonth.from(startDate);
+		YearMonth endMonth = YearMonth.from(endDate);
 
 		return TimeUtils.createMonthStream(startMonth, endMonth).map(month -> {
 			long surplus = Optional.ofNullable(monthlyBalancesMap.get(month)).orElse(0L);
@@ -245,7 +253,7 @@ public class StatisticsService {
 		}).toList();
 	}
 
-	private List<CategoryStatsNodeDTO> getCategoryStatistics(List<Category> rootCategories, List<DailyBalanceProjection> dailyBalances) {
+	private List<CategoryStatsNodeDTO> getCategoryStatistics(List<Category> rootCategories, List<DailyBalanceProjection> dailyBalances, LocalDate startDate, LocalDate endDate) {
 		return rootCategories.stream()
 			.map(category -> {
 				List<DailyBalanceProjection> categoriesDailyBalances = dailyBalances.stream()
@@ -253,8 +261,8 @@ public class StatisticsService {
 
 				return new CategoryStatsNodeDTO(
 					categoryMapper.toDto(category),
-					getMonthlyStatistics(categoriesDailyBalances),
-					getCategoryStatistics(category.getChildren(), dailyBalances)
+					getMonthlyStatistics(categoriesDailyBalances, startDate, endDate),
+					getCategoryStatistics(category.getChildren(), dailyBalances, startDate, endDate)
 				);
 			})
 			.toList();
