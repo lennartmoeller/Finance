@@ -29,12 +29,26 @@
     "import/resolver": {
       "alias": {
         "map": [
-          ["@", "./src/main/tsx"]
+          [
+            "@",
+            "./src/main/tsx"
+          ]
         ],
-        "extensions": [".ts", ".tsx", ".js", ".jsx", ".json"]
+        "extensions": [
+          ".ts",
+          ".tsx",
+          ".js",
+          ".jsx",
+          ".json"
+        ]
       },
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
       }
     }
   },
@@ -50,8 +64,16 @@
       "error",
       {
         "groups": [
-          ["builtin", "external"],
-          ["internal", "sibling", "parent", "index"]
+          [
+            "builtin",
+            "external"
+          ],
+          [
+            "internal",
+            "sibling",
+            "parent",
+            "index"
+          ]
         ],
         "pathGroups": [
           {
@@ -64,7 +86,9 @@
             "group": "internal"
           }
         ],
-        "pathGroupsExcludedImportTypes": ["react"],
+        "pathGroupsExcludedImportTypes": [
+          "react"
+        ],
         "newlines-between": "always",
         "alphabetize": {
           "order": "asc",
@@ -77,6 +101,10 @@
       {
         "ts-ignore": "allow-with-description"
       }
+    ],
+    "semi": [
+      "error",
+      "always"
     ]
   }
 }

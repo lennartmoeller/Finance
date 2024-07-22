@@ -3,7 +3,7 @@ import React from 'react';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import ReactDOM from 'react-dom/client';
 
-import Categories from "@/views/Categories/Categories";
+import Stats from "@/views/Stats/Stats";
 
 import '@/index.css';
 
@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-            <Categories/>
+            <Stats/>
         </QueryClientProvider>
     </React.StrictMode>
 );

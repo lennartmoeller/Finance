@@ -5,4 +5,4 @@ export const endpoints: Record<EntityIdentifier, string> = {
     categories: '/api/categories',
     stats: '/api/stats',
     transactions: '/api/transactions',
-}
+};

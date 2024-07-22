@@ -1,22 +1,26 @@
-import {categoryMapper} from "@/mapper/mappings";
-import {useGetQuery} from "@/mapper/useGetQuery";
-import {Category} from "@/types/Category";
-import {CategoryDTO} from "@/types/CategoryDTO";
 import React from "react";
 
+import {useGetQuery} from "@/api/useGetQuery";
+import {Category, CategoryDTO, categoryMapper} from "@/types/Category";
+
 const Categories: React.FC = () => {
-    const {data, error, isLoading} = useGetQuery<Record<number, CategoryDTO>>('categories');
+    const {
+        data,
+        error,
+        isLoading
+    } = useGetQuery<Record<number, CategoryDTO>, Category[]>(
+        'categories',
+        body => Object.values(body).map(categoryMapper.fromDTO)
+    );
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
     if (!data) return <div>No data available</div>;
 
-    const categories: Category[] = Object.values(data).map(categoryMapper.fromDTO);
-
     return (
         <div>
             <h1>Categories</h1>
-            {categories.map((category, index) => (
+            {data.map((category, index) => (
                 <div key={index}>
                     <p>Id: {category.id}</p>
                     <p>Parent Id: {category.parentId}</p>
@@ -24,12 +28,12 @@ const Categories: React.FC = () => {
                     <p>Transaction Type: {category.transactionType}</p>
                     <p>Smooth Type: {category.smoothType}</p>
                     <p>Start: {category.start.toLocaleDateString()}</p>
-                    <p>End: {category.end.toLocaleDateString()}</p>
+                    <p>End: {category.end === null ? "NULL" : category.end.toLocaleDateString()}</p>
                     <p>Target: {category.target}</p>
                 </div>
             ))}
         </div>
-    )
+    );
 
 };
 
