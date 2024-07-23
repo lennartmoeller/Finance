@@ -4,6 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -23,11 +25,16 @@ public final class YearHalf implements Comparable<YearHalf> {
 		this.half = half;
 	}
 
+	public static YearHalf from(YearMonth yearMonth) {
+		int month = yearMonth.getMonthValue();
+		int half = month <= 6 ? 1 : 2;
+		return new YearHalf(yearMonth.getYear(), half);
+	}
+
 	public static YearHalf from(LocalDate date) {
-		int year = date.getYear();
 		int month = date.getMonthValue();
-		int half = (month - 1) / 6 + 1;
-		return new YearHalf(year, half);
+		int half = month <= 6 ? 1 : 2;
+		return new YearHalf(date.getYear(), half);
 	}
 
 	public static YearHalf now() {
@@ -40,14 +47,22 @@ public final class YearHalf implements Comparable<YearHalf> {
 		return from(date);
 	}
 
-	public LocalDate atDay(int dayOfHalf) {
-		LocalDate startOfHalf = LocalDate.of(year, (half - 1) * 6 + 1, 1);
-		return startOfHalf.plusDays(dayOfHalf - (long) 1);
+	public LocalDate firstDay() {
+		Month startMonth = switch (half) {
+			case 1 -> Month.JANUARY;
+			case 2 -> Month.JULY;
+			default -> throw new IllegalArgumentException("Invalid quarter: " + half);
+		};
+		return YearMonth.of(year, startMonth).atDay(1);
 	}
 
-	public LocalDate endOfHalfYear() {
-		LocalDate startOfNextHalf = LocalDate.of(year, half * 6 + 1, 1);
-		return startOfNextHalf.minusDays(1);
+	public LocalDate lastDay() {
+		Month month = switch (half) {
+			case 1 -> Month.JUNE;
+			case 2 -> Month.DECEMBER;
+			default -> throw new IllegalArgumentException("Invalid quarter: " + half);
+		};
+		return YearMonth.of(year, month).atEndOfMonth();
 	}
 
 	@Override
