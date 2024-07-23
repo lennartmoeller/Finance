@@ -18,11 +18,13 @@ import com.lennartmoeller.finance.util.YearQuarter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,36 +75,11 @@ public class StatisticsService {
 		Map<CategorySmoothType, List<DailyBalanceProjection>> dailyBalancesBySmoothType = dailyBalances.stream()
 			.collect(Collectors.groupingBy(projection -> projection.getCategory().getSmoothType()));
 
-		Map<LocalDate, Long> dailySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.DAILY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				DailyBalanceProjection::getDate,
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.MONTHLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearMonth.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.QUARTER_YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearQuarter.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.HALF_YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearHalf.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> Year.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
+		Map<LocalDate, Long> dailySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.DAILY), Function.identity());
+		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.MONTHLY), YearMonth::from);
+		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.QUARTER_YEARLY), YearQuarter::from);
+		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.HALF_YEARLY), YearHalf::from);
+		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.YEARLY), Year::from);
 
 		long initialBalance = accountRepository.getSummedStartBalance();
 		AtomicLong balance = new AtomicLong(initialBalance);
@@ -249,36 +226,11 @@ public class StatisticsService {
 		Map<CategorySmoothType, List<DailyBalanceProjection>> dailyBalancesBySmoothType = dailyBalances.stream()
 			.collect(Collectors.groupingBy(projection -> projection.getCategory().getSmoothType()));
 
-		Map<YearMonth, Long> dailySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.DAILY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearMonth.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.MONTHLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearMonth.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.QUARTER_YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearQuarter.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.HALF_YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> YearHalf.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
-		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.YEARLY, Collections.emptyList()).stream()
-			.collect(Collectors.toMap(
-				projection -> Year.from(projection.getDate()),
-				DailyBalanceProjection::getBalance,
-				Long::sum
-			));
+		Map<YearMonth, Long> dailySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.DAILY), YearMonth::from);
+		Map<YearMonth, Long> monthlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.MONTHLY), YearMonth::from);
+		Map<YearQuarter, Long> quarterYearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.QUARTER_YEARLY), YearQuarter::from);
+		Map<YearHalf, Long> halfYearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.HALF_YEARLY), YearHalf::from);
+		Map<Year, Long> yearlySmoothedTransactionsBalancesMap = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.YEARLY), Year::from);
 
 		return TimeUtils.createMonthStream(startMonth, endMonth).map(month -> {
 			MonthlyStatsDTO monthlyStatsDTO = new MonthlyStatsDTO();
@@ -299,12 +251,9 @@ public class StatisticsService {
 			double smoothedSurplusQuarterYearly = Optional.ofNullable(quarterYearlySmoothedTransactionsBalancesMap.get(yearQuarter))
 				.map(Double::valueOf)
 				.map(v -> {
-					long overlappingMonths = TimeUtils.calculateOverlapMonths(
-						startMonth,
-						endMonth,
-						YearMonth.from(yearQuarter.atDay(1)),
-						YearMonth.from(yearQuarter.endOfQuarterYear().getMonth())
-					);
+					YearMonth quarterYearStart = YearMonth.from(yearQuarter.atDay(1));
+					YearMonth quarterYearEnd = YearMonth.from(yearQuarter.endOfQuarterYear().getMonth());
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(startMonth, endMonth, quarterYearStart, quarterYearEnd);
 					return v / overlappingMonths;
 				})
 				.orElse(0.0);
@@ -313,12 +262,9 @@ public class StatisticsService {
 			double smoothedSurplusHalfYearly = Optional.ofNullable(halfYearlySmoothedTransactionsBalancesMap.get(yearHalf))
 				.map(Double::valueOf)
 				.map(v -> {
-					long overlappingMonths = TimeUtils.calculateOverlapMonths(
-						startMonth,
-						endMonth,
-						YearMonth.from(yearHalf.atDay(1)),
-						YearMonth.from(yearHalf.endOfHalfYear().getMonth())
-					);
+					YearMonth halfYearStart = YearMonth.from(yearHalf.atDay(1));
+					YearMonth halfYearEnd = YearMonth.from(yearHalf.endOfHalfYear().getMonth());
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(startMonth, endMonth, halfYearStart, halfYearEnd);
 					return v / overlappingMonths;
 				})
 				.orElse(0.0);
@@ -327,12 +273,9 @@ public class StatisticsService {
 			double smoothedSurplusYearly = Optional.ofNullable(yearlySmoothedTransactionsBalancesMap.get(year))
 				.map(Double::valueOf)
 				.map(v -> {
-					long overlappingMonths = TimeUtils.calculateOverlapMonths(
-						startMonth,
-						endMonth,
-						year.atMonth(1),
-						year.atMonth(12)
-					);
+					YearMonth yearStart = YearMonth.from(year.atMonth(1));
+					YearMonth yearEnd = YearMonth.from(year.atMonth(12));
+					long overlappingMonths = TimeUtils.calculateOverlapMonths(startMonth, endMonth, yearStart, yearEnd);
 					return v / overlappingMonths;
 				})
 				.orElse(0.0);
@@ -345,6 +288,18 @@ public class StatisticsService {
 
 			return monthlyStatsDTO;
 		}).toList();
+	}
+
+	private <T> Map<T, Long> aggregateBalances(@Nullable List<DailyBalanceProjection> dailyBalances, Function<LocalDate, T> dateMapper) {
+		if (dailyBalances == null) {
+			return Collections.emptyMap();
+		}
+		return dailyBalances.stream()
+			.collect(Collectors.toMap(
+				projection -> dateMapper.apply(projection.getDate()),
+				DailyBalanceProjection::getBalance,
+				Long::sum
+			));
 	}
 
 }
