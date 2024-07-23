@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,6 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "transactions")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class Transaction {
 

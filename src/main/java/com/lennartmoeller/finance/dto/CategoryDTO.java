@@ -2,14 +2,12 @@ package com.lennartmoeller.finance.dto;
 
 import com.lennartmoeller.finance.model.CategorySmoothType;
 import com.lennartmoeller.finance.model.TransactionType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
