@@ -18,6 +18,10 @@ export class Year {
         return this.year.toString();
     }
 
+    public next(): Year {
+        return new Year(this.year + 1);
+    }
+
     public static fromString(value: string): Year {
         return new Year(parseInt(value));
     }

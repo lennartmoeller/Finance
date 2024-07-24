@@ -8,7 +8,9 @@
     "start": "npm run clean && npm run build && webpack serve"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.26.20",
     "@tanstack/react-query": "^5.51.11",
+    "lightweight-charts": "^4.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "styled-components": "^6.1.12"

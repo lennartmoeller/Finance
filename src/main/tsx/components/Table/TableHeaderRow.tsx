@@ -1,10 +1,10 @@
 import React, {ReactNode} from 'react';
 
-interface TableBodyRowProps {
+interface TableHeaderRowProps {
     children: ReactNode;
 }
 
-export const TableBodyRow: React.FC<TableBodyRowProps> = ({children}) => {
+export const TableHeaderRow: React.FC<TableHeaderRowProps> = ({children}) => {
     return <tr>
         {children}
     </tr>;

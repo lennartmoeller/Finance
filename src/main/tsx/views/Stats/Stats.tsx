@@ -1,48 +1,56 @@
 import React from "react";
-
-import {useGetQuery} from "@/api/useGetQuery";
-import {Table} from "@/components/Table/Table";
-import {TableBodyCell} from "@/components/Table/TableBodyCell";
-import {TableBodyRow} from "@/components/Table/TableBodyRow";
-import {TableHeaderCell} from "@/components/Table/TableHeaderCell";
+import {useGetQuery} from "@/hooks/useGetQuery";
+import usePersistentState from "@/hooks/usePersistentState";
 import {Stats, StatsDTO, statsMapper} from "@/types/Stats";
-import {getMonths} from "@/utils/date";
-import {YearMonth} from "@/utils/YearMonth";
+import StatsTable from "@/views/Stats/Table/StatsTable";
+import StatsChart from "@/views/Stats/Chart/StatsChart";
+import ScrollContainer from "@/views/Stats/ScrollContainer/ScrollContainer";
+
+export type StatsMode = 'surplus' | 'smoothedSurplus';
 
 const Stats: React.FC = () => {
     const {data: stats, error, isLoading} = useGetQuery<StatsDTO, Stats>('stats', statsMapper.fromDTO);
+
+    const [mode, setMode] = usePersistentState<StatsMode>('statsMode', 'smoothedSurplus');
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
     if (!stats) return <div>No data available</div>;
 
-    const tableData = stats.categoryStats;
+    /*
+    const statsModeOptions: Array<{ key: string, label: string }> = [
+        {key: 'surplus', label: 'Normal'},
+        {key: 'smoothedSurplus', label: 'Smoothed'}
+    ];
 
-    const months: Array<YearMonth> = getMonths(stats.startDate, stats.endDate);
+        <Select
+            options={statsModeOptions}
+            initialKey={mode}
+            onSelect={(key: string) => setMode(key as StatsMode)}
+        />
 
-    return <Table
-        data={tableData}
-        header={<>
-            <TableHeaderCell>Category</TableHeaderCell>
-            {months.map((month) => {
-                const monthString: string = month.toString();
-                const monthLabel: string = month.toLabel();
-                return <TableHeaderCell key={monthString} width="200px">{monthLabel}</TableHeaderCell>;
-            })}
-        </>}
-        body={(element) =>
-            // eslint-disable-next-line react/jsx-no-undef
-            <TableBodyRow id={element.category.id.toString()}>
-                <TableBodyCell>{element.category.label}</TableBodyCell>
-                {months.map((month) => {
-                    const monthString: string = month.toString();
-                    const surplus: number | undefined = element.statistics[monthString]?.surplus;
-                    return <TableBodyCell key={monthString}>{surplus}</TableBodyCell>;
-                })}
-            </TableBodyRow>
-        }
-    />;
+        <ScrollContainer
+            onScroll={(scrollPercentage: number) => {
+                console.log(scrollPercentage);
+            }}
+        >
+            <StatsTable
+                stats={stats}
+                mode={mode}
+            />
+        </ScrollContainer>
+     */
 
+    return <>
+        <StatsChart
+            mode={mode}
+            stats={stats}
+        />
+            <StatsTable
+                stats={stats}
+                mode={mode}
+            />
+    </>;
 };
 
 export default Stats;

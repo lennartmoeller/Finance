@@ -1,5 +1,5 @@
-import {Month} from './Month';
-import {Year} from './Year';
+import {Month} from '@/utils/Month';
+import {Year} from '@/utils/Year';
 
 export class YearMonth {
 
@@ -17,6 +17,24 @@ export class YearMonth {
 
     public getMonth(): Month {
         return this.month;
+    }
+
+    public lengthOfMonth(): number {
+        return (new Date(this.year.getValue(), this.month.getValue(), 0)).getDate();
+    }
+
+    public monthsTo(other: YearMonth): number {
+        const thisTotalMonths = this.year.getValue() * 12 + this.month.getValue();
+        const otherTotalMonths = other.getYear().getValue() * 12 + other.getMonth().getValue();
+        return otherTotalMonths - thisTotalMonths;
+    }
+
+    public next(): YearMonth {
+        if (this.month.getValue() === 12) {
+            return new YearMonth(this.year.next(), new Month(1));
+        } else {
+            return new YearMonth(this.year, this.month.next());
+        }
     }
 
     public toString(): string {

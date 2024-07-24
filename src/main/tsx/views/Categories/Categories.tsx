@@ -1,6 +1,6 @@
 import React from "react";
 
-import {useGetQuery} from "@/api/useGetQuery";
+import {useGetQuery} from "@/hooks/useGetQuery";
 import {Category, CategoryDTO, categoryMapper} from "@/types/Category";
 
 const Categories: React.FC = () => {

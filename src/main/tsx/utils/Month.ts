@@ -13,6 +13,10 @@ export class Month {
         return this.month;
     }
 
+    public next(): Month {
+        return new Month((this.month % 12) + 1);
+    }
+
     public toString(): string {
         return this.month.toString().padStart(2, '0');
     }

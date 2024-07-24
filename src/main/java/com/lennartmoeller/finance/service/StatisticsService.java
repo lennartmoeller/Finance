@@ -16,6 +16,7 @@ import com.lennartmoeller.finance.util.DateRange;
 import com.lennartmoeller.finance.util.YearHalf;
 import com.lennartmoeller.finance.util.YearQuarter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class StatisticsService {
 
 	private final AccountRepository accountRepository;
@@ -94,21 +96,23 @@ public class StatisticsService {
 			double surplusesOfDailySmoothedTransactions = dailySmoothedTransactionsBalancesMap.getOrDefault(date, 0L).doubleValue();
 			smoothedSurplus += surplusesOfDailySmoothedTransactions;
 
-			double surplusesOfMonthlySmoothedTransactions = monthlySmoothedTransactionsBalancesMap.getOrDefault(YearMonth.from(date), 0L).doubleValue();
-			smoothedSurplus += surplusesOfMonthlySmoothedTransactions;
+			YearMonth month = YearMonth.from(date);
+			double surplusesOfMonthlySmoothedTransactions = monthlySmoothedTransactionsBalancesMap.getOrDefault(month, 0L).doubleValue();
+			long daysInMonth = dateRange.getOverlapDays(new DateRange(month));
+			smoothedSurplus += surplusesOfMonthlySmoothedTransactions / daysInMonth;
 
 			YearQuarter yearQuarter = YearQuarter.from(date);
-			double surplusesOfQuarterYearlySmoothedTransactions = quarterYearlySmoothedTransactionsBalancesMap.getOrDefault(YearQuarter.from(date), 0L).doubleValue();
+			double surplusesOfQuarterYearlySmoothedTransactions = quarterYearlySmoothedTransactionsBalancesMap.getOrDefault(yearQuarter, 0L).doubleValue();
 			long daysInQuarterYear = dateRange.getOverlapDays(new DateRange(yearQuarter));
 			smoothedSurplus += surplusesOfQuarterYearlySmoothedTransactions / daysInQuarterYear;
 
 			YearHalf yearHalf = YearHalf.from(date);
-			double surplusesOfHalfYearlySmoothedTransactions = halfYearlySmoothedTransactionsBalancesMap.getOrDefault(YearHalf.from(date), 0L).doubleValue();
+			double surplusesOfHalfYearlySmoothedTransactions = halfYearlySmoothedTransactionsBalancesMap.getOrDefault(yearHalf, 0L).doubleValue();
 			long daysInHalfYear = dateRange.getOverlapDays(new DateRange(yearHalf));
 			smoothedSurplus += surplusesOfHalfYearlySmoothedTransactions / daysInHalfYear;
 
 			Year year = Year.from(date);
-			double surplusesOfYearlySmoothedTransactions = yearlySmoothedTransactionsBalancesMap.getOrDefault(Year.from(date), 0L).doubleValue();
+			double surplusesOfYearlySmoothedTransactions = yearlySmoothedTransactionsBalancesMap.getOrDefault(year, 0L).doubleValue();
 			long daysInYear = dateRange.getOverlapDays(new DateRange(year));
 			smoothedSurplus += surplusesOfYearlySmoothedTransactions / daysInYear;
 
