@@ -35,6 +35,10 @@ const StyledMainArea = withHiddenScrollbar(styled.div`
     overflow-y: scroll;
 `);
 
+const StyledMainAreaInner = styled.div`
+    width: max-content;
+`;
+
 interface SkeletonProps {
     children: ReactNode;
 }
@@ -44,7 +48,9 @@ const Skeleton: React.FC<SkeletonProps> = ({children}) => {
         <StyledSidebarDummy/>
         <StyledHeaderDummy/>
         <StyledMainArea>
-            {children}
+            <StyledMainAreaInner>
+                {children}
+            </StyledMainAreaInner>
         </StyledMainArea>
     </StyledSkeleton>;
 };

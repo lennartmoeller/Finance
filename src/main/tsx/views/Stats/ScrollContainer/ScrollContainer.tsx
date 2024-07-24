@@ -1,18 +1,23 @@
-import React, {ReactNode, useCallback, useEffect, useRef} from "react";
-
+import React, {ReactNode, useRef, useEffect, useCallback} from "react";
 import styled from "styled-components";
 
 interface ScrollContainerProps {
     children: ReactNode;
     onScroll?: (scrollPercentage: number) => void;
+    scrollPercentage?: number;
+    disableScroll?: boolean; // New prop to disable manual scrolling
 }
 
-const StyledScrollContainer = styled.div`
+interface StyledContainerProps {
+    disableScroll?: boolean;
+}
+
+const StyledScrollContainer = styled.div<StyledContainerProps>`
     width: 100%;
-    overflow: scroll;
+    overflow: ${({disableScroll}) => (disableScroll ? 'hidden' : 'scroll')};
 `;
 
-const ScrollContainer: React.FC<ScrollContainerProps> = ({children, onScroll}) => {
+const ScrollContainer: React.FC<ScrollContainerProps> = ({children, onScroll, scrollPercentage, disableScroll}) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const handleScroll = useCallback(() => {
@@ -33,9 +38,40 @@ const ScrollContainer: React.FC<ScrollContainerProps> = ({children, onScroll}) =
         }
     }, [handleScroll]);
 
-    return <StyledScrollContainer ref={containerRef}>
-        {children}
-    </StyledScrollContainer>;
+    // Update scroll position when scrollPercentage prop changes
+    useEffect(() => {
+        const container = containerRef.current;
+        if (container && scrollPercentage !== undefined) {
+            const {scrollWidth, clientWidth} = container;
+            const newScrollLeft = ((scrollWidth - clientWidth) * scrollPercentage) / 100;
+            container.scrollLeft = newScrollLeft;
+        }
+    }, [scrollPercentage]);
+
+    // Prevent manual scroll when disableScroll is true
+    useEffect(() => {
+        const container = containerRef.current;
+        const preventScroll = (e: Event) => {
+            if (disableScroll) {
+                e.preventDefault();
+            }
+        };
+
+        if (container) {
+            container.addEventListener('wheel', preventScroll, {passive: false});
+            container.addEventListener('touchmove', preventScroll, {passive: false});
+            return () => {
+                container.removeEventListener('wheel', preventScroll);
+                container.removeEventListener('touchmove', preventScroll);
+            };
+        }
+    }, [disableScroll]);
+
+    return (
+        <StyledScrollContainer ref={containerRef} disableScroll={disableScroll}>
+            {children}
+        </StyledScrollContainer>
+    );
 };
 
 export default ScrollContainer;

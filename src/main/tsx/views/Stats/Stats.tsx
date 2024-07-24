@@ -4,7 +4,6 @@ import usePersistentState from "@/hooks/usePersistentState";
 import {Stats, StatsDTO, statsMapper} from "@/types/Stats";
 import StatsTable from "@/views/Stats/Table/StatsTable";
 import StatsChart from "@/views/Stats/Chart/StatsChart";
-import ScrollContainer from "@/views/Stats/ScrollContainer/ScrollContainer";
 
 export type StatsMode = 'surplus' | 'smoothedSurplus';
 
@@ -42,14 +41,16 @@ const Stats: React.FC = () => {
      */
 
     return <>
-        <StatsChart
-            mode={mode}
-            stats={stats}
-        />
-            <StatsTable
-                stats={stats}
+        <div style={{marginLeft: '220px'}}>
+            <StatsChart
                 mode={mode}
+                stats={stats}
             />
+        </div>
+        <StatsTable
+            stats={stats}
+            mode={mode}
+        />
     </>;
 };
 

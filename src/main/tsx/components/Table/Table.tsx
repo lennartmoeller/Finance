@@ -7,10 +7,19 @@ const StyledTable = styled.table`
     width: max-content;
 `;
 
-export const StyledCell = styled.div<{ align?: 'left' | 'center' | 'right', width?: string }>`
+export const StyledCell = styled.div<{
+    align?: 'left' | 'center' | 'right',
+    width?: string,
+    sticky?: 'top' | 'left' | 'topAndLeft',
+    zIndex?: number
+}>`
     width: ${({width}) => width || 'auto'};
     text-align: ${({align}) => align || 'left'};
-    border: 1px solid #e3e3e3;
+    position: ${({sticky}) => (sticky ? 'sticky' : 'static')};
+    top: ${({sticky}) => (sticky === 'top' || sticky === 'topAndLeft' ? '0' : 'auto')};
+    left: ${({sticky}) => (sticky === 'left' || sticky === 'topAndLeft' ? '0' : 'auto')};
+    z-index: ${({zIndex}) => zIndex || 'auto'};
+    background-color: ${({sticky}) => (sticky ? '#fff' : 'inherit')};
 `;
 
 interface TableProps<T> {

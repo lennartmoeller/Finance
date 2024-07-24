@@ -12,13 +12,18 @@ interface TableBodyCellProps {
     align?: 'left' | 'center' | 'right';
     colspan?: number;
     width?: string;
+    sticky?: 'top' | 'left' | 'topAndLeft';
+    zIndex?: number;
     children: ReactNode;
 }
 
-export const TableBodyCell: React.FC<TableBodyCellProps> = ({align, colspan = 1, width, children}) => {
-    return (
-        <StyledBodyCell width={width} align={align} colspan={colspan}>
-            {children}
-        </StyledBodyCell>
-    );
+export const TableBodyCell: React.FC<TableBodyCellProps> = ({align, colspan = 1, width, sticky, zIndex, children}) => {
+    return <StyledBodyCell
+        width={width}
+        align={align}
+        colspan={colspan}
+        sticky={sticky}
+        zIndex={zIndex}>
+        {children}
+    </StyledBodyCell>;
 };

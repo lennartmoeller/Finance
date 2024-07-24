@@ -2,17 +2,16 @@ import React, {ReactElement} from "react";
 
 import {Table} from "@/components/Table/Table";
 import {TableBodyCell} from "@/components/Table/TableBodyCell";
-import {TableBodyHierarchyCell} from "@/components/Table/TableBodyHierarchyCell";
 import {TableBodyRow} from "@/components/Table/TableBodyRow";
 import {TableBodyRowGroup} from "@/components/Table/TableBodyRowGroup";
 import {TableHeaderCell} from "@/components/Table/TableHeaderCell";
 import {TableHeaderRow} from "@/components/Table/TableHeaderRow";
+import {CategorySmoothType} from "@/types/CategorySmoothType";
 import {CategoryStatsNode} from "@/types/CategoryStatsNode";
 import {Stats} from "@/types/Stats";
 import {getMonths} from "@/utils/date";
 import {getEuroString} from "@/utils/money";
 import {YearMonth} from "@/utils/YearMonth";
-import {CategorySmoothType} from "@/types/CategorySmoothType";
 
 interface StatsTableProps {
     stats: Stats;
@@ -46,15 +45,22 @@ const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
 
     const tableHeader: ReactElement =
         <TableHeaderRow>
-            <TableHeaderCell width="220px">Category</TableHeaderCell>
+            <TableHeaderCell
+                sticky="topAndLeft"
+                width="220px"
+                zIndex={2}>
+                Category
+            </TableHeaderCell>
             {months.map((month: YearMonth) => {
                 const monthString: string = month.toString();
                 const monthLabel: string = month.toLabel();
                 const width: string = (month.lengthOfMonth() * 4) + "px";
                 return <TableHeaderCell
-                    key={monthString}
                     align="center"
-                    width={width}>
+                    key={monthString}
+                    sticky="top"
+                    width={width}
+                    zIndex={1}>
                     {monthLabel}
                 </TableHeaderCell>;
             })}
@@ -63,7 +69,7 @@ const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
     const getTableBodyRowGroup = (element: CategoryStatsNode): ReactElement =>
         <TableBodyRowGroup>
             <TableBodyRow>
-                <TableBodyHierarchyCell>{element.category.label}</TableBodyHierarchyCell>
+                <TableBodyCell sticky="left" zIndex={1}>{element.category.label}</TableBodyCell>
                 {months.map((month: YearMonth) => {
                     let centsValue: number = 0;
                     let columnCount: number = 1;
