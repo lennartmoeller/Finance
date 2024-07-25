@@ -12,16 +12,17 @@ import {Stats} from "@/types/Stats";
 import {getMonths} from "@/utils/date";
 import {getEuroString} from "@/utils/money";
 import {YearMonth} from "@/utils/YearMonth";
+import {StatsMode} from "@/views/Stats/Stats";
 
 interface StatsTableProps {
     stats: Stats;
-    mode: 'surplus' | 'smoothedSurplus';
+    mode: StatsMode;
 }
 
 const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
     const months: Array<YearMonth> = getMonths(stats.startDate, stats.endDate);
 
-    function getBodyCellColumnCount(element: CategoryStatsNode, month: YearMonth): number {
+    const getBodyCellColumnCount = (element: CategoryStatsNode, month: YearMonth): number => {
         const smoothType: CategorySmoothType = element.category.smoothType;
         const endMonth: YearMonth = YearMonth.fromDate(stats.endDate);
         const max: number = month.monthsTo(endMonth) + 1;
@@ -41,7 +42,7 @@ const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
         })();
 
         return Math.max(0, Math.min(max, output));
-    }
+    };
 
     const tableHeader: ReactElement =
         <TableHeaderRow>

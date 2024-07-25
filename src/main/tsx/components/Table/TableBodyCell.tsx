@@ -24,6 +24,6 @@ export const TableBodyCell: React.FC<TableBodyCellProps> = ({align, colspan = 1,
         colspan={colspan}
         sticky={sticky}
         zIndex={zIndex}>
-        {children}
+            {children}
     </StyledBodyCell>;
 };
