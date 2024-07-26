@@ -12,9 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class StatsDTO {
-	List<DailyStatsDTO> dailyStats = Collections.emptyList();
-	List<CategoryStatsNodeDTO> categoryStats = Collections.emptyList();
-	List<MonthlyStatsDTO> monthlyStats = Collections.emptyList();
-	LocalDate startDate;
-	LocalDate endDate;
+	private List<DailyStatsDTO> dailyStats = Collections.emptyList();
+	private List<CategoryStatsNodeDTO> categoryStats = Collections.emptyList();
+	private List<MonthlyStatsDTO> monthlyStats = Collections.emptyList();
+	private LocalDate startDate;
+	private LocalDate endDate;
 }

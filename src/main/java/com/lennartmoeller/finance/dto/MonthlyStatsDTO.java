@@ -1,30 +1,38 @@
 package com.lennartmoeller.finance.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.YearMonth;
 
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Getter
 @Setter
 public class MonthlyStatsDTO {
-	YearMonth month;
-	Long surplus;
-	Double smoothedSurplus;
-	Double target;
-	Double deviation;
+	private final YearMonth month;
+	private StatsMetricDTO incomes;
+	private StatsMetricDTO expenses;
+	private StatsMetricDTO surplus;
+	private Double target;
+	private StatsMetricDTO deviation;
 
-	public MonthlyStatsDTO(YearMonth month) {
-		this.month = month;
+	public static MonthlyStatsDTO empty(YearMonth month) {
+		MonthlyStatsDTO dto = new MonthlyStatsDTO(month);
+		dto.incomes = StatsMetricDTO.empty();
+		dto.expenses = StatsMetricDTO.empty();
+		dto.surplus = StatsMetricDTO.empty();
+		dto.target = 0.0;
+		dto.deviation = StatsMetricDTO.empty();
+		return dto;
 	}
 
 	public MonthlyStatsDTO add(MonthlyStatsDTO other) {
-		this.surplus += other.surplus;
-		this.smoothedSurplus += other.smoothedSurplus;
-		this.target += other.target;
-		this.deviation += other.deviation;
+		this.incomes.add(other.getIncomes());
+		this.expenses.add(other.getExpenses());
+		this.surplus.add(other.getSurplus());
+		this.target += other.getTarget();
+		this.deviation.add(other.getDeviation());
 		return this;
 	}
 

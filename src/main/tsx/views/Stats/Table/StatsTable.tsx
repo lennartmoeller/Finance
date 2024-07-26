@@ -2,10 +2,10 @@ import React, {ReactElement} from "react";
 
 import {Table} from "@/components/Table/Table";
 import {TableBodyCell} from "@/components/Table/TableBodyCell";
-import {TableBodyRow} from "@/components/Table/TableBodyRow";
+import {TableBodyHierarchyCell} from "@/components/Table/TableBodyHierarchyCell";
 import {TableBodyRowGroup} from "@/components/Table/TableBodyRowGroup";
 import {TableHeaderCell} from "@/components/Table/TableHeaderCell";
-import {TableHeaderRow} from "@/components/Table/TableHeaderRow";
+import {TableRow} from "@/components/Table/TableRow";
 import {CategorySmoothType} from "@/types/CategorySmoothType";
 import {CategoryStatsNode} from "@/types/CategoryStatsNode";
 import {Stats} from "@/types/Stats";
@@ -45,19 +45,19 @@ const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
     };
 
     const tableHeader: ReactElement =
-        <TableHeaderRow>
+        <TableRow>
             <TableHeaderCell
                 sticky="topAndLeft"
-                width="220px"
+                width={220}
                 zIndex={2}>
                 Category
             </TableHeaderCell>
             {months.map((month: YearMonth) => {
                 const monthString: string = month.toString();
                 const monthLabel: string = month.toLabel();
-                const width: string = (month.lengthOfMonth() * 4) + "px";
+                const width: number = month.lengthOfMonth() * 4;
                 return <TableHeaderCell
-                    align="center"
+                    horAlign="center"
                     key={monthString}
                     sticky="top"
                     width={width}
@@ -65,41 +65,45 @@ const StatsTable: React.FC<StatsTableProps> = ({stats, mode}) => {
                     {monthLabel}
                 </TableHeaderCell>;
             })}
-        </TableHeaderRow>;
+        </TableRow>;
 
     const getTableBodyRowGroup = (element: CategoryStatsNode): ReactElement =>
         <TableBodyRowGroup>
-            <TableBodyRow>
-                <TableBodyCell sticky="left" zIndex={1}>{element.category.label}</TableBodyCell>
+            <TableRow>
+                <TableBodyHierarchyCell sticky="left" zIndex={1}>{element.category.label}</TableBodyHierarchyCell>
                 {months.map((month: YearMonth) => {
                     let centsValue: number = 0;
                     let columnCount: number = 1;
 
-                    if (mode === 'smoothedSurplus') {
+                    if (mode === 'smoothedSurplusShared') {
                         columnCount = getBodyCellColumnCount(element, month);
                         if (columnCount < 1) return <></>;
 
                         let monthToCheck: YearMonth = month;
                         for (let i: number = 0; i < columnCount; i++) {
                             const monthString: string = monthToCheck.toString();
-                            centsValue += element.statistics[monthString]?.[mode] ?? 0;
+                            centsValue += element.statistics[monthString]?.surplus.smoothed ?? 0;
                             monthToCheck = monthToCheck.next();
                         }
                     } else {
                         const monthString: string = month.toString();
-                        centsValue = element.statistics[monthString]?.[mode] ?? 0;
+                        if (mode === 'rawSurplus') {
+                            centsValue = element.statistics[monthString]?.surplus.raw ?? 0;
+                        } else if (mode === 'smoothedSurplusMonthly') {
+                            centsValue = element.statistics[monthString]?.surplus.smoothed ?? 0;
+                        }
                     }
 
                     const euroString: string = centsValue ? getEuroString(centsValue) : "";
 
                     return <TableBodyCell
                         key={month.toString()}
-                        align="center"
+                        horAlign="center"
                         colspan={columnCount}>
                         <span style={{fontFamily: "monospace"}}>{euroString}</span>
                     </TableBodyCell>;
                 })}
-            </TableBodyRow>
+            </TableRow>
             {element.children.map(getTableBodyRowGroup)}
         </TableBodyRowGroup>;
 

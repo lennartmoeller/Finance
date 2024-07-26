@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryStatsNodeDTO {
-	CategoryDTO category;
-	List<MonthlyStatsDTO> statistics = Collections.emptyList();
-	List<CategoryStatsNodeDTO> children = Collections.emptyList();
+	private CategoryDTO category;
+	private List<MonthlyStatsDTO> statistics = Collections.emptyList();
+	private List<CategoryStatsNodeDTO> children = Collections.emptyList();
 }

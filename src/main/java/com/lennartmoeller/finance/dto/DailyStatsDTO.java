@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class DailyStatsDTO {
-	LocalDate date;
-	Long balance;
-	Double smoothedBalance;
+	private LocalDate date;
+	private Long balance;
+	private Double smoothedBalance;
 }
