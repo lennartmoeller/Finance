@@ -1,6 +1,6 @@
 import React, {ReactNode, useContext} from 'react';
 
-import {LevelContext} from '@/components/Table/LevelContext';
+import {LevelContext} from '@/components/Table/context/LevelContext';
 
 interface TableBodyRowGroupProps {
     children: ReactNode;

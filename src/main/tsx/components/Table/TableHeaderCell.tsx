@@ -1,30 +1,40 @@
 import React, {ReactNode} from 'react';
 
-import styled from "styled-components";
-
-import {StyledCell} from "@/components/Table/Table";
-
-const StyledHeaderCell = styled(StyledCell).attrs({as: 'th'})`
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-    background-color: #f8f8f8;
-`;
+import {StyledCellContent} from "@/components/Table/styles/StyledCellContent";
+import {StyledHeaderCell} from "@/components/Table/styles/StyledHeaderCell";
 
 interface TableHeaderCellProps {
-    width?: string;
-    align?: 'left' | 'center' | 'right';
+    horAlign?: 'left' | 'center' | 'right';
+    vertAlign?: 'top' | 'center' | 'bottom';
+    colspan?: number;
     sticky?: 'top' | 'left' | 'topAndLeft';
+    width?: number;
     zIndex?: number;
     children: ReactNode;
 }
 
-export const TableHeaderCell: React.FC<TableHeaderCellProps> = ({width, align, sticky, zIndex, children}) => {
-    return <StyledHeaderCell
-        width={width}
-        align={align}
-        sticky={sticky}
-        zIndex={zIndex}>
-        {children}
-    </StyledHeaderCell>;
+export const TableHeaderCell: React.FC<TableHeaderCellProps> = (
+    {
+        horAlign,
+        vertAlign,
+        colspan,
+        sticky,
+        width,
+        zIndex,
+        children,
+    }
+) => {
+    return (
+        <StyledHeaderCell
+            colSpan={colspan}
+            $sticky={sticky}
+            $width={width}
+            $zIndex={zIndex}>
+            <StyledCellContent
+                $horAlign={horAlign}
+                $vertAlign={vertAlign}>
+                {children}
+            </StyledCellContent>
+        </StyledHeaderCell>
+    );
 };

@@ -19,7 +19,7 @@ const StyledSkeleton = styled.div`
 const StyledSidebarDummy = styled.div`
     grid-area: sidebar;
     width: 200px;
-    border-right: 1px solid #e3e3e3;
+    border-right: ${props => `${props.theme.border.width}px solid ${props.theme.border.color}`};
 `;
 
 const StyledHeaderDummy = styled.div`
