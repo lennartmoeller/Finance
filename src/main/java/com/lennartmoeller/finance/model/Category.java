@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,15 +33,7 @@ public class Category {
 	@Column(nullable = false)
 	private CategorySmoothType smoothType = CategorySmoothType.DAILY;
 
-	@Column(nullable = false)
-	@Temporal(TemporalType.DATE)
-	private LocalDate start;
-
-	@Column
-	@Temporal(TemporalType.DATE)
-	private LocalDate end;
-
-	@Column
-	private Long target;
+	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+	private List<Target> targets;
 
 }

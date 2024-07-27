@@ -2,12 +2,14 @@ package com.lennartmoeller.finance.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "accounts")
 @Data
+@Entity
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
+@Table(name = "accounts")
 public class Account {
 
 	@Id

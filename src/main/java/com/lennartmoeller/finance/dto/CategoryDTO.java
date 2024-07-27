@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -17,7 +15,4 @@ public class CategoryDTO {
 	private String label;
 	private TransactionType transactionType;
 	private CategorySmoothType smoothType;
-	private LocalDate start;
-	private LocalDate end;
-	private Long target;
 }

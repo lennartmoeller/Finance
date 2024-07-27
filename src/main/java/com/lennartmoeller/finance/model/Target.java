@@ -11,16 +11,12 @@ import java.time.LocalDate;
 @Entity
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
-@Table(name = "transactions")
-public class Transaction {
+@Table(name = "targets")
+public class Target {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account", nullable = false)
-	private Account account;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category", nullable = false)
@@ -28,12 +24,13 @@ public class Transaction {
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
-	private LocalDate date = LocalDate.now();
+	private LocalDate start;
 
-	@Column(nullable = false)
+	@Column
+	@Temporal(TemporalType.DATE)
+	private LocalDate end;
+
+	@Column
 	private Long amount;
-
-	@Column(nullable = false)
-	private String description = "";
 
 }
