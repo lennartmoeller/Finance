@@ -1,6 +1,6 @@
-import {TypeMapper} from "@/mapper/mappings";
+import TypeMapper from "@/mapper/TypeMapper";
 
-export interface StatsMetric {
+interface StatsMetric {
     raw: number;
     smoothed: number;
 }
@@ -14,3 +14,5 @@ export const statsMetricMapper: TypeMapper<StatsMetric, StatsMetricDTO> = {
     fromDTO: (dto: StatsMetricDTO) => dto,
     toDTO: (model: StatsMetric) => model,
 };
+
+export default StatsMetric;

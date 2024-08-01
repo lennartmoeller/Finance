@@ -1,7 +1,7 @@
 import React, {ReactNode} from 'react';
 
-import {StyledCellContent} from "@/components/Table/styles/StyledCellContent";
-import {StyledHeaderCell} from "@/components/Table/styles/StyledHeaderCell";
+import StyledCellContent from "@/components/Table/styles/StyledCellContent";
+import StyledHeaderCell from "@/components/Table/styles/StyledHeaderCell";
 
 interface TableHeaderCellProps {
     horAlign?: 'left' | 'center' | 'right';
@@ -13,7 +13,7 @@ interface TableHeaderCellProps {
     children: ReactNode;
 }
 
-export const TableHeaderCell: React.FC<TableHeaderCellProps> = (
+const TableHeaderCell: React.FC<TableHeaderCellProps> = (
     {
         horAlign,
         vertAlign,
@@ -38,3 +38,5 @@ export const TableHeaderCell: React.FC<TableHeaderCellProps> = (
         </StyledHeaderCell>
     );
 };
+
+export default TableHeaderCell;

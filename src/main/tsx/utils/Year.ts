@@ -1,4 +1,4 @@
-export class Year {
+class Year {
 
     private readonly year: number;
 
@@ -31,3 +31,5 @@ export class Year {
     }
 
 }
+
+export default Year;

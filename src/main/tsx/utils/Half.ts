@@ -1,4 +1,4 @@
-export class Half {
+class Half {
 
     private readonly half: number;
 
@@ -30,3 +30,5 @@ export class Half {
     }
 
 }
+
+export default Half;

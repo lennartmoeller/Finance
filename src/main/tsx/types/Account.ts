@@ -1,6 +1,6 @@
-import {TypeMapper} from "@/mapper/mappings";
+import TypeMapper from "@/mapper/TypeMapper";
 
-export interface Account {
+interface Account {
     id: number;
     label: string;
     startBalance: number;
@@ -18,3 +18,5 @@ export const accountMapper: TypeMapper<Account, AccountDTO> = {
     fromDTO: (dto: AccountDTO) => dto,
     toDTO: (model: Account) => model,
 };
+
+export default Account;

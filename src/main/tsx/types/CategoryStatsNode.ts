@@ -1,11 +1,10 @@
-import {TypeMapper} from "@/mapper/mappings";
-import {Category, CategoryDTO, categoryMapper} from "@/types/Category";
-import {MonthlyStats, MonthlyStatsDTO, monthlyStatsMapper} from "@/types/MonthlyStats";
-import {YearMonth} from "@/utils/YearMonth";
+import TypeMapper from "@/mapper/TypeMapper";
+import Category, {CategoryDTO, categoryMapper} from "@/types/Category";
+import MonthlyStats, {MonthlyStatsDTO, monthlyStatsMapper} from "@/types/MonthlyStats";
 
-export interface CategoryStatsNode {
+interface CategoryStatsNode {
     category: Category;
-    statistics: Record<string, MonthlyStats>
+    statistics: Record<string, MonthlyStats>;
     children: CategoryStatsNode[];
 }
 
@@ -30,3 +29,5 @@ export const categoryStatsNodeMapper: TypeMapper<CategoryStatsNode, CategoryStat
         children: model.children.map(categoryStatsNodeMapper.toDTO),
     }),
 };
+
+export default CategoryStatsNode;

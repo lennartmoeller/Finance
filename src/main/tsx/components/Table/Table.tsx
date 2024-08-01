@@ -1,6 +1,6 @@
 import React, {ReactNode} from "react";
 
-import {StyledTable} from "@/components/Table/styles/StyledTable";
+import StyledTable from "@/components/Table/styles/StyledTable";
 
 interface TableProps<T> {
     data: Array<T>;
@@ -8,7 +8,7 @@ interface TableProps<T> {
     body: (element: T, index: number) => ReactNode;
 }
 
-export const Table = <T, >({data, header, body}: TableProps<T>) => {
+const Table = <T, >({data, header, body}: TableProps<T>) => {
     return (
         <StyledTable>
             <thead>
@@ -20,3 +20,5 @@ export const Table = <T, >({data, header, body}: TableProps<T>) => {
         </StyledTable>
     );
 };
+
+export default Table;

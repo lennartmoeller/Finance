@@ -1,7 +1,7 @@
-import {Year} from "@/utils/Year";
-import {Quarter} from "@/utils/Quarter";
+import Quarter from "@/utils/Quarter";
+import Year from "@/utils/Year";
 
-export class YearQuarter {
+class YearQuarter {
 
     private readonly year: Year;
     private readonly quarter: Quarter;
@@ -33,3 +33,5 @@ export class YearQuarter {
     }
 
 }
+
+export default YearQuarter;

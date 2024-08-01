@@ -1,7 +1,7 @@
-import {Month} from '@/utils/Month';
-import {Year} from '@/utils/Year';
+import Month from "@/utils/Month";
+import Year from "@/utils/Year";
 
-export class YearMonth {
+class YearMonth {
 
     private readonly year: Year;
     private readonly month: Month;
@@ -55,3 +55,5 @@ export class YearMonth {
     }
 
 }
+
+export default YearMonth;

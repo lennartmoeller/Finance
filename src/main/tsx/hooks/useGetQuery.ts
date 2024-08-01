@@ -1,9 +1,9 @@
 import {useQuery, UseQueryResult} from "@tanstack/react-query";
 
-import {endpoints} from "@/api/endpoints";
-import {EntityIdentifier} from "@/types/EntityIdentifier";
+import endpoints from "@/api/endpoints";
+import EntityIdentifier from "@/types/EntityIdentifier";
 
-export function useGetQuery<Body, Data>(entity: EntityIdentifier, converter?: (body: Body) => Data): UseQueryResult<Data, Error> {
+function useGetQuery<Body, Data>(entity: EntityIdentifier, converter?: (body: Body) => Data): UseQueryResult<Data, Error> {
     const endpoint: string = endpoints[entity];
     return useQuery<Data, Error>({
         queryKey: [endpoint],
@@ -14,3 +14,5 @@ export function useGetQuery<Body, Data>(entity: EntityIdentifier, converter?: (b
         },
     });
 }
+
+export default useGetQuery;

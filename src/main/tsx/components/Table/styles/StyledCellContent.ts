@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const StyledCellContent = styled.div<{
+const StyledCellContent = styled.div<{
     $horAlign?: 'left' | 'center' | 'right',
     $vertAlign?: 'top' | 'center' | 'bottom',
 }>`
@@ -10,3 +10,5 @@ export const StyledCellContent = styled.div<{
     justify-content: ${({$horAlign}) => $horAlign ?? 'left'};
     align-content: ${({$vertAlign}) => $vertAlign ?? 'center'};
 `;
+
+export default StyledCellContent;

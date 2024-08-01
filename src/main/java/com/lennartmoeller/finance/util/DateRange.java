@@ -71,6 +71,10 @@ public class DateRange {
 		return YearMonth.from(endDate);
 	}
 
+	public long getDays() {
+		return ChronoUnit.DAYS.between(startDate, endDate) + 1;
+	}
+
 	public long getOverlapDays(DateRange other) {
 		LocalDate start1 = this.getStartDate();
 		LocalDate end1 = this.getEndDate();
@@ -100,6 +104,22 @@ public class DateRange {
 			return ChronoUnit.MONTHS.between(overlapStart, overlapEnd) + 1;
 		} else {
 			return 0;
+		}
+	}
+
+	public static DateRange getOverlapRange(DateRange range1, DateRange range2) {
+		LocalDate start1 = range1.getStartDate();
+		LocalDate end1 = range1.getEndDate();
+		LocalDate start2 = range2.getStartDate();
+		LocalDate end2 = range2.getEndDate();
+
+		LocalDate overlapStart = start1.isAfter(start2) ? start1 : start2;
+		LocalDate overlapEnd = end1.isBefore(end2) ? end1 : end2;
+
+		if (overlapStart.isBefore(overlapEnd) || overlapStart.isEqual(overlapEnd)) {
+			return new DateRange(overlapStart, overlapEnd);
+		} else {
+			return new DateRange(overlapEnd, overlapEnd);
 		}
 	}
 

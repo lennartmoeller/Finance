@@ -14,8 +14,8 @@ import com.lennartmoeller.finance.util.DateRange;
 import com.lennartmoeller.finance.util.YearHalf;
 import com.lennartmoeller.finance.util.YearQuarter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -23,14 +23,12 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-@Log
 public class StatisticsService {
 
 	private final AccountRepository accountRepository;
@@ -51,19 +49,19 @@ public class StatisticsService {
 
 		DateRange dateRange = new DateRange(statsDTO.getStartDate(), statsDTO.getEndDate());
 
-		List<DailyStatsDTO> dailyStatistics = getDailyStatistics(dailyBalances, dateRange);
-		statsDTO.setDailyStats(dailyStatistics);
+		List<DailyStatsDTO> dailyStats = getDailyStats(dailyBalances, dateRange);
+		statsDTO.setDailyStats(dailyStats);
 
-		List<CategoryStatsNodeDTO> categoryStatistics = getCategoryStatistics(dailyBalances, dateRange);
-		statsDTO.setCategoryStats(categoryStatistics);
+		List<CategoryStatsNodeDTO> categoryStats = getCategoryStats(dailyBalances, dateRange);
+		statsDTO.setCategoryStats(categoryStats);
 
-		List<MonthlyStatsDTO> monthlyStatistics = getMonthlyStatistics(categoryStatistics, dateRange);
-		statsDTO.setMonthlyStats(monthlyStatistics);
+		List<MonthlyStatsDTO> monthlyStats = aggregateMonthlyStats(categoryStats, dateRange);
+		statsDTO.setMonthlyStats(monthlyStats);
 
 		return statsDTO;
 	}
 
-	private List<DailyStatsDTO> getDailyStatistics(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+	private List<DailyStatsDTO> getDailyStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
 		Map<CategorySmoothType, List<DailyBalanceProjection>> dailyBalancesBySmoothType = dailyBalances.stream()
 			.collect(Collectors.groupingBy(projection -> projection.getCategory().getSmoothType()));
 
@@ -74,54 +72,56 @@ public class StatisticsService {
 		Map<YearHalf, Long> smoothedBalancesMapHalfYearly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.HALF_YEARLY), YearHalf::from);
 		Map<Year, Long> smoothedBalancesMapYearly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.YEARLY), Year::from);
 
-		long initialBalance = accountRepository.getSummedStartBalance();
-		AtomicLong balance = new AtomicLong(initialBalance);
+		double initialBalance = accountRepository.getSummedStartBalance();
+		AtomicDouble balance = new AtomicDouble(initialBalance);
 		AtomicDouble smoothedBalance = new AtomicDouble(initialBalance);
 
 		return dateRange.createDateStream().map(date -> {
 			DailyStatsDTO dailyStatsDTO = new DailyStatsDTO();
 			dailyStatsDTO.setDate(date);
 
-			long surplus = Optional.ofNullable(rawBalancesMap.get(date)).orElse(0L);
-			dailyStatsDTO.setBalance(balance.addAndGet(surplus));
+			StatsMetricDTO statsMetricDTO = new StatsMetricDTO();
 
-			double smoothedSurplus = 0.0;
+			balance.addAndGet(Optional.ofNullable(rawBalancesMap.get(date)).orElse(0L));
 
 			double surplusesOfDailySmoothedTransactions = smoothedBalancesMapDaily.getOrDefault(date, 0L).doubleValue();
-			smoothedSurplus += surplusesOfDailySmoothedTransactions;
+			smoothedBalance.addAndGet(surplusesOfDailySmoothedTransactions);
 
 			YearMonth month = YearMonth.from(date);
 			double surplusesOfMonthlySmoothedTransactions = smoothedBalancesMapMonthly.getOrDefault(month, 0L).doubleValue();
 			long daysInMonth = dateRange.getOverlapDays(new DateRange(month));
-			smoothedSurplus += surplusesOfMonthlySmoothedTransactions / daysInMonth;
+			smoothedBalance.addAndGet(surplusesOfMonthlySmoothedTransactions / daysInMonth);
 
 			YearQuarter yearQuarter = YearQuarter.from(date);
 			double surplusesOfQuarterYearlySmoothedTransactions = smoothedBalancesMapQuarterYearly.getOrDefault(yearQuarter, 0L).doubleValue();
 			long daysInQuarterYear = dateRange.getOverlapDays(new DateRange(yearQuarter));
-			smoothedSurplus += surplusesOfQuarterYearlySmoothedTransactions / daysInQuarterYear;
+			smoothedBalance.addAndGet(surplusesOfQuarterYearlySmoothedTransactions / daysInQuarterYear);
 
 			YearHalf yearHalf = YearHalf.from(date);
 			double surplusesOfHalfYearlySmoothedTransactions = smoothedBalancesMapHalfYearly.getOrDefault(yearHalf, 0L).doubleValue();
 			long daysInHalfYear = dateRange.getOverlapDays(new DateRange(yearHalf));
-			smoothedSurplus += surplusesOfHalfYearlySmoothedTransactions / daysInHalfYear;
+			smoothedBalance.addAndGet(surplusesOfHalfYearlySmoothedTransactions / daysInHalfYear);
 
 			Year year = Year.from(date);
 			double surplusesOfYearlySmoothedTransactions = smoothedBalancesMapYearly.getOrDefault(year, 0L).doubleValue();
 			long daysInYear = dateRange.getOverlapDays(new DateRange(year));
-			smoothedSurplus += surplusesOfYearlySmoothedTransactions / daysInYear;
+			smoothedBalance.addAndGet(surplusesOfYearlySmoothedTransactions / daysInYear);
 
-			dailyStatsDTO.setSmoothedBalance(smoothedBalance.addAndGet(smoothedSurplus));
+			statsMetricDTO.setRaw(balance.get());
+			statsMetricDTO.setSmoothed(smoothedBalance.get());
+
+			dailyStatsDTO.setBalance(statsMetricDTO);
 
 			return dailyStatsDTO;
 		}).toList();
 	}
 
-	private List<CategoryStatsNodeDTO> getCategoryStatistics(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+	private List<CategoryStatsNodeDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
 		List<Category> categories = categoryRepository.findAll();
-		return getCategoryStatistics(dailyBalances, dateRange, categories, null);
+		return getCategoryStats(dailyBalances, dateRange, categories, null);
 	}
 
-	private List<CategoryStatsNodeDTO> getCategoryStatistics(List<DailyBalanceProjection> dailyBalances, DateRange dateRange, List<Category> categories, Category parent) {
+	private List<CategoryStatsNodeDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange, List<Category> categories, Category parent) {
 		return categories.stream()
 			.filter(category -> category.getParent() == parent)
 			.sorted(Comparator.comparing(Category::getLabel))
@@ -130,7 +130,7 @@ public class StatisticsService {
 				categoryStatsNodeDTO.setCategory(categoryMapper.toDto(category));
 
 				// calculate statistic nodes for children
-				List<CategoryStatsNodeDTO> childStatisticNodes = getCategoryStatistics(dailyBalances, dateRange, categories, category);
+				List<CategoryStatsNodeDTO> childStatisticNodes = getCategoryStats(dailyBalances, dateRange, categories, category);
 				categoryStatsNodeDTO.setChildren(childStatisticNodes);
 
 				// calculate statistics for category
@@ -139,17 +139,12 @@ public class StatisticsService {
 					List<DailyBalanceProjection> categoriesDailyBalances = dailyBalances.stream()
 						.filter(projection -> projection.getCategory().equals(category))
 						.toList();
-					List<MonthlyStatsDTO> statistics = calculateMonthlyStats(categoriesDailyBalances, dateRange);
-					categoryStatsNodeDTO.setStatistics(statistics);
+					List<MonthlyStatsDTO> monthlyStats = calculateMonthlyCategoryStats(category, categoriesDailyBalances, dateRange);
+					categoryStatsNodeDTO.setStatistics(monthlyStats);
 				} else {
 					// non-leaf node, has no own transactions, so sum up children statistics
-					Map<YearMonth, List<MonthlyStatsDTO>> childStatisticNodesMap = childStatisticNodes.stream()
-						.flatMap(child -> child.getStatistics().stream())
-						.collect(Collectors.groupingBy(MonthlyStatsDTO::getMonth));
-					List<MonthlyStatsDTO> statistics = dateRange.createMonthStream().map(month ->
-						childStatisticNodesMap.get(month).stream()
-							.reduce(MonthlyStatsDTO.empty(month), MonthlyStatsDTO::add)).toList();
-					categoryStatsNodeDTO.setStatistics(statistics);
+					List<MonthlyStatsDTO> monthlyStats = aggregateMonthlyStats(childStatisticNodes, dateRange);
+					categoryStatsNodeDTO.setStatistics(monthlyStats);
 				}
 
 				return categoryStatsNodeDTO;
@@ -157,18 +152,29 @@ public class StatisticsService {
 			.toList();
 	}
 
-	private List<MonthlyStatsDTO> getMonthlyStatistics(List<CategoryStatsNodeDTO> categoryStatistics, DateRange dateRange) {
-		Map<YearMonth, List<MonthlyStatsDTO>> categoryStatisticsMap = categoryStatistics.stream()
-			.flatMap(x -> x.getStatistics().stream())
+	private List<MonthlyStatsDTO> aggregateMonthlyStats(List<CategoryStatsNodeDTO> categoryStats, DateRange dateRange) {
+		Map<YearMonth, List<MonthlyStatsDTO>> categoryStatsMap = categoryStats.stream()
+			.flatMap(child -> child.getStatistics().stream())
 			.collect(Collectors.groupingBy(MonthlyStatsDTO::getMonth));
 
-		return dateRange.createMonthStream().map(month ->
-			categoryStatisticsMap.get(month).stream()
-				.reduce(MonthlyStatsDTO.empty(month), MonthlyStatsDTO::add)
-		).toList();
+		DescriptiveStatistics rawSurplusesDS = new DescriptiveStatistics();
+		DescriptiveStatistics smoothedSurplusesDS = new DescriptiveStatistics();
+
+		List<MonthlyStatsDTO> monthlyStats = dateRange.createMonthStream()
+			.map(month -> {
+				MonthlyStatsDTO monthlyStatsDTO = categoryStatsMap.get(month).stream()
+					.reduce(MonthlyStatsDTO.empty(month), MonthlyStatsDTO::add);
+				rawSurplusesDS.addValue(monthlyStatsDTO.getSurplus().getRaw());
+				smoothedSurplusesDS.addValue(monthlyStatsDTO.getSurplus().getSmoothed());
+				return monthlyStatsDTO;
+			}).toList();
+
+		monthlyStats.forEach(monthlyStatsDTO -> monthlyStatsDTO.calculatePerformances(rawSurplusesDS, smoothedSurplusesDS));
+
+		return monthlyStats;
 	}
 
-	private List<MonthlyStatsDTO> calculateMonthlyStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+	private List<MonthlyStatsDTO> calculateMonthlyCategoryStats(Category category, List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
 		if (dailyBalances.isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -186,10 +192,10 @@ public class StatisticsService {
 		Map<TransactionType, Map<YearHalf, Long>> smoothedBalancesMapHalfYearly = aggregateBalancesByTransactionType(dailyBalancesBySmoothType.get(CategorySmoothType.HALF_YEARLY), YearHalf::from);
 		Map<TransactionType, Map<Year, Long>> smoothedBalancesMapYearly = aggregateBalancesByTransactionType(dailyBalancesBySmoothType.get(CategorySmoothType.YEARLY), Year::from);
 
-		return dateRange.createMonthStream().map(month -> {
+		DescriptiveStatistics rawSurplusesDS = new DescriptiveStatistics();
+		DescriptiveStatistics smoothedSurplusesDS = new DescriptiveStatistics();
 
-			// initialize objects
-
+		List<MonthlyStatsDTO> monthlyCategoryStats = dateRange.createMonthStream().map(month -> {
 			MonthlyStatsDTO monthlyStatsDTO = new MonthlyStatsDTO(month);
 
 			StatsMetricDTO incomes = new StatsMetricDTO();
@@ -197,11 +203,11 @@ public class StatisticsService {
 
 			// calculate raw values
 
-			long rawIncomes = getTwoTimesOrDefault(rawBalancesMap, TransactionType.INCOME, month, 0L);
-			incomes.setRaw(rawIncomes);
+			Long rawIncomes = getTwoTimesOrDefault(rawBalancesMap, TransactionType.INCOME, month, 0L);
+			incomes.setRaw(rawIncomes.doubleValue());
 
-			long rawExpenses = getTwoTimesOrDefault(rawBalancesMap, TransactionType.EXPENSE, month, 0L);
-			expenses.setRaw(rawExpenses);
+			Long rawExpenses = getTwoTimesOrDefault(rawBalancesMap, TransactionType.EXPENSE, month, 0L);
+			expenses.setRaw(rawExpenses.doubleValue());
 
 			// calculate smoothed values
 
@@ -229,17 +235,47 @@ public class StatisticsService {
 			incomes.setSmoothed(smoothedIncomes);
 			expenses.setSmoothed(smoothedExpenses);
 
-			// set everything into main object
-
 			monthlyStatsDTO.setIncomes(incomes);
 			monthlyStatsDTO.setExpenses(expenses);
-			monthlyStatsDTO.setSurplus(StatsMetricDTO.add(incomes, expenses));
 
-			monthlyStatsDTO.setTarget(0.0); // TODO: Set target
-			monthlyStatsDTO.setDeviation(StatsMetricDTO.empty()); // TODO: Set deviation
+			// calculate surplus
+
+			StatsMetricDTO surplus = StatsMetricDTO.add(incomes, expenses);
+			monthlyStatsDTO.setSurplus(surplus);
+
+			// calculate target
+
+			DateRange monthRange = DateRange.getOverlapRange(dateRange, new DateRange(month));
+			long daysInMonth = monthRange.getDays();
+			double target = category.getTargets().stream()
+				.mapToDouble(t -> {
+					double amount = t.getAmount().doubleValue();
+					long overlapDays = monthRange.getOverlapDays(new DateRange(t.getStart(), t.getEnd()));
+					return amount / daysInMonth * overlapDays;
+				})
+				.sum();
+			monthlyStatsDTO.setTarget(target);
+
+			// calculate deviation
+
+			StatsMetricDTO deviation = new StatsMetricDTO();
+			deviation.setRaw(surplus.getRaw() - target);
+			deviation.setSmoothed(surplus.getSmoothed() - target);
+			monthlyStatsDTO.setDeviation(deviation);
+
+			// add surpluses to descriptive statistics
+
+			rawSurplusesDS.addValue(surplus.getRaw());
+			smoothedSurplusesDS.addValue(surplus.getSmoothed());
 
 			return monthlyStatsDTO;
 		}).toList();
+
+		// calculate performance
+
+		monthlyCategoryStats.forEach(monthlyStatsDTO -> monthlyStatsDTO.calculatePerformances(rawSurplusesDS, smoothedSurplusesDS));
+
+		return monthlyCategoryStats;
 	}
 
 	private <K1, K2, T> T getTwoTimesOrDefault(Map<K1, Map<K2, T>> map, K1 key1, K2 key2, T defaultValue) {

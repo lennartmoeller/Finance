@@ -1,4 +1,4 @@
-export class Month {
+class Month {
 
     private readonly month: number;
 
@@ -35,3 +35,5 @@ export class Month {
     }
 
 }
+
+export default Month;

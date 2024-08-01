@@ -1,14 +1,15 @@
-import {TypeMapper} from "@/mapper/mappings";
-import {StatsMetric, StatsMetricDTO, statsMetricMapper} from "@/types/StatsMetric";
-import {YearMonth} from "@/utils/YearMonth";
+import TypeMapper from "@/mapper/TypeMapper";
+import StatsMetric, {StatsMetricDTO, statsMetricMapper} from "@/types/StatsMetric";
+import YearMonth from "@/utils/YearMonth";
 
-export interface MonthlyStats {
+interface MonthlyStats {
     month: YearMonth;
     incomes: StatsMetric;
     expenses: StatsMetric;
     surplus: StatsMetric;
     target: number;
     deviation: StatsMetric;
+    performance: StatsMetric | null;
 }
 
 export interface MonthlyStatsDTO {
@@ -18,23 +19,28 @@ export interface MonthlyStatsDTO {
     surplus: StatsMetricDTO;
     target: number;
     deviation: StatsMetricDTO;
+    performance: StatsMetricDTO | null;
 }
 
 export const monthlyStatsMapper: TypeMapper<MonthlyStats, MonthlyStatsDTO> = {
     fromDTO: (dto: MonthlyStatsDTO) => ({
+        ...dto,
         month: YearMonth.fromString(dto.month),
         incomes: statsMetricMapper.fromDTO(dto.incomes),
         expenses: statsMetricMapper.fromDTO(dto.expenses),
         surplus: statsMetricMapper.fromDTO(dto.surplus),
-        target: dto.target,
         deviation: statsMetricMapper.fromDTO(dto.deviation),
+        performance: dto.performance === null ? null : statsMetricMapper.fromDTO(dto.performance),
     }),
     toDTO: (model: MonthlyStats) => ({
+        ...model,
         month: model.month.toString(),
         incomes: statsMetricMapper.toDTO(model.incomes),
         expenses: statsMetricMapper.toDTO(model.expenses),
         surplus: statsMetricMapper.toDTO(model.surplus),
-        target: model.target,
         deviation: statsMetricMapper.toDTO(model.deviation),
+        performance: model.performance === null ? null : statsMetricMapper.toDTO(model.performance),
     }),
 };
+
+export default MonthlyStats;

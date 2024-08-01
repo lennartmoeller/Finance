@@ -1,6 +1,7 @@
-import {dateMapper, TypeMapper} from "@/mapper/mappings";
+import dateMapper from "@/mapper/dateMapper";
+import TypeMapper from "@/mapper/TypeMapper";
 
-export interface Transaction {
+interface Transaction {
     id: number;
     accountId: number;
     categoryId: number;
@@ -28,3 +29,5 @@ export const transactionMapper: TypeMapper<Transaction, TransactionDTO> = {
         date: dateMapper.toDTO(model.date),
     }),
 };
+
+export default Transaction;

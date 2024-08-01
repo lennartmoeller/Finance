@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StatsMetricDTO {
-	private Long raw;
+	private Double raw;
 	private Double smoothed;
 
 	public static StatsMetricDTO empty() {
 		StatsMetricDTO dto = new StatsMetricDTO();
-		dto.raw = 0L;
+		dto.raw = 0.0;
 		dto.smoothed = 0.0;
 		return dto;
 	}

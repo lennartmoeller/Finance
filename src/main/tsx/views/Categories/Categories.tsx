@@ -1,7 +1,7 @@
 import React from "react";
 
-import {useGetQuery} from "@/hooks/useGetQuery";
-import {Category, CategoryDTO, categoryMapper} from "@/types/Category";
+import useGetQuery from "@/hooks/useGetQuery";
+import Category, {CategoryDTO, categoryMapper} from "@/types/Category";
 
 const Categories: React.FC = () => {
     const {
@@ -27,9 +27,6 @@ const Categories: React.FC = () => {
                     <p>Label: {category.label}</p>
                     <p>Transaction Type: {category.transactionType}</p>
                     <p>Smooth Type: {category.smoothType}</p>
-                    <p>Start: {category.start.toLocaleDateString()}</p>
-                    <p>End: {category.end === null ? "NULL" : category.end.toLocaleDateString()}</p>
-                    <p>Target: {category.target}</p>
                 </div>
             ))}
         </div>

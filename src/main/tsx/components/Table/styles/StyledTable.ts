@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
-export const StyledTable = styled.table`
+const StyledTable = styled.table`
     border-collapse: collapse;
     width: max-content;
 `;
+
+export default StyledTable;

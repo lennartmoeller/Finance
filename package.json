@@ -20,6 +20,7 @@
     "@babel/preset-env": "^7.24.8",
     "@babel/preset-react": "^7.24.7",
     "@babel/preset-typescript": "^7.24.7",
+    "@svgr/webpack": "^8.1.0",
     "@tanstack/eslint-plugin-query": "^5.51.12",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -15,4 +17,5 @@ public class CategoryDTO {
 	private String label;
 	private TransactionType transactionType;
 	private CategorySmoothType smoothType;
+	private List<TargetDTO> targets;
 }

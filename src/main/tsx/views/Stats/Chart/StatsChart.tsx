@@ -1,9 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {createChart, IChartApi, ISeriesApi, UTCTimestamp} from 'lightweight-charts';
-import styled from 'styled-components';
-import {Stats} from '@/types/Stats';
-import {StatsMode} from '@/views/Stats/Stats';
+
+import {createChart, IChartApi, ISeriesApi, UTCTimestamp} from "lightweight-charts";
+import styled from "styled-components";
+
 import Tooltip from "@/components/Tooltip/Tooltip";
+import Stats from "@/types/Stats";
+import {StatsMode} from "@/views/Stats/Stats";
 
 interface ChartWrapperProps {
     mode: StatsMode;
@@ -27,7 +29,7 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
     const chartRef = useRef<IChartApi | null>(null);
     const seriesRef = useRef<ISeriesApi<'Area'> | null>(null);
 
-    const width = stats.dailyStats.length * 4 + stats.monthlyStats.length;
+    const width = stats.dailyStats.length * 4 + Object.keys(stats.monthlyStats).length;
     const height = 400;
 
     const [hoverData, setHoverData] = useState<HoverData | null>(null);
@@ -37,7 +39,7 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
 
         const chartData = stats.dailyStats.map((datapoint) => ({
             time: (datapoint.date.getTime() / 1000) as UTCTimestamp,
-            value: datapoint[mode === 'rawSurplus' ? 'balance' : 'smoothedBalance'],
+            value: datapoint.balance[mode.processing],
         }));
 
         if (chartRef.current) {

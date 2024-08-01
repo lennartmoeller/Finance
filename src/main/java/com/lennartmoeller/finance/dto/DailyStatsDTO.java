@@ -11,6 +11,5 @@ import java.time.LocalDate;
 @Setter
 public class DailyStatsDTO {
 	private LocalDate date;
-	private Long balance;
-	private Double smoothedBalance;
+	private StatsMetricDTO balance;
 }

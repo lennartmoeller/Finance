@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const StyledCell = styled.div<{
+const StyledCell = styled.div<{
     $sticky?: 'top' | 'left' | 'topAndLeft',
     $width?: number,
     $zIndex?: number
@@ -14,6 +14,7 @@ export const StyledCell = styled.div<{
     background-color: white;
     border: ${props => `${props.theme.border.width}px solid ${props.theme.border.color}`};
     // border to make sticky cells look good
+
     &::before {
         position: absolute;
         content: '';
@@ -24,3 +25,5 @@ export const StyledCell = styled.div<{
         border: ${props => `${props.theme.border.width}px solid ${props.theme.border.color}`};
     }
 `;
+
+export default StyledCell;

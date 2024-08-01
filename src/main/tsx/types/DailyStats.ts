@@ -1,24 +1,26 @@
-import {dateMapper, TypeMapper} from "@/mapper/mappings";
+import dateMapper from "@/mapper/dateMapper";
+import TypeMapper from "@/mapper/TypeMapper";
+import StatsMetric, {StatsMetricDTO, statsMetricMapper} from "@/types/StatsMetric";
 
-export interface DailyStats {
+interface DailyStats {
     date: Date;
-    balance: number;
-    smoothedBalance: number;
+    balance: StatsMetric;
 }
 
 export interface DailyStatsDTO {
     date: string;
-    balance: number;
-    smoothedBalance: number;
+    balance: StatsMetricDTO;
 }
 
 export const dailyStatsMapper: TypeMapper<DailyStats, DailyStatsDTO> = {
     fromDTO: (dto: DailyStatsDTO) => ({
-        ...dto,
         date: dateMapper.fromDTO(dto.date),
+        balance: statsMetricMapper.fromDTO(dto.balance),
     }),
     toDTO: (model: DailyStats) => ({
-        ...model,
         date: dateMapper.toDTO(model.date),
+        balance: statsMetricMapper.toDTO(model.balance),
     }),
 };
+
+export default DailyStats;

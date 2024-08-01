@@ -8,9 +8,10 @@ import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {AccountMapper.class, CategoryMapper.class})
 public abstract class TransactionMapper {
 
 	@Autowired
@@ -23,24 +24,28 @@ public abstract class TransactionMapper {
 	@Mapping(source = "category.id", target = "categoryId")
 	public abstract TransactionDTO toDto(Transaction transaction);
 
-	@Mapping(target = "account", source = "accountId")
-	@Mapping(target = "category", source = "categoryId")
+	@Mapping(target = "account", source = "accountId", qualifiedByName = "mapAccountIdToAccount")
+	@Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
 	public abstract Transaction toEntity(TransactionDTO transactionDTO);
 
-	Long mapAccountToAccountId(Account account) {
-		return account != null ? account.getId() : null;
-	}
-
+	@Named("mapAccountIdToAccount")
 	Account mapAccountIdToAccount(Long accountId) {
 		return accountId != null ? accountRepository.findById(accountId).orElse(null) : null;
 	}
 
-	Long mapCategoryToCategoryId(Category category) {
-		return category != null ? category.getId() : null;
+	@Named("mapAccountToAccountId")
+	Long mapAccountToAccountId(Account account) {
+		return account != null ? account.getId() : null;
 	}
 
+	@Named("mapCategoryIdToCategory")
 	Category mapCategoryIdToCategory(Long categoryId) {
 		return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
+	}
+
+	@Named("mapCategoryToCategoryId")
+	Long mapCategoryToCategoryId(Category category) {
+		return category != null ? category.getId() : null;
 	}
 
 }

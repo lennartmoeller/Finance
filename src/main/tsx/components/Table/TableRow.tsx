@@ -4,10 +4,12 @@ interface TableBodyRowProps {
     children: ReactNode;
 }
 
-export const TableRow: React.FC<TableBodyRowProps> = ({children}) => {
+const TableRow: React.FC<TableBodyRowProps> = ({children}) => {
     return (
         <tr>
             {children}
         </tr>
     );
 };
+
+export default TableRow;

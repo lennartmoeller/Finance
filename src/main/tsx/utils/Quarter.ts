@@ -1,4 +1,4 @@
-export class Quarter {
+class Quarter {
 
     private readonly quarter: number;
 
@@ -30,3 +30,5 @@ export class Quarter {
     }
 
 }
+
+export default Quarter;
