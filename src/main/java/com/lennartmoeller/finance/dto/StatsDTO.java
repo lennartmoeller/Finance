@@ -12,9 +12,21 @@ import java.util.List;
 @Getter
 @Setter
 public class StatsDTO {
-	private List<DailyStatsDTO> dailyStats = Collections.emptyList();
-	private List<CategoryStatsNodeDTO> categoryStats = Collections.emptyList();
-	private List<MonthlyStatsDTO> monthlyStats = Collections.emptyList();
+	private List<DailyStatsDTO> dailyStats;
+	private List<CategoryStatsNodeDTO> categoryStats;
+	private List<MonthlyStatsDTO> incomeStats;
+	private List<MonthlyStatsDTO> expenseStats;
+	private List<MonthlyStatsDTO> surplusStats;
 	private LocalDate startDate;
 	private LocalDate endDate;
+
+	public static StatsDTO empty() {
+		StatsDTO statsDTO = new StatsDTO();
+		statsDTO.setDailyStats(Collections.emptyList());
+		statsDTO.setCategoryStats(Collections.emptyList());
+		statsDTO.setIncomeStats(Collections.emptyList());
+		statsDTO.setExpenseStats(Collections.emptyList());
+		statsDTO.setSurplusStats(Collections.emptyList());
+		return statsDTO;
+	}
 }

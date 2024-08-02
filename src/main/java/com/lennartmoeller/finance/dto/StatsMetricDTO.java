@@ -8,8 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StatsMetricDTO {
-	private Double raw;
-	private Double smoothed;
+	private double raw;
+	private double smoothed;
 
 	public static StatsMetricDTO empty() {
 		StatsMetricDTO dto = new StatsMetricDTO();
@@ -23,12 +23,6 @@ public class StatsMetricDTO {
 		result.raw = a.getRaw() + b.getRaw();
 		result.smoothed = a.getSmoothed() + b.getSmoothed();
 		return result;
-	}
-
-	public StatsMetricDTO add(StatsMetricDTO other) {
-		this.raw += other.getRaw();
-		this.smoothed += other.getSmoothed();
-		return this;
 	}
 
 }

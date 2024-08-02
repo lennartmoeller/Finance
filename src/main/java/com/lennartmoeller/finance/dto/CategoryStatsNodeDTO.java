@@ -12,6 +12,13 @@ import java.util.List;
 @Setter
 public class CategoryStatsNodeDTO {
 	private CategoryDTO category;
-	private List<MonthlyStatsDTO> statistics = Collections.emptyList();
-	private List<CategoryStatsNodeDTO> children = Collections.emptyList();
+	private List<MonthlyStatsDTO> statistics;
+	private List<CategoryStatsNodeDTO> children;
+
+	public static CategoryStatsNodeDTO empty() {
+		CategoryStatsNodeDTO categoryStatsNodeDTO = new CategoryStatsNodeDTO();
+		categoryStatsNodeDTO.setStatistics(Collections.emptyList());
+		categoryStatsNodeDTO.setChildren(Collections.emptyList());
+		return categoryStatsNodeDTO;
+	}
 }
