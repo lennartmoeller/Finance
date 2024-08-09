@@ -5,16 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.YearMonth;
+import java.util.Map;
 
 @AllArgsConstructor
 @Getter
 @Setter
 public class RowStatsDTO {
-	private List<MonthlyCellStatsDTO> monthly;
+	private Map<YearMonth, CellStatsDTO> monthly;
 
 	public static RowStatsDTO empty() {
-		return new RowStatsDTO(List.of());
+		return new RowStatsDTO(Map.of());
 	}
 
 	@JsonProperty
@@ -23,7 +24,7 @@ public class RowStatsDTO {
 			return CellStatsDTO.empty();
 		}
 		CellStatsDTO mean = new CellStatsDTO();
-		mean.setSurplus(StatsMetricDTO.mean(this.getMonthly().stream().map(monthlyCellStatsDTO -> monthlyCellStatsDTO.getStats().getSurplus()).toList()));
+		mean.setSurplus(StatsMetricDTO.mean(this.getMonthly().values().stream().map(CellStatsDTO::getSurplus).toList()));
 		mean.setTarget(0.0); // TODO
 		return mean;
 	}
