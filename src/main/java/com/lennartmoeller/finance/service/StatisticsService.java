@@ -54,9 +54,9 @@ public class StatisticsService {
 		List<CategoryStatsNodeDTO> categoryStats = getCategoryStats(dailyBalances, dateRange);
 		statsDTO.setCategoryStats(categoryStats);
 
-		statsDTO.setIncomeStats(Collections.emptyList()); // TODO
-		statsDTO.setExpenseStats(Collections.emptyList()); // TODO
-		statsDTO.setSurplusStats(Collections.emptyList()); // TODO
+		statsDTO.setIncomeStats(RowStatsDTO.empty()); // TODO
+		statsDTO.setExpenseStats(RowStatsDTO.empty()); // TODO
+		statsDTO.setSurplusStats(RowStatsDTO.empty()); // TODO
 
 		return statsDTO;
 	}
@@ -139,29 +139,29 @@ public class StatisticsService {
 					List<DailyBalanceProjection> categoriesDailyBalances = dailyBalances.stream()
 						.filter(projection -> projection.getCategory().equals(category))
 						.toList();
-					List<MonthlyStatsDTO> monthlyStats = calculateMonthlyCategoryStats(category, categoriesDailyBalances, dateRange);
-					categoryStatsNodeDTO.setStatistics(monthlyStats);
+					List<MonthlyCellStatsDTO> monthlyStats = calculateMonthlyCategoryStats(category, categoriesDailyBalances, dateRange);
+					categoryStatsNodeDTO.setStats(new RowStatsDTO(monthlyStats));
 				} else {
 					// non-leaf node, has no own transactions, so sum up children statistics
-					Map<YearMonth, List<MonthlyStatsDTO>> categoryStatsMap = childStatisticNodes.stream()
-						.flatMap(child -> child.getStatistics().stream())
-						.collect(Collectors.groupingBy(MonthlyStatsDTO::getMonth));
+					Map<YearMonth, List<MonthlyCellStatsDTO>> categoryStatsMap = childStatisticNodes.stream()
+						.flatMap(child -> child.getStats().getMonthly().stream())
+						.collect(Collectors.groupingBy(MonthlyCellStatsDTO::getMonth));
 
 					DescriptiveStatistics rawSurplusesDS = new DescriptiveStatistics();
 					DescriptiveStatistics smoothedSurplusesDS = new DescriptiveStatistics();
 
-					List<MonthlyStatsDTO> monthlyStats = dateRange.createMonthStream()
+					List<MonthlyCellStatsDTO> monthlyStats = dateRange.createMonthStream()
 						.map(month -> {
-							MonthlyStatsDTO monthlyStatsDTO = categoryStatsMap.get(month).stream()
-								.reduce(MonthlyStatsDTO.empty(month), MonthlyStatsDTO::add);
-							rawSurplusesDS.addValue(monthlyStatsDTO.getSurplus().getRaw());
-							smoothedSurplusesDS.addValue(monthlyStatsDTO.getSurplus().getSmoothed());
-							return monthlyStatsDTO;
+							MonthlyCellStatsDTO monthlyCellStatsDTO = categoryStatsMap.get(month).stream()
+								.reduce(MonthlyCellStatsDTO.empty(month), MonthlyCellStatsDTO::add);
+							rawSurplusesDS.addValue(monthlyCellStatsDTO.getStats().getSurplus().getRaw());
+							smoothedSurplusesDS.addValue(monthlyCellStatsDTO.getStats().getSurplus().getSmoothed());
+							return monthlyCellStatsDTO;
 						}).toList();
 
-					monthlyStats.forEach(monthlyStatsDTO -> monthlyStatsDTO.calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
+					monthlyStats.forEach(monthlyCellStatsDTO -> monthlyCellStatsDTO.getStats().calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
 
-					categoryStatsNodeDTO.setStatistics(monthlyStats);
+					categoryStatsNodeDTO.setStats(new RowStatsDTO(monthlyStats));
 				}
 
 				return categoryStatsNodeDTO;
@@ -169,16 +169,16 @@ public class StatisticsService {
 			.toList();
 	}
 
-	private List<MonthlyStatsDTO> calculateMonthlyCategoryStats(Category category, List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+	private List<MonthlyCellStatsDTO> calculateMonthlyCategoryStats(Category category, List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
 		if (dailyBalances.isEmpty()) {
-			return Collections.emptyList();
+			return List.of();
 		}
 
 		Map<CategorySmoothType, List<DailyBalanceProjection>> dailyBalancesBySmoothType = dailyBalances.stream()
 			.collect(Collectors.groupingBy(projection -> projection.getCategory().getSmoothType()));
 		List<DailyBalanceProjection> dailyBalancesWithDailyOrMonthlySmoothing = Stream.concat(
-			dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.DAILY, Collections.emptyList()).stream(),
-			dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.MONTHLY, Collections.emptyList()).stream()
+			dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.DAILY, List.of()).stream(),
+			dailyBalancesBySmoothType.getOrDefault(CategorySmoothType.MONTHLY, List.of()).stream()
 		).toList();
 
 		Map<YearMonth, Long> rawBalancesMap = aggregateBalances(dailyBalances, YearMonth::from);
@@ -190,12 +190,16 @@ public class StatisticsService {
 		DescriptiveStatistics rawSurplusesDS = new DescriptiveStatistics();
 		DescriptiveStatistics smoothedSurplusesDS = new DescriptiveStatistics();
 
-		List<MonthlyStatsDTO> monthlyCategoryStats = dateRange.createMonthStream().map(month -> {
-			// calculate raw surplus
+		List<MonthlyCellStatsDTO> monthlyCategoryStats = dateRange.createMonthStream().map(month -> {
+			CellStatsDTO cellStats = new CellStatsDTO();
+
+			StatsMetricDTO surplus = new StatsMetricDTO();
+
+			// calculate surplus
 
 			long rawSurplus = MapUtils.getObject(rawBalancesMap, month, 0L);
 
-			// calculate smoothed surplus
+			surplus.setRaw(rawSurplus);
 
 			double smoothedSurplus = 0.0;
 
@@ -213,6 +217,10 @@ public class StatisticsService {
 			long daysInYear = dateRange.getOverlapMonths(new DateRange(year));
 			smoothedSurplus += MapUtils.getObject(smoothedBalancesMapYearly, year, 0L).doubleValue() / daysInYear;
 
+			surplus.setSmoothed(smoothedSurplus);
+
+			cellStats.setSurplus(surplus);
+
 			// calculate target
 
 			DateRange monthRange = DateRange.getOverlapRange(dateRange, new DateRange(month));
@@ -225,34 +233,19 @@ public class StatisticsService {
 				})
 				.sum();
 
-			// calculate deviation
-
-			StatsMetricDTO deviation = new StatsMetricDTO();
-			deviation.setRaw(rawSurplus - target);
-			deviation.setSmoothed(smoothedSurplus - target);
-
-			// create MonthlyStatsDTO
-
-			StatsMetricDTO surplus = new StatsMetricDTO();
-			surplus.setRaw(rawSurplus);
-			surplus.setSmoothed(smoothedSurplus);
-
-			MonthlyStatsDTO monthlyStatsDTO = new MonthlyStatsDTO(month);
-			monthlyStatsDTO.setSurplus(surplus);
-			monthlyStatsDTO.setTarget(target);
-			monthlyStatsDTO.setDeviation(deviation);
+			cellStats.setTarget(target);
 
 			// add surpluses to descriptive statistics
 
 			rawSurplusesDS.addValue(surplus.getRaw());
 			smoothedSurplusesDS.addValue(surplus.getSmoothed());
 
-			return monthlyStatsDTO;
+			return new MonthlyCellStatsDTO(month, cellStats);
 		}).toList();
 
 		// calculate performance
 
-		monthlyCategoryStats.forEach(monthlyStatsDTO -> monthlyStatsDTO.calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
+		monthlyCategoryStats.forEach(monthlyCellStatsDTO -> monthlyCellStatsDTO.getStats().calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
 
 		return monthlyCategoryStats;
 	}

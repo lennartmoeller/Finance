@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,13 +11,6 @@ import java.util.List;
 @Setter
 public class CategoryStatsNodeDTO {
 	private CategoryDTO category;
-	private List<MonthlyStatsDTO> statistics;
+	private RowStatsDTO stats;
 	private List<CategoryStatsNodeDTO> children;
-
-	public static CategoryStatsNodeDTO empty() {
-		CategoryStatsNodeDTO categoryStatsNodeDTO = new CategoryStatsNodeDTO();
-		categoryStatsNodeDTO.setStatistics(Collections.emptyList());
-		categoryStatsNodeDTO.setChildren(Collections.emptyList());
-		return categoryStatsNodeDTO;
-	}
 }

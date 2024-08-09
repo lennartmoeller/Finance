@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
@@ -14,19 +13,20 @@ import java.util.List;
 public class StatsDTO {
 	private List<DailyStatsDTO> dailyStats;
 	private List<CategoryStatsNodeDTO> categoryStats;
-	private List<MonthlyStatsDTO> incomeStats;
-	private List<MonthlyStatsDTO> expenseStats;
-	private List<MonthlyStatsDTO> surplusStats;
+	private RowStatsDTO incomeStats;
+	private RowStatsDTO expenseStats;
+	private RowStatsDTO surplusStats;
 	private LocalDate startDate;
 	private LocalDate endDate;
 
 	public static StatsDTO empty() {
 		StatsDTO statsDTO = new StatsDTO();
-		statsDTO.setDailyStats(Collections.emptyList());
-		statsDTO.setCategoryStats(Collections.emptyList());
-		statsDTO.setIncomeStats(Collections.emptyList());
-		statsDTO.setExpenseStats(Collections.emptyList());
-		statsDTO.setSurplusStats(Collections.emptyList());
+		statsDTO.setDailyStats(List.of());
+		statsDTO.setCategoryStats(List.of());
+		statsDTO.setIncomeStats(RowStatsDTO.empty());
+		statsDTO.setExpenseStats(RowStatsDTO.empty());
+		statsDTO.setSurplusStats(RowStatsDTO.empty());
 		return statsDTO;
 	}
+
 }
