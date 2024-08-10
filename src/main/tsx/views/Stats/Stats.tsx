@@ -30,7 +30,7 @@ const Stats: React.FC = () => {
             initialKey={mode}
             onSelect={(key: StatsMode) => setMode(key)}
         />
-        <div style={{marginLeft: '220px'}}>
+        <div style={{marginLeft: '341.5px'}}>
             <StatsChart
                 mode={mode}
                 stats={stats}

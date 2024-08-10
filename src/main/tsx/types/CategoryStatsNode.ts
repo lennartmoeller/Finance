@@ -1,31 +1,28 @@
 import TypeMapper from "@/mapper/TypeMapper";
 import Category, {CategoryDTO, categoryMapper} from "@/types/Category";
-import MonthlyStats, {MonthlyStatsDTO, monthlyStatsMapper} from "@/types/MonthlyStats";
+import RowStats, {RowStatsDTO, rowStatsMapper} from "@/types/RowStats";
 
 interface CategoryStatsNode {
     category: Category;
-    statistics: Record<string, MonthlyStats>;
+    stats: RowStats;
     children: CategoryStatsNode[];
 }
 
 export interface CategoryStatsNodeDTO {
     category: CategoryDTO;
-    statistics: MonthlyStatsDTO[];
+    stats: RowStatsDTO;
     children: CategoryStatsNodeDTO[];
 }
 
 export const categoryStatsNodeMapper: TypeMapper<CategoryStatsNode, CategoryStatsNodeDTO> = {
     fromDTO: (dto: CategoryStatsNodeDTO) => ({
         category: categoryMapper.fromDTO(dto.category),
-        statistics: dto.statistics.reduce((acc, stats) => {
-            acc[stats.month] = monthlyStatsMapper.fromDTO(stats);
-            return acc;
-        }, {} as Record<string, MonthlyStats>),
+        stats: rowStatsMapper.fromDTO(dto.stats),
         children: dto.children.map(categoryStatsNodeMapper.fromDTO),
     }),
     toDTO: (model: CategoryStatsNode) => ({
         category: categoryMapper.toDTO(model.category),
-        statistics: Object.values(model.statistics).map(monthlyStatsMapper.toDTO),
+        stats: rowStatsMapper.toDTO(model.stats),
         children: model.children.map(categoryStatsNodeMapper.toDTO),
     }),
 };

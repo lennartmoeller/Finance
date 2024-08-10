@@ -6,6 +6,7 @@ import styled from "styled-components";
 import Tooltip from "@/components/Tooltip/Tooltip";
 import Stats from "@/types/Stats";
 import {StatsMode} from "@/views/Stats/Stats";
+import YearMonth from "@/utils/YearMonth";
 
 interface ChartWrapperProps {
     mode: StatsMode;
@@ -29,7 +30,7 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
     const chartRef = useRef<IChartApi | null>(null);
     const seriesRef = useRef<ISeriesApi<'Area'> | null>(null);
 
-    const width = stats.dailyStats.length * 4 + Object.keys(stats.monthlyStats).length;
+    const width = stats.dailyStats.length * 4 + 20; // TODO
     const height = 400;
 
     const [hoverData, setHoverData] = useState<HoverData | null>(null);

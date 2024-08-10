@@ -1,7 +1,8 @@
 import React from "react";
 
-import ArrowDown from "@/components/Icon/Solid/ArrowDown";
 import styled from "styled-components";
+
+import ArrowDown from "@/components/Icon/Solid/ArrowDown";
 
 interface PerformanceArrowProps {
     performance: number | undefined;
@@ -9,7 +10,7 @@ interface PerformanceArrowProps {
 
 const StyledPerformanceArrow = styled.div.attrs<{
     $color?: string;
-}>(({ $color }) => ({
+}>(({$color}) => ({
     style: {
         backgroundColor: $color,
     }
