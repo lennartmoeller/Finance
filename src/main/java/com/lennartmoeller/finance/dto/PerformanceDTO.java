@@ -1,12 +1,12 @@
 package com.lennartmoeller.finance.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-@NoArgsConstructor
 @Getter
+@RequiredArgsConstructor
 @Setter
 public class PerformanceDTO {
 	private double raw;

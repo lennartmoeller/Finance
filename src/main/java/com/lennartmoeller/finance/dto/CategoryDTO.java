@@ -3,13 +3,13 @@ package com.lennartmoeller.finance.dto;
 import com.lennartmoeller.finance.model.CategorySmoothType;
 import com.lennartmoeller.finance.model.TransactionType;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
+@RequiredArgsConstructor
 @Setter
 public class CategoryDTO {
 	private Long id;

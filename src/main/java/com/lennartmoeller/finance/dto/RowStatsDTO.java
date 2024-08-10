@@ -1,21 +1,33 @@
 package com.lennartmoeller.finance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.YearMonth;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@AllArgsConstructor
 @Getter
+@RequiredArgsConstructor
 @Setter
 public class RowStatsDTO {
-	private Map<YearMonth, CellStatsDTO> monthly;
+	private final Map<YearMonth, CellStatsDTO> monthly;
 
 	public static RowStatsDTO empty() {
 		return new RowStatsDTO(Map.of());
+	}
+
+	public static RowStatsDTO add(RowStatsDTO a, RowStatsDTO b) {
+		Map<YearMonth, CellStatsDTO> combined = Stream.concat(a.getMonthly().entrySet().stream(), b.getMonthly().entrySet().stream())
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				Map.Entry::getValue,
+				CellStatsDTO::add
+			));
+		return new RowStatsDTO(combined);
 	}
 
 	@JsonProperty

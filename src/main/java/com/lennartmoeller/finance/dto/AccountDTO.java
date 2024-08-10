@@ -1,11 +1,11 @@
 package com.lennartmoeller.finance.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @Getter
+@RequiredArgsConstructor
 @Setter
 public class AccountDTO {
 	private Long id;

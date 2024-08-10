@@ -9,8 +9,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import javax.annotation.Nullable;
 
 @Getter
-@Setter
 @RequiredArgsConstructor
+@Setter
 public class CellStatsDTO {
 	private StatsMetricDTO surplus;
 	private Double target;

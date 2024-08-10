@@ -1,13 +1,13 @@
 package com.lennartmoeller.finance.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
+@RequiredArgsConstructor
 @Setter
 public class StatsMetricDTO {
 	private double raw;

@@ -5,6 +5,7 @@ import com.lennartmoeller.finance.dto.*;
 import com.lennartmoeller.finance.mapper.CategoryMapper;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.CategorySmoothType;
+import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
@@ -41,22 +42,22 @@ public class StatisticsService {
 			return StatsDTO.empty();
 		}
 
+		DateRange dateRange = new DateRange(
+			dailyBalances.getFirst().getDate().withDayOfMonth(1),
+			LocalDate.now()
+		);
+
 		StatsDTO statsDTO = new StatsDTO();
-
-		statsDTO.setStartDate(dailyBalances.getFirst().getDate().withDayOfMonth(1));
-		statsDTO.setEndDate(LocalDate.now());
-
-		DateRange dateRange = new DateRange(statsDTO.getStartDate(), statsDTO.getEndDate());
 
 		List<DailyStatsDTO> dailyStats = getDailyStats(dailyBalances, dateRange);
 		statsDTO.setDailyStats(dailyStats);
 
-		List<CategoryStatsNodeDTO> categoryStats = getCategoryStats(dailyBalances, dateRange);
-		statsDTO.setCategoryStats(categoryStats);
+		Map<TransactionType, CategoryStatsDTO> categoryStatsByType = getCategoryStatsByType(dailyBalances, dateRange);
+		statsDTO.setIncomeStats(categoryStatsByType.get(TransactionType.INCOME));
+		statsDTO.setExpenseStats(categoryStatsByType.get(TransactionType.EXPENSE));
 
-		statsDTO.setIncomeStats(RowStatsDTO.empty()); // TODO
-		statsDTO.setExpenseStats(RowStatsDTO.empty()); // TODO
-		statsDTO.setSurplusStats(RowStatsDTO.empty()); // TODO
+		statsDTO.setStartDate(dateRange.getStartDate());
+		statsDTO.setEndDate(dateRange.getEndDate());
 
 		return statsDTO;
 	}
@@ -116,9 +117,15 @@ public class StatisticsService {
 		}).toList();
 	}
 
-	private List<CategoryStatsNodeDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
-		List<Category> categories = categoryRepository.findAll();
-		return getCategoryStats(dailyBalances, dateRange, categories, null);
+	private Map<TransactionType, CategoryStatsDTO> getCategoryStatsByType(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+		return categoryRepository.findAll().stream()
+			.collect(Collectors.groupingBy(
+				Category::getTransactionType,
+				Collectors.collectingAndThen(
+					Collectors.toList(),
+					filteredCategories -> new CategoryStatsDTO(getCategoryStats(dailyBalances, dateRange, filteredCategories, null))
+				)
+			));
 	}
 
 	private List<CategoryStatsNodeDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange, List<Category> categories, Category parent) {
