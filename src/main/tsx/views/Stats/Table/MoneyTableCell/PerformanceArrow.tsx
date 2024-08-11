@@ -1,8 +1,7 @@
 import React from "react";
 
 import styled from "styled-components";
-
-import ArrowDown from "@/components/Icon/Solid/ArrowDown";
+import Icon from "@/components/Icon/Icon";
 
 interface PerformanceArrowProps {
     performance: number | undefined;
@@ -47,7 +46,8 @@ const getArrowColor = (performance: number): string => {
 const PerformanceArrow: React.FC<PerformanceArrowProps> = ({performance}) => {
     return (
         <StyledPerformanceArrow $color={performance !== undefined ? getArrowColor(performance) : undefined}>
-            <ArrowDown
+            <Icon
+                id="fa-solid fa-arrow-down"
                 color="white"
                 opacity={performance !== undefined ? undefined : 0}
                 rotation={performance !== undefined ? performance * -180 : undefined}

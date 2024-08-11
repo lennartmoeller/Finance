@@ -53,7 +53,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'src/main/resources/frontend/index.html', to: ''}
+                {from: 'src/main/resources/frontend', to: ''}
             ]
         })
     ],

@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 
 import Button from "@/components/Button/Button";
-import ArrowDown from "@/components/Icon/Solid/ArrowDown";
+import Icon from "@/components/Icon/Icon";
 import HierarchyContext from "@/components/Table/context/HierarchyContext";
 import StyledTableBodyHierarchyCellContent from "@/components/Table/styles/StyledTableBodyHierarchyCellContent";
 import TableBodyCell from "@/components/Table/TableBodyCell";
@@ -12,18 +12,24 @@ const TableBodyHierarchyCell: React.FC<TableCellProps> = ({children, ...props}) 
     const [hasChildren] = hierarchyContext.hasChildren;
     const [childrenVisible, setChildrenVisible] = hierarchyContext.childrenVisible;
 
+    const contents = (
+        <StyledTableBodyHierarchyCellContent $level={hierarchyContext.level}>
+            <Icon id="fa-solid fa-caret-down" rotation={childrenVisible ? 0 : -90} opacity={hasChildren ? 1 : 0}/>
+            {children}
+        </StyledTableBodyHierarchyCellContent>
+    );
+
+    if (!hasChildren) return (
+        <TableBodyCell {...props}>
+            {contents}
+        </TableBodyCell>
+    );
+
     return (
         <TableBodyCell {...props}>
-            <StyledTableBodyHierarchyCellContent $level={hierarchyContext.level}>
-                <div>
-                    {hasChildren && (
-                        <Button onClick={() => setChildrenVisible(!childrenVisible)}>
-                            <ArrowDown rotation={childrenVisible ? 0 : -90}/>
-                        </Button>
-                    )}
-                </div>
-                {children}
-            </StyledTableBodyHierarchyCellContent>
+            <Button onClick={() => setChildrenVisible(!childrenVisible)}>
+                {contents}
+            </Button>
         </TableBodyCell>
     );
 };

@@ -4,7 +4,8 @@ const StyledTableBodyHierarchyCellContent = styled.div<{
     $level: number,
 }>`
     display: grid;
-    grid-template-columns: 18px 1fr;
+    grid-template-columns: 16px 1fr;
+    align-items: center;
     margin-left: ${({$level}) => `${($level - 1) * 10}px`};
 `;
 
