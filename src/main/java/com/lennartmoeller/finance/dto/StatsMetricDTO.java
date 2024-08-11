@@ -28,6 +28,9 @@ public class StatsMetricDTO {
 	}
 
 	public static StatsMetricDTO mean(List<StatsMetricDTO> statsMetrics) {
+		if (statsMetrics.isEmpty()) {
+			return StatsMetricDTO.empty();
+		}
 		StatsMetricDTO output = statsMetrics.stream().reduce(StatsMetricDTO.empty(), StatsMetricDTO::add);
 		output.setRaw(output.getRaw() / statsMetrics.size());
 		output.setSmoothed(output.getSmoothed() / statsMetrics.size());

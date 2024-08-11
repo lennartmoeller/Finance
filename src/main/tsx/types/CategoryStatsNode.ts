@@ -5,13 +5,13 @@ import RowStats, {RowStatsDTO, rowStatsMapper} from "@/types/RowStats";
 interface CategoryStatsNode {
     category: Category;
     stats: RowStats;
-    children: CategoryStatsNode[];
+    children: Array<CategoryStatsNode>;
 }
 
 export interface CategoryStatsNodeDTO {
     category: CategoryDTO;
     stats: RowStatsDTO;
-    children: CategoryStatsNodeDTO[];
+    children: Array<CategoryStatsNodeDTO>;
 }
 
 export const categoryStatsNodeMapper: TypeMapper<CategoryStatsNode, CategoryStatsNodeDTO> = {
