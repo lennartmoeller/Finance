@@ -3,23 +3,27 @@ import React from 'react';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import ReactDOM from 'react-dom/client';
 import '@/index.css';
+import {BrowserRouter, useRoutes} from "react-router-dom";
 import {ThemeProvider} from "styled-components";
 
-import Skeleton from "@/components/Skeleton/Skeleton";
+import routes from "@/routing/routes";
 import theme from "@/styles/theme";
-import Stats from "@/views/Stats/Stats";
 
 const queryClient: QueryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+const AppRoutes = () => {
+    return useRoutes(routes);
+};
+
 root.render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
             <ThemeProvider theme={theme}>
-                <Skeleton>
-                    <Stats/>
-                </Skeleton>
+                <BrowserRouter>
+                    <AppRoutes/>
+                </BrowserRouter>
             </ThemeProvider>
         </QueryClientProvider>
     </React.StrictMode>

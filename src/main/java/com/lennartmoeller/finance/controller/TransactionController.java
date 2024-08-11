@@ -7,9 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -19,8 +18,8 @@ public class TransactionController {
 	private final TransactionService transactionService;
 
 	@GetMapping
-	public Map<Long, TransactionDTO> getAllTransactions(@RequestParam(required = false) YearMonth yearMonth) {
-		return transactionService.findAll(yearMonth).stream().collect(Collectors.toMap(TransactionDTO::getId, transaction -> transaction));
+	public List<TransactionDTO> getAllTransactions(@RequestParam(required = false) YearMonth yearMonth) {
+		return transactionService.findAll(yearMonth);
 	}
 
 	@GetMapping("/{id}")

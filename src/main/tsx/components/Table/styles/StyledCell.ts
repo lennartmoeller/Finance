@@ -8,7 +8,7 @@ const StyledCell = styled.div<{
 }>`
     position: ${({$sticky}) => $sticky ? 'sticky' : 'relative'};
     width: ${({$width}) => $width ? `${$width}px` : 'auto'};
-    padding: 0;
+    padding: 3px 6px;
     top: ${({$sticky}) => ($sticky === 'top' || $sticky === 'topAndLeft' ? '0' : 'auto')};
     left: ${({$sticky}) => ($sticky === 'left' || $sticky === 'topAndLeft' ? '0' : 'auto')};
     z-index: ${({$zIndex}) => $zIndex ?? 'auto'};

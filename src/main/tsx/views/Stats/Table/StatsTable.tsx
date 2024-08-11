@@ -1,5 +1,6 @@
 import React, {ReactElement} from "react";
 
+import Icon from "@/components/Icon/Icon";
 import Table from "@/components/Table/Table";
 import TableBodyHierarchyCell from "@/components/Table/TableBodyHierarchyCell";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
@@ -17,6 +18,7 @@ import MoneyTableCell from "@/views/Stats/Table/MoneyTableCell/MoneyTableCell";
 interface StatsTableRow {
     id: string;
     label: string;
+    icon?: string;
     stats: RowStats;
     headerLevel?: 1 | 2;
     smoothType?: CategorySmoothType;
@@ -37,6 +39,7 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
             ({
                 id: String(categoryStatsNode.category.id),
                 label: categoryStatsNode.category.label,
+                icon: categoryStatsNode.category.icon ?? undefined,
                 stats: categoryStatsNode.stats,
                 smoothType: categoryStatsNode.category.smoothType,
                 open: false,
@@ -110,6 +113,13 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                     headerLevel={rowData.headerLevel}
                     sticky="left"
                     zIndex={1}>
+                    {rowData.icon && (
+                        <Icon
+                            id={rowData.icon}
+                            size={16}
+                            opacity={.6}
+                        />
+                    )}
                     {rowData.label}
                 </TableBodyHierarchyCell>
                 <MoneyTableCell

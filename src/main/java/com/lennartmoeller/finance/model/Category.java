@@ -33,6 +33,9 @@ public class Category {
 	@Column(nullable = false)
 	private CategorySmoothType smoothType = CategorySmoothType.DAILY;
 
+	@Column
+	private String icon;
+
 	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
 	private List<Target> targets;
 

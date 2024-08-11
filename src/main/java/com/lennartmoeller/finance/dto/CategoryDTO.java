@@ -17,5 +17,6 @@ public class CategoryDTO {
 	private String label;
 	private TransactionType transactionType;
 	private CategorySmoothType smoothType;
+	private String icon;
 	private List<TargetDTO> targets;
 }

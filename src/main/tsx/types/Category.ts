@@ -9,6 +9,7 @@ interface Category {
     label: string;
     transactionType: TransactionType;
     smoothType: CategorySmoothType;
+    icon: string | null;
     targets: Array<Target>;
 }
 
@@ -18,6 +19,7 @@ export interface CategoryDTO {
     label: string;
     transactionType: TransactionType;
     smoothType: CategorySmoothType;
+    icon: string | null;
     targets: Array<TargetDTO>;
 }
 
