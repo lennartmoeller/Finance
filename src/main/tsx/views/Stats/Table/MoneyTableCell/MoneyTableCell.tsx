@@ -10,11 +10,12 @@ import StyledMoneyTableCell from "@/views/Stats/Table/MoneyTableCell/styles/Styl
 
 interface MoneyTableCellProps {
     columnCount?: number,
+    headerLevel?: 1 | 2,
     mode: StatsMode,
     stats: CellStats,
 }
 
-const MoneyTableCell: React.FC<MoneyTableCellProps> = ({columnCount = 1, mode, stats,}) => {
+const MoneyTableCell: React.FC<MoneyTableCellProps> = ({columnCount = 1, headerLevel, mode, stats,}) => {
     const centsValue: number = stats.surplus[mode.processing] * columnCount;
     const euroString: string = getEuroString(centsValue);
     const performance: number | undefined = stats.performance?.[mode.processing];
@@ -22,6 +23,7 @@ const MoneyTableCell: React.FC<MoneyTableCellProps> = ({columnCount = 1, mode, s
     return (
         <TableBodyCell
             colspan={columnCount}
+            headerLevel={headerLevel}
             horAlign="center">
             <StyledMoneyTableCell>
                 <StyledMoneyString $zero={centsValue === 0}>{euroString}</StyledMoneyString>

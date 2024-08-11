@@ -1,20 +1,16 @@
-import React, {ReactNode} from 'react';
+import React from 'react';
 
+import styled from "styled-components";
+
+import StyledCell from "@/components/Table/styles/StyledCell";
 import StyledCellContent from "@/components/Table/styles/StyledCellContent";
-import StyledHeaderCell from "@/components/Table/styles/StyledHeaderCell";
+import TableCellProps from "@/components/Table/types/TableCellProps";
 
-interface TableHeaderCellProps {
-    horAlign?: 'left' | 'center' | 'right';
-    vertAlign?: 'top' | 'center' | 'bottom';
-    colspan?: number;
-    sticky?: 'top' | 'left' | 'topAndLeft';
-    width?: number;
-    zIndex?: number;
-    children: ReactNode;
-}
+const StyledHeaderCell = styled(StyledCell).attrs({as: 'th'})``;
 
-const TableHeaderCell: React.FC<TableHeaderCellProps> = (
+const TableHeaderCell: React.FC<TableCellProps> = (
     {
+        headerLevel = 1,
         horAlign,
         vertAlign,
         colspan,
@@ -27,10 +23,12 @@ const TableHeaderCell: React.FC<TableHeaderCellProps> = (
     return (
         <StyledHeaderCell
             colSpan={colspan}
+            $headerLevel={headerLevel}
             $sticky={sticky}
             $width={width}
             $zIndex={zIndex}>
             <StyledCellContent
+                $headerLevel={headerLevel}
                 $horAlign={horAlign}
                 $vertAlign={vertAlign}>
                 {children}

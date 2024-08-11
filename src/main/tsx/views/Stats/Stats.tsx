@@ -33,12 +33,12 @@ const Stats: React.FC = () => {
         <div style={{marginLeft: '341.5px'}}>
             <StatsChart
                 mode={mode}
-                stats={stats}
+                stats={stats.dailyStats}
             />
         </div>
         <StatsTable
-            stats={stats}
             mode={mode}
+            stats={stats}
         />
     </div>;
 };

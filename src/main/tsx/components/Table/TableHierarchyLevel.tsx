@@ -1,17 +1,32 @@
-import React, {ReactNode, useContext} from 'react';
+import React, {ReactNode, useContext, useState} from 'react';
 
-import LevelContext from '@/components/Table/context/LevelContext';
+import HierarchyContext from '@/components/Table/context/HierarchyContext';
 
 interface TableBodyRowGroupProps {
+    initiallyOpen?: boolean;
     children: ReactNode;
 }
 
-const TableHierarchyLevel: React.FC<TableBodyRowGroupProps> = ({children}) => {
-    const level: number = useContext(LevelContext);
+const TableHierarchyLevel: React.FC<TableBodyRowGroupProps> = ({initiallyOpen, children,}) => {
+    const childrenVisibleState = useState<boolean>(initiallyOpen ?? true);
+    const hasChildrenState = useState<boolean>(false);
+
+    const parentsHierarchyContext = useContext(HierarchyContext);
+
+    const [, setHasParentChildren] = parentsHierarchyContext.hasChildren;
+    setHasParentChildren(true);
+
+    const [parentsChildrenVisible] = parentsHierarchyContext.childrenVisible;
+    if (!parentsChildrenVisible) return <></>;
+
     return (
-        <LevelContext.Provider value={level + 1}>
+        <HierarchyContext.Provider value={{
+            level: parentsHierarchyContext.level + 1,
+            childrenVisible: childrenVisibleState,
+            hasChildren: hasChildrenState,
+        }}>
             {children}
-        </LevelContext.Provider>
+        </HierarchyContext.Provider>
     );
 };
 

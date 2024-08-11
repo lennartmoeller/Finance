@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 const StyledCell = styled.div<{
+    $headerLevel?: 1 | 2,
     $sticky?: 'top' | 'left' | 'topAndLeft',
     $width?: number,
     $zIndex?: number
@@ -11,10 +12,13 @@ const StyledCell = styled.div<{
     top: ${({$sticky}) => ($sticky === 'top' || $sticky === 'topAndLeft' ? '0' : 'auto')};
     left: ${({$sticky}) => ($sticky === 'left' || $sticky === 'topAndLeft' ? '0' : 'auto')};
     z-index: ${({$zIndex}) => $zIndex ?? 'auto'};
-    background-color: white;
+    background-color: ${props => {
+        const cellType: string = props.$headerLevel ? `header${props.$headerLevel}` : 'body';
+        return props.theme.table[cellType].backgroundColor;
+    }};
     border: ${props => `${props.theme.border.width}px solid ${props.theme.border.color}`};
+    
     // border to make sticky cells look good
-
     &::before {
         position: absolute;
         content: '';

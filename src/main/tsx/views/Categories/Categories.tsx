@@ -8,7 +8,7 @@ const Categories: React.FC = () => {
         data,
         error,
         isLoading
-    } = useGetQuery<Record<number, CategoryDTO>, Category[]>(
+    } = useGetQuery<Record<number, CategoryDTO>, Array<Category>>(
         'categories',
         body => Object.values(body).map(categoryMapper.fromDTO)
     );

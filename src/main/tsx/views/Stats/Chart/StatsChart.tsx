@@ -4,13 +4,12 @@ import {createChart, IChartApi, ISeriesApi, UTCTimestamp} from "lightweight-char
 import styled from "styled-components";
 
 import Tooltip from "@/components/Tooltip/Tooltip";
-import Stats from "@/types/Stats";
+import DailyStats from "@/types/DailyStats";
 import {StatsMode} from "@/views/Stats/Stats";
-import YearMonth from "@/utils/YearMonth";
 
-interface ChartWrapperProps {
+interface StatsChartProps {
     mode: StatsMode;
-    stats: Stats;
+    stats: Array<DailyStats>;
 }
 
 interface HoverData {
@@ -25,12 +24,12 @@ const ChartContainer = styled.div<{ width: number; height: number }>`
     overflow: hidden;
 `;
 
-const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
+const StatsChart: React.FC<StatsChartProps> = ({mode, stats}) => {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<IChartApi | null>(null);
     const seriesRef = useRef<ISeriesApi<'Area'> | null>(null);
 
-    const width = stats.dailyStats.length * 4 + 20; // TODO
+    const width = stats.length * 4 + 20; // TODO
     const height = 400;
 
     const [hoverData, setHoverData] = useState<HoverData | null>(null);
@@ -38,7 +37,7 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
     useEffect(() => {
         if (!chartContainerRef.current) return;
 
-        const chartData = stats.dailyStats.map((datapoint) => ({
+        const chartData = stats.map((datapoint) => ({
             time: (datapoint.date.getTime() / 1000) as UTCTimestamp,
             value: datapoint.balance[mode.processing],
         }));
@@ -152,4 +151,4 @@ const ChartWrapper: React.FC<ChartWrapperProps> = ({mode, stats}) => {
     );
 };
 
-export default ChartWrapper;
+export default StatsChart;

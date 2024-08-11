@@ -131,7 +131,6 @@ public class StatisticsService {
 	private List<CategoryStatsNodeDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange, List<Category> categories, Category parent) {
 		return categories.stream()
 			.filter(category -> category.getParent() == parent)
-			.sorted(Comparator.comparing(Category::getLabel))
 			.map(category -> {
 				CategoryStatsNodeDTO categoryStatsNodeDTO = new CategoryStatsNodeDTO();
 				categoryStatsNodeDTO.setCategory(categoryMapper.toDto(category));
@@ -179,6 +178,7 @@ public class StatisticsService {
 
 				return categoryStatsNodeDTO;
 			})
+			.sorted(Comparator.comparing(v -> -Math.abs(v.getStats().getMean().getSurplus().getSmoothed())))
 			.toList();
 	}
 

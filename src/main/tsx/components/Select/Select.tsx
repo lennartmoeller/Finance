@@ -6,7 +6,7 @@ type Option<K> = {
 };
 
 type SelectProps<K, O extends Option<K>> = {
-    options: O[];
+    options: Array<O>;
     onSelect: (selectedKey: K) => void;
     initialKey?: K;
 };
