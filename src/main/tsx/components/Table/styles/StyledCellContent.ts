@@ -7,9 +7,28 @@ const StyledCellContent = styled.div<{
 }>`
     box-sizing: border-box;
     padding: 2px 6px;
-    display: grid;
-    justify-content: ${({$horAlign}) => $horAlign ?? 'left'};
-    align-content: ${({$vertAlign}) => $vertAlign ?? 'center'};
+    display: flex;
+    justify-content: ${({$horAlign}) => {
+        switch ($horAlign) {
+            case 'center':
+                return 'center';
+            case 'right':
+                return 'flex-end';
+            default:
+                return 'flex-start';
+        }
+    }};
+    align-items: ${({$vertAlign}) => {
+        switch ($vertAlign) {
+            case 'center':
+                return 'center';
+            case 'bottom':
+                return 'flex-end';
+            default:
+                return 'flex-start';
+        }
+    }};
+    width: 100%;
     font-weight: ${props => {
         const cellType: string = props.$headerLevel ? `header${props.$headerLevel}` : 'body';
         return props.theme.table[cellType].fontWeight;

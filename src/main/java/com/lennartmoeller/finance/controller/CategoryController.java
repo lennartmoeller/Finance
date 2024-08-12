@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -18,8 +17,8 @@ public class CategoryController {
 	private final CategoryService categoryService;
 
 	@GetMapping
-	public Map<Long, CategoryDTO> getAllCategories() {
-		return categoryService.findAll().stream().collect(Collectors.toMap(CategoryDTO::getId, category -> category));
+	public List<CategoryDTO> getAllCategories() {
+		return categoryService.findAll();
 	}
 
 	@GetMapping("/{id}")

@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -18,8 +17,8 @@ public class AccountController {
 	private final AccountService accountService;
 
 	@GetMapping
-	public Map<Long, AccountDTO> getAllAccounts() {
-		return accountService.findAll().stream().collect(Collectors.toMap(AccountDTO::getId, account -> account));
+	public List<AccountDTO> getAllAccounts() {
+		return accountService.findAll();
 	}
 
 	@GetMapping("/{id}")

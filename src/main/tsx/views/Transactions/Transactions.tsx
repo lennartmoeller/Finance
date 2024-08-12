@@ -1,22 +1,36 @@
 import React from "react";
 
 import useGetQuery from "@/hooks/useGetQuery";
+import Account, {AccountDTO, accountMapper} from "@/types/Account";
+import Category, {CategoryDTO, categoryMapper} from "@/types/Category";
 import Transaction, {TransactionDTO, transactionMapper} from "@/types/Transaction";
 import TransactionsTable from "@/views/Transactions/Table/TransactionsTable";
 
 const Transactions: React.FC = () => {
     const {
+        data: accounts,
+        error: accountsError,
+        isLoading: accountsIsLoading,
+    } = useGetQuery<Array<AccountDTO>, Array<Account>>('accounts', as => as.map(accountMapper.fromDTO));
+    const {
+        data: categories,
+        error: categoriesError,
+        isLoading: categoriesIsLoading,
+    } = useGetQuery<Array<CategoryDTO>, Array<Category>>('categories', cs => cs.map(categoryMapper.fromDTO));
+    const {
         data: transactions,
-        error,
-        isLoading
+        error: transactionsError,
+        isLoading: transactionsIsLoading,
     } = useGetQuery<Array<TransactionDTO>, Array<Transaction>>('transactions', ts => ts.map(transactionMapper.fromDTO));
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
-    if (!transactions) return <div>No data available</div>;
+    if (accountsIsLoading || categoriesIsLoading || transactionsIsLoading) return <div>Loading...</div>;
+    if (accountsError) return <div>Error: {accountsError.message}</div>;
+    if (categoriesError) return <div>Error: {categoriesError.message}</div>;
+    if (transactionsError) return <div>Error: {transactionsError.message}</div>;
+    if (!accounts || !categories || !transactions) return <div>No data available</div>;
 
     return (
-        <TransactionsTable transactions={transactions}/>
+        <TransactionsTable accounts={accounts} categories={categories} transactions={transactions}/>
     );
 
 };
