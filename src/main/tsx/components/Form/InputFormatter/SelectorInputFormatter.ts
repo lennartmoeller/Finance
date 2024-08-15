@@ -10,7 +10,7 @@ class SelectorInputFormatter<
     T extends Record<K, number> & Record<L, string>,
     K extends keyof T & string,
     L extends keyof T & string,
-> extends InputFormatter<T[K] | null> {
+> extends InputFormatter<T[K]> {
 
     private readonly options: Array<T>;
     private readonly idProperty: K;

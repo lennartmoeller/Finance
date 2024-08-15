@@ -9,7 +9,7 @@ class StringInputFormatter extends InputFormatter<string> {
     /**
      * @inheritDoc
      */
-    toInputState = (value: string): InputState => ({value: value});
+    toInputState = (value: string | null): InputState => ({value: value ?? ''});
 
     /**
      * @inheritDoc
@@ -19,7 +19,7 @@ class StringInputFormatter extends InputFormatter<string> {
     /**
      * @inheritDoc
      */
-    onBlur = (state: InputState): string => state.value;
+    onBlur = (state: InputState): string | null => state.value;
 
 }
 

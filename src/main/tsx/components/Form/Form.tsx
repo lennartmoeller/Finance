@@ -1,34 +1,34 @@
 import React, {ReactNode, useRef} from 'react';
 
 import FormContext from "@/components/Form/context/FormContext";
+import {Nullable} from "@/utils/types";
 
 interface FormProps<V extends object> {
-    initial: V;
-    onChange: (item: V) => V;
+    initial: Nullable<V>;
+    onChange: (item: Nullable<V>) => Nullable<V>;
     children: ReactNode;
 }
 
 const TableRow = <V extends object>({initial, onChange, children}: FormProps<V>) => {
     const item = useRef(initial);
 
-    const setters = useRef(new Map<keyof V, (value: V[keyof V]) => void>());
+    const setters = useRef(new Map<keyof V, (value: V[keyof V] | null) => void>());
 
-    const registerValueSetter = <K extends keyof V>(property: K, setValue: (value: V[K]) => void): void => {
+    const registerValueSetter = <K extends keyof V>(property: K, setValue: (value: V[K] | null) => void): void => {
         if (!setters.current.has(property)) {
-            setters.current.set(property, setValue as (value: V[keyof V]) => void);
+            setters.current.set(property, setValue as (value: V[keyof V] | null) => void);
             setValue(initial[property]);
         }
     };
 
-    const updatePropertyValue = <K extends keyof V>(changedProperty: K, changedValue: V[K]): boolean => {
+    const updatePropertyValue = <K extends keyof V>(changedProperty: K, changedValue: V[K] | null): boolean => {
         if (item.current[changedProperty] === changedValue) {
             return false; // do nothing: value hasn't changed
         }
-        const updatedItem: V = onChange({...item.current, [changedProperty]: changedValue});
+        const updatedItem: Nullable<V> = onChange({...item.current, [changedProperty]: changedValue});
         for (const property in updatedItem) {
             if (item.current[property] === updatedItem[property]) {
-                // do nothing: value hasn't changed
-                continue;
+                continue; // do nothing: value hasn't changed
             }
             const setter = setters.current.get(property);
             if (setter) {

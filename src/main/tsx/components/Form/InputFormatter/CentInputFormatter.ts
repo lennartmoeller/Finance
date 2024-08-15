@@ -9,7 +9,11 @@ class CentInputFormatter extends InputFormatter<number> {
     /**
      * @inheritDoc
      */
-    toInputState = (cents: number): InputState => {
+    toInputState = (cents: number | null): InputState => {
+        if (cents === null) {
+            return {value: ''};
+        }
+
         const isNegative = cents < 0;
         const absoluteCents = Math.abs(cents);
 
@@ -65,7 +69,7 @@ class CentInputFormatter extends InputFormatter<number> {
     /**
      * @inheritDoc
      */
-    onBlur = (state: InputState): number => {
+    onBlur = (state: InputState): number | null => {
         let normalizedValue = state.value;
 
         normalizedValue = normalizedValue.replace(',', '.');

@@ -12,6 +12,8 @@ import TableRow from "@/components/Table/TableRow";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
+import {Nullable} from "@/utils/types";
+import DateInputFormatter from "@/components/Form/InputFormatter/DateInputFormatter";
 
 interface TransactionsTableProps {
     accounts: Array<Account>;
@@ -20,6 +22,9 @@ interface TransactionsTableProps {
 }
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({accounts, categories, transactions,}) => {
+    const accountsSelectorInputFormatter = new SelectorInputFormatter(accounts, "id", "label");
+    const categoriesSelectorInputFormatter = new SelectorInputFormatter(categories, "id", "label");
+
     return (
         <Table
             data={transactions}
@@ -36,32 +41,37 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({accounts, categori
                 <TableRow>
                     <Form
                         initial={transaction}
-                        onChange={(item: Transaction) => {
+                        onChange={(item: Nullable<Transaction>) => {
                             console.log("Full item", item);
                             return item;
                         }}
                     >
-                        <TableBodyCell>{transaction.date.toDateString()}</TableBodyCell>
                         <TableBodyCell>
-                            <Input
-                                property="accountId"
-                                inputFormatter={new SelectorInputFormatter(accounts, "id", "label")}
+                            <Input<Transaction, "date">
+                                property="date"
+                                inputFormatter={new DateInputFormatter()}
                             />
                         </TableBodyCell>
                         <TableBodyCell>
-                            <Input
+                            <Input<Transaction, "accountId">
+                                property="accountId"
+                                inputFormatter={accountsSelectorInputFormatter}
+                            />
+                        </TableBodyCell>
+                        <TableBodyCell>
+                            <Input<Transaction, "categoryId">
                                 property="categoryId"
-                                inputFormatter={new SelectorInputFormatter(categories, "id", "label")}
+                                inputFormatter={categoriesSelectorInputFormatter}
                             />
                         </TableBodyCell>
                         <TableBodyCell width={300}>
-                            <Input
+                            <Input<Transaction, "description">
                                 property="description"
                                 inputFormatter={new StringInputFormatter()}
                             />
                         </TableBodyCell>
                         <TableBodyCell horAlign="right" width={100}>
-                            <Input
+                            <Input<Transaction, "amount">
                                 property="amount"
                                 inputFormatter={new CentInputFormatter()}
                                 textAlign="right"

@@ -10,7 +10,7 @@ abstract class InputFormatter<V> {
      * @param value - The value to convert.
      * @returns The input state.
      */
-    abstract toInputState: (value: V) => InputState;
+    abstract toInputState: (value: V | null) => InputState;
 
     /**
      * Corrects the input value direct after user input.
@@ -25,7 +25,7 @@ abstract class InputFormatter<V> {
      * @param value - The input state.
      * @returns The final value.
      */
-    abstract onBlur: (value: InputState) => V;
+    abstract onBlur: (value: InputState) => V | null;
 }
 
 export default InputFormatter;
