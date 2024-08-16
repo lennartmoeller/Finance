@@ -11,6 +11,7 @@ const StyledHeaderCell = styled(StyledCell).attrs({as: 'th'})``;
 const TableHeaderCell: React.FC<TableCellProps> = (
     {
         headerLevel = 1,
+        padding,
         horAlign,
         vertAlign,
         colspan,
@@ -29,6 +30,7 @@ const TableHeaderCell: React.FC<TableCellProps> = (
             $zIndex={zIndex}>
             <StyledCellContent
                 $headerLevel={headerLevel}
+                $padding={padding}
                 $horAlign={horAlign}
                 $vertAlign={vertAlign}>
                 {children}

@@ -1,5 +1,5 @@
 import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
-import InputState from "@/components/Form/InputFormatter/InputState";
+import InputState from "@/components/Form/types/InputState";
 
 /**
  * Input formatter for normal strings.
@@ -9,17 +9,22 @@ class StringInputFormatter extends InputFormatter<string> {
     /**
      * @inheritDoc
      */
-    toInputState = (value: string | null): InputState => ({value: value ?? ''});
+    toInputState = (value: string | null): InputState<string> => ({value: value ?? ''});
 
     /**
      * @inheritDoc
      */
-    onChange = (before: InputState, after: string): InputState => ({value: after});
+    onFocus = (state: InputState<string>): InputState<string> => state;
 
     /**
      * @inheritDoc
      */
-    onBlur = (state: InputState): string | null => state.value;
+    onChange = (before: InputState<string>, after: string): InputState<string> => ({value: after});
+
+    /**
+     * @inheritDoc
+     */
+    onBlur = (state: InputState<string>): string | null => state.value;
 
 }
 

@@ -33,6 +33,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({accounts, categori
             )}
             body={(transaction: Transaction) => (
                 <TransactionsTableRow
+                    key={transaction.id}
                     transaction={transaction}
                     accountsSelectorInputFormatter={accountsSelectorInputFormatter}
                     categoriesSelectorInputFormatter={categoriesSelectorInputFormatter}

@@ -1,8 +1,7 @@
 import styled from "styled-components";
 
-const StyledPlaceholder = styled.div`
+const StyledInputFieldPlaceholder = styled.div`
     position: absolute;
-    opacity: 0.5;
     top: 0;
     left: 0;
     right: 0;
@@ -11,4 +10,4 @@ const StyledPlaceholder = styled.div`
     white-space: nowrap;
 `;
 
-export default StyledPlaceholder;
+export default StyledInputFieldPlaceholder;

@@ -2,11 +2,12 @@ import styled from "styled-components";
 
 const StyledCellContent = styled.div<{
     $headerLevel?: 1 | 2,
+    $padding?: string;
     $horAlign?: 'left' | 'center' | 'right',
     $vertAlign?: 'top' | 'center' | 'bottom',
 }>`
     box-sizing: border-box;
-    padding: 2px 6px;
+    padding: ${({$padding}) => $padding ?? "4px 8px"};
     display: flex;
     justify-content: ${({$horAlign}) => {
         switch ($horAlign) {

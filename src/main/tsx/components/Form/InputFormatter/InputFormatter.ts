@@ -1,4 +1,4 @@
-import InputState from "@/components/Form/InputFormatter/InputState";
+import InputState from "@/components/Form/types/InputState";
 
 /**
  * Interface for input formatters.
@@ -10,7 +10,14 @@ abstract class InputFormatter<V> {
      * @param value - The value to convert.
      * @returns The input state.
      */
-    abstract toInputState: (value: V | null) => InputState;
+    abstract toInputState: (value: V | null) => InputState<V>;
+
+    /**
+     * Corrects the input value direct after focus.
+     * @param value - The input state.
+     * @returns The input state to apply.
+     */
+    abstract onFocus: (value: InputState<V>) => InputState<V>;
 
     /**
      * Corrects the input value direct after user input.
@@ -18,14 +25,14 @@ abstract class InputFormatter<V> {
      * @param after - The input value after the change.
      * @returns The input state to apply.
      */
-    abstract onChange: (before: InputState, after: string) => InputState;
+    abstract onChange: (before: InputState<V>, after: string) => InputState<V>;
 
     /**
      * Converts the input state to the final value.
      * @param value - The input state.
      * @returns The final value.
      */
-    abstract onBlur: (value: InputState) => V | null;
+    abstract onBlur: (value: InputState<V>) => V | null;
 }
 
 export default InputFormatter;

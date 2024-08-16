@@ -1,6 +1,7 @@
 import {ReactNode} from "react";
 
 interface TableBodyCellProps {
+    padding?: string;
     horAlign?: 'left' | 'center' | 'right';
     vertAlign?: 'top' | 'center' | 'bottom';
     colspan?: number;

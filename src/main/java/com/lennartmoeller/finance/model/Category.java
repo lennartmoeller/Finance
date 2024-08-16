@@ -22,7 +22,7 @@ public class Category {
 	@JoinColumn(name = "parent")
 	private Category parent;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String label;
 
 	@Enumerated(EnumType.STRING)

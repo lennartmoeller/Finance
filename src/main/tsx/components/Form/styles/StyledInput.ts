@@ -1,12 +1,10 @@
 import styled from "styled-components";
 
-const StyledInput = styled.input<{
-    $textAlign?: 'left' | 'center' | 'right',
-}>`
-    all: unset;
-    z-index: 1;
+const StyledInput = styled.div`
+    display: flex;
     width: 100%;
-    text-align: ${({ $textAlign }) => $textAlign || 'left'};
+    align-items: center;
+    gap: 6px;
 `;
 
 export default StyledInput;

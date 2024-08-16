@@ -3,7 +3,7 @@ import React from 'react';
 import useForm from "@/components/Form/hooks/useForm";
 import Input from "@/components/Form/Input";
 import CentInputFormatter from "@/components/Form/InputFormatter/CentInputFormatter";
-import DateInputFormatter from "@/components/Form/InputFormatter/DateInputFormatter";
+import GermanDateInputFormatter from "@/components/Form/InputFormatter/GermanDateInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import TableBodyCell from "@/components/Table/TableBodyCell";
@@ -11,7 +11,6 @@ import TableRow from "@/components/Table/TableRow";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
-import {Nullable} from "@/utils/types";
 
 interface TransactionsTableRowProps {
     transaction: Transaction;
@@ -26,33 +25,35 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
                                                                    }) => {
     const register = useForm({
         initial: transaction,
-        onChange: (item: Nullable<Transaction>) => {
-            console.log("Full item", item);
-            return item;
+        onChange: (formState) => {
+            console.log(formState);
         },
     });
 
     return (
         <TableRow>
-            <TableBodyCell>
+            <TableBodyCell width={94}>
                 <Input
                     {...register("date")}
-                    inputFormatter={new DateInputFormatter()}
+                    inputFormatter={new GermanDateInputFormatter(2024, 12)}
+                    required
                 />
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell width={140}>
                 <Input
                     {...register("accountId")}
                     inputFormatter={accountsSelectorInputFormatter}
+                    required
                 />
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell width={200}>
                 <Input
                     {...register("categoryId")}
                     inputFormatter={categoriesSelectorInputFormatter}
+                    required
                 />
             </TableBodyCell>
-            <TableBodyCell width={300}>
+            <TableBodyCell width={350}>
                 <Input
                     {...register("description")}
                     inputFormatter={new StringInputFormatter()}
@@ -62,6 +63,7 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
                 <Input
                     {...register("amount")}
                     inputFormatter={new CentInputFormatter()}
+                    required
                     textAlign="right"
                 />
             </TableBodyCell>

@@ -11,6 +11,7 @@ const StyledBodyCell = styled(StyledCell).attrs({as: 'td'})``;
 const TableBodyCell: React.FC<TableCellProps> = (
     {
         headerLevel,
+        padding,
         horAlign,
         vertAlign,
         colspan,
@@ -29,6 +30,7 @@ const TableBodyCell: React.FC<TableCellProps> = (
             $zIndex={zIndex}>
             <StyledCellContent
                 $headerLevel={headerLevel}
+                $padding={padding}
                 $horAlign={horAlign}
                 $vertAlign={vertAlign}>
                 {children}
