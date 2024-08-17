@@ -32,7 +32,7 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 
     return (
         <TableRow>
-            <TableBodyCell width={94}>
+            <TableBodyCell width={98}>
                 <Input
                     {...register("date")}
                     inputFormatter={new GermanDateInputFormatter(2024, 12)}

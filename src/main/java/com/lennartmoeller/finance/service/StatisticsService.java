@@ -232,6 +232,8 @@ public class StatisticsService {
 			long daysInYear = dateRange.getOverlapMonths(new DateRange(year));
 			smoothedSurplus += MapUtils.getObject(smoothedBalancesMapYearly, year, 0L).doubleValue() / daysInYear;
 
+			smoothedSurplus += Math.random() * 100; // TODO: Testing purposes only, remove this line
+
 			surplus.setSmoothed(smoothedSurplus);
 
 			cellStats.setSurplus(surplus);

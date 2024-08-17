@@ -17,7 +17,8 @@ public class AccountController {
 	private final AccountService accountService;
 
 	@GetMapping
-	public List<AccountDTO> getAllAccounts() {
+	public List<AccountDTO> getAccounts() throws InterruptedException {
+		Thread.sleep(5000); // TODO: Testing purposes only, remove this line
 		return accountService.findAll();
 	}
 

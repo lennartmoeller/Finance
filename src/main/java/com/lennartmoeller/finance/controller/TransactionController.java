@@ -18,7 +18,8 @@ public class TransactionController {
 	private final TransactionService transactionService;
 
 	@GetMapping
-	public List<TransactionDTO> getAllTransactions(@RequestParam(required = false) YearMonth yearMonth) {
+	public List<TransactionDTO> getTransactions(@RequestParam(required = false) YearMonth yearMonth) throws InterruptedException {
+		Thread.sleep(5000); // TODO: Testing purposes only, remove this line
 		List<TransactionDTO> transactions = transactionService.findAll(yearMonth);
 		if (yearMonth != null) {
 			return transactions.stream()

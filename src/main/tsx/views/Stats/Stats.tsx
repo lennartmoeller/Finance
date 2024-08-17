@@ -1,7 +1,7 @@
 import React from "react";
 
 import Select from "@/components/Select/Select";
-import useGetQuery from "@/hooks/useGetQuery";
+import useCachedGetQuery from "@/hooks/useCachedGetQuery";
 import usePersistentState from "@/hooks/usePersistentState";
 import Stats, {StatsDTO, statsMapper} from "@/types/Stats";
 import StatsChart from "@/views/Stats/Chart/StatsChart";
@@ -10,7 +10,7 @@ import StatsTable from "@/views/Stats/Table/StatsTable";
 export type StatsMode = { processing: 'raw' | 'smoothed', shared: boolean };
 
 const Stats: React.FC = () => {
-    const {data: stats, error, isLoading} = useGetQuery<StatsDTO, Stats>('stats', statsMapper.fromDTO);
+    const {data: stats, error, isLoading} = useCachedGetQuery<StatsDTO, Stats>('stats', statsMapper.fromDTO);
 
     const [mode, setMode] = usePersistentState<StatsMode>('statsMode', {processing: 'smoothed', shared: false});
 
@@ -44,3 +44,4 @@ const Stats: React.FC = () => {
 };
 
 export default Stats;
+

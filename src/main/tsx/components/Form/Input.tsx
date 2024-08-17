@@ -84,7 +84,7 @@ const Input = <T, >({
                         initial={{opacity: 0}}
                         animate={{opacity: .5}}
                         exit={{opacity: 0}}
-                        transition={{duration: .3}}
+                        transition={{duration: .25}}
                     >
                         {inputState.prediction.label}
                     </StyledInputFieldPlaceholder>

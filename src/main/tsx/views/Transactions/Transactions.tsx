@@ -1,6 +1,6 @@
 import React from "react";
 
-import useGetQuery from "@/hooks/useGetQuery";
+import useCachedGetQuery from "@/hooks/useCachedGetQuery";
 import Account, {AccountDTO, accountMapper} from "@/types/Account";
 import Category, {CategoryDTO, categoryMapper} from "@/types/Category";
 import Transaction, {TransactionDTO, transactionMapper} from "@/types/Transaction";
@@ -11,17 +11,17 @@ const Transactions: React.FC = () => {
         data: accounts,
         error: accountsError,
         isLoading: accountsIsLoading,
-    } = useGetQuery<Array<AccountDTO>, Array<Account>>('accounts', as => as.map(accountMapper.fromDTO));
+    } = useCachedGetQuery<Array<AccountDTO>, Array<Account>>('accounts', as => as.map(accountMapper.fromDTO));
     const {
         data: categories,
         error: categoriesError,
         isLoading: categoriesIsLoading,
-    } = useGetQuery<Array<CategoryDTO>, Array<Category>>('categories', cs => cs.map(categoryMapper.fromDTO));
+    } = useCachedGetQuery<Array<CategoryDTO>, Array<Category>>('categories', cs => cs.map(categoryMapper.fromDTO));
     const {
         data: transactions,
         error: transactionsError,
         isLoading: transactionsIsLoading,
-    } = useGetQuery<Array<TransactionDTO>, Array<Transaction>>('transactions', ts => ts.map(transactionMapper.fromDTO));
+    } = useCachedGetQuery<Array<TransactionDTO>, Array<Transaction>>('transactions', ts => ts.map(transactionMapper.fromDTO));
 
     if (accountsIsLoading || categoriesIsLoading || transactionsIsLoading) return <div>Loading...</div>;
     if (accountsError) return <div>Error: {accountsError.message}</div>;

@@ -1,18 +1,17 @@
-import React, {useEffect, useState} from "react";
+import {useState} from "react";
 
-function usePersistentState<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-    const getStoredValue = (): T => {
-        const storedValue: string | null = localStorage.getItem(key);
-        return storedValue ? JSON.parse(storedValue) : initialValue;
+const usePersistentState = <T, >(key: string, defaultValue: T): [T, (value: T) => void] => {
+    const [storedValue, setStoredValue] = useState<T>(() => {
+        const item: string | null = localStorage.getItem(key);
+        return item ? JSON.parse(item) : defaultValue;
+    });
+
+    const setValue = (value: T) => {
+        setStoredValue(value);
+        localStorage.setItem(key, JSON.stringify(value));
     };
 
-    const [value, setValue] = useState<T>(getStoredValue);
-
-    useEffect(() => {
-        localStorage.setItem(key, JSON.stringify(value));
-    }, [key, value]);
-
-    return [value, setValue];
-}
+    return [storedValue, setValue];
+};
 
 export default usePersistentState;
