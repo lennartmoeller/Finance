@@ -15,6 +15,7 @@ import com.lennartmoeller.finance.util.YearHalf;
 import com.lennartmoeller.finance.util.YearQuarter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.springframework.stereotype.Service;
 
@@ -163,15 +164,17 @@ public class StatisticsService {
 						.collect(Collectors.toMap(
 							month -> month,
 							month -> {
-								CellStatsDTO cellStatsDTO = categoryStatsMap.get(month).stream()
-									.reduce(CellStatsDTO.empty(), CellStatsDTO::add);
+								CellStatsDTO cellStatsDTO = CellStatsDTO.add(categoryStatsMap.get(month));
 								rawSurplusesDS.addValue(cellStatsDTO.getSurplus().getRaw());
 								smoothedSurplusesDS.addValue(cellStatsDTO.getSurplus().getSmoothed());
 								return cellStatsDTO;
 							}
 						));
 
-					monthlyStats.forEach((month, cellStatsDTO) -> cellStatsDTO.calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
+					// calculate performance
+					ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS);
+					ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS);
+					monthlyStats.forEach((month, cellStatsDTO) -> cellStatsDTO.calculatePerformance(rawBounds, smoothedBounds));
 
 					categoryStatsNodeDTO.setStats(new RowStatsDTO(monthlyStats));
 				}
@@ -232,8 +235,6 @@ public class StatisticsService {
 			long daysInYear = dateRange.getOverlapMonths(new DateRange(year));
 			smoothedSurplus += MapUtils.getObject(smoothedBalancesMapYearly, year, 0L).doubleValue() / daysInYear;
 
-			smoothedSurplus += Math.random() * 100; // TODO: Testing purposes only, remove this line
-
 			surplus.setSmoothed(smoothedSurplus);
 
 			cellStats.setSurplus(surplus);
@@ -261,7 +262,9 @@ public class StatisticsService {
 		});
 
 		// calculate performance
-		monthlyCategoryStats.forEach((month, cellStats) -> cellStats.calculatePerformance(rawSurplusesDS, smoothedSurplusesDS));
+		ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS);
+		ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS);
+		monthlyCategoryStats.forEach((month, cellStats) -> cellStats.calculatePerformance(rawBounds, smoothedBounds));
 
 		return monthlyCategoryStats;
 	}

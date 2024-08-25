@@ -17,8 +17,7 @@ public class CategoryController {
 	private final CategoryService categoryService;
 
 	@GetMapping
-	public List<CategoryDTO> getCategories() throws InterruptedException {
-		Thread.sleep(5000); // TODO: Testing purposes only, remove this line
+	public List<CategoryDTO> getCategories() {
 		return categoryService.findAll();
 	}
 

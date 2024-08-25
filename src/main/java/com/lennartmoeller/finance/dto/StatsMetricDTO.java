@@ -20,21 +20,21 @@ public class StatsMetricDTO {
 		return dto;
 	}
 
-	public static StatsMetricDTO add(StatsMetricDTO a, StatsMetricDTO b) {
+	public static StatsMetricDTO add(List<StatsMetricDTO> statsMetricDTOs) {
 		StatsMetricDTO result = new StatsMetricDTO();
-		result.setRaw(a.getRaw() + b.getRaw());
-		result.setSmoothed(a.getSmoothed() + b.getSmoothed());
+		result.setRaw(statsMetricDTOs.stream().mapToDouble(StatsMetricDTO::getRaw).sum());
+		result.setSmoothed(statsMetricDTOs.stream().mapToDouble(StatsMetricDTO::getSmoothed).sum());
 		return result;
 	}
 
-	public static StatsMetricDTO mean(List<StatsMetricDTO> statsMetrics) {
-		if (statsMetrics.isEmpty()) {
+	public static StatsMetricDTO mean(List<StatsMetricDTO> statsMetricDTOs) {
+		if (statsMetricDTOs.isEmpty()) {
 			return StatsMetricDTO.empty();
 		}
-		StatsMetricDTO output = statsMetrics.stream().reduce(StatsMetricDTO.empty(), StatsMetricDTO::add);
-		output.setRaw(output.getRaw() / statsMetrics.size());
-		output.setSmoothed(output.getSmoothed() / statsMetrics.size());
-		return output;
+		StatsMetricDTO result = StatsMetricDTO.add(statsMetricDTOs);
+		result.setRaw(result.getRaw() / statsMetricDTOs.size());
+		result.setSmoothed(result.getSmoothed() / statsMetricDTOs.size());
+		return result;
 	}
 
 }

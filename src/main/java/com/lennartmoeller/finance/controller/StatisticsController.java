@@ -15,8 +15,7 @@ public class StatisticsController {
 	private final StatisticsService statisticsService;
 
 	@GetMapping
-	public StatsDTO getStatistics() throws InterruptedException {
-		Thread.sleep(5000); // TODO: Testing purposes only, remove this line
+	public StatsDTO getStatistics() {
 		return statisticsService.getStatistics();
 	}
 

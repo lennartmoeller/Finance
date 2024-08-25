@@ -7,8 +7,6 @@ import lombok.Setter;
 
 import java.time.YearMonth;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Getter
 @RequiredArgsConstructor
@@ -20,21 +18,12 @@ public class RowStatsDTO {
 		return new RowStatsDTO(Map.of());
 	}
 
-	public static RowStatsDTO add(RowStatsDTO a, RowStatsDTO b) {
-		Map<YearMonth, CellStatsDTO> combined = Stream.concat(a.getMonthly().entrySet().stream(), b.getMonthly().entrySet().stream())
-			.collect(Collectors.toMap(
-				Map.Entry::getKey,
-				Map.Entry::getValue,
-				CellStatsDTO::add
-			));
-		return new RowStatsDTO(combined);
-	}
-
 	@JsonProperty
 	public CellStatsDTO getMean() {
 		if (this.getMonthly().isEmpty()) {
 			return CellStatsDTO.empty();
 		}
+
 		CellStatsDTO mean = new CellStatsDTO();
 		mean.setSurplus(StatsMetricDTO.mean(this.getMonthly().values().stream().map(CellStatsDTO::getSurplus).toList()));
 		mean.setTarget(0.0); // TODO

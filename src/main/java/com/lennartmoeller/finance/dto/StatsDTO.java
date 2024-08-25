@@ -6,7 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @RequiredArgsConstructor
@@ -30,10 +34,22 @@ public class StatsDTO {
 
 	@JsonProperty
 	public RowStatsDTO getTotalStats() {
-		return RowStatsDTO.add(
-			this.getIncomeStats().getTotalStats(),
-			this.getExpenseStats().getTotalStats()
-		);
+		Map<YearMonth, CellStatsDTO> totalStats = Stream.concat(
+				this.getIncomeStats().getCategoryStats().stream(),
+				this.getExpenseStats().getCategoryStats().stream()
+			)
+			.flatMap(categoryStatsNodeDTO -> categoryStatsNodeDTO.getStats().getMonthly().entrySet().stream())
+			.collect(Collectors.groupingBy(
+				Map.Entry::getKey,
+				Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+			))
+			.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> CellStatsDTO.add(entry.getValue())
+			));
+
+		return new RowStatsDTO(totalStats);
 	}
 
 }

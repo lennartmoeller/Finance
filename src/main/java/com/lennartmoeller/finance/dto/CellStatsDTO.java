@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
 public class CellStatsDTO {
 	private StatsMetricDTO surplus;
 	private Double target;
-	private @Nullable StatsMetricDTO performance;
+	private @Nullable PerformanceDTO performance;
 
 	public static CellStatsDTO empty() {
 		CellStatsDTO dto = new CellStatsDTO();
@@ -24,11 +25,11 @@ public class CellStatsDTO {
 		return dto;
 	}
 
-	public static CellStatsDTO add(CellStatsDTO a, CellStatsDTO b) {
-		CellStatsDTO result = new CellStatsDTO();
-		result.setSurplus(StatsMetricDTO.add(a.getSurplus(), b.getSurplus()));
-		result.setTarget(a.getTarget() + b.getTarget());
-		result.setPerformance(null);
+	public static CellStatsDTO add(List<CellStatsDTO> cellStatsDTOs) {
+		CellStatsDTO result = CellStatsDTO.empty();
+		result.setSurplus(StatsMetricDTO.add(cellStatsDTOs.stream().map(CellStatsDTO::getSurplus).toList()));
+		result.setTarget(cellStatsDTOs.stream().mapToDouble(CellStatsDTO::getTarget).sum());
+		result.setPerformance(PerformanceDTO.mean(cellStatsDTOs.stream().map(CellStatsDTO::getPerformance).toList()));
 		return result;
 	}
 
@@ -40,24 +41,13 @@ public class CellStatsDTO {
 		return output;
 	}
 
-	public void calculatePerformance(DescriptiveStatistics rawSurpluses, DescriptiveStatistics smoothedSurpluses) {
-		StatsMetricDTO statsMetricDTO = new StatsMetricDTO();
-		statsMetricDTO.setRaw(calculatePerformanceType(rawSurpluses, this.getSurplus().getRaw()));
-		statsMetricDTO.setSmoothed(calculatePerformanceType(smoothedSurpluses, this.getSurplus().getSmoothed()));
-		this.setPerformance(statsMetricDTO);
-	}
-
-	private double calculatePerformanceType(DescriptiveStatistics surpluses, double surplus) {
-		double mean = surpluses.getMean();
-		double standardDeviation = surpluses.getStandardDeviation();
-		if (standardDeviation == 0.0) {
-			if (surplus == mean) {
-				return 0.5;
-			}
-			return surplus > mean ? 1.0 : 0.0;
-		}
-		double normalizedSurplus = (1.0 + (surplus - mean) / standardDeviation) / 2.0;
-		return Math.clamp(normalizedSurplus, 0.0, 1.0);
+	public void calculatePerformance(ImmutableTriple<Double, Double, Double> rawBounds, ImmutableTriple<Double, Double, Double> smoothedBounds) {
+		this.setPerformance(PerformanceDTO.calculate(
+			this.getSurplus().getRaw(),
+			rawBounds,
+			this.getSurplus().getSmoothed(),
+			smoothedBounds
+		));
 	}
 
 }

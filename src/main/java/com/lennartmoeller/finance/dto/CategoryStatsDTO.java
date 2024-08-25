@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.YearMonth;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -25,13 +25,19 @@ public class CategoryStatsDTO {
 		if (this.getCategoryStats().isEmpty()) {
 			return RowStatsDTO.empty();
 		}
-		Map<YearMonth, CellStatsDTO> totalMonthly = categoryStats.stream()
-			.map(CategoryStatsNodeDTO::getStats)
-			.map(RowStatsDTO::getMonthly)
-			.reduce(new HashMap<>(), (a, b) -> {
-				b.forEach((k, v) -> a.merge(k, v, CellStatsDTO::add));
-				return a;
-			});
+
+		Map<YearMonth, CellStatsDTO> totalMonthly = this.getCategoryStats().stream()
+			.flatMap(categoryStatsNodeDTO -> categoryStatsNodeDTO.getStats().getMonthly().entrySet().stream())
+			.collect(Collectors.groupingBy(
+				Map.Entry::getKey,
+				Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+			))
+			.entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> CellStatsDTO.add(entry.getValue())
+			));
+
 		return new RowStatsDTO(totalMonthly);
 	}
 
