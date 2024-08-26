@@ -1,14 +1,26 @@
-import {useState} from "react";
+import {useState} from 'react';
 
-const usePersistentState = <T, >(key: string, defaultValue: T): [T, (value: T) => void] => {
+type ConversionFunctions<T> = {
+    serialize: (value: T) => string;
+    deserialize: (value: string) => T;
+};
+
+const usePersistentState = <T>(
+    key: string,
+    defaultValue: T,
+    conversions?: ConversionFunctions<T>,
+): [T, (value: T) => void] => {
+    const serialize = conversions?.serialize ?? JSON.stringify;
+    const deserialize = conversions?.deserialize ?? JSON.parse;
+
     const [storedValue, setStoredValue] = useState<T>(() => {
         const item: string | null = localStorage.getItem(key);
-        return item ? JSON.parse(item) : defaultValue;
+        return item ? deserialize(item) : defaultValue;
     });
 
     const setValue = (value: T) => {
         setStoredValue(value);
-        localStorage.setItem(key, JSON.stringify(value));
+        localStorage.setItem(key, serialize(value));
     };
 
     return [storedValue, setValue];
