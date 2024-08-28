@@ -1,44 +1,70 @@
-import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
+import InputFormatter, {InputFormatterOptions} from "@/components/Form/InputFormatter/InputFormatter";
 import InputState from "@/components/Form/types/InputState";
-import FieldErrorType from "@/components/Form/types/FieldErrorType";
 
-/**
- * Input formatter for cent values.
- */
+interface GermanDateInputFormatterOptions extends InputFormatterOptions {
+    defaultYear?: number;
+    defaultMonth?: number;
+}
+
 class GermanDateInputFormatter extends InputFormatter<Date> {
 
     private readonly defaultYear: number | undefined;
     private readonly defaultMonth: number | undefined;
 
-    constructor(defaultYear?: number, defaultMonth?: number) {
-        super();
-        if (defaultYear !== undefined && defaultYear.toString().length !== 4) {
+    constructor(options: GermanDateInputFormatterOptions = {}) {
+        super(options);
+        if (options.defaultYear !== undefined && options.defaultYear.toString().length !== 4) {
             throw new Error('Invalid default year');
         }
-        this.defaultYear = defaultYear;
-        if (defaultMonth !== undefined && (defaultMonth < 1 || defaultMonth > 12)) {
+        this.defaultYear = options.defaultYear;
+        if (options.defaultMonth !== undefined && (options.defaultMonth < 1 || options.defaultMonth > 12)) {
             throw new Error('Invalid default month');
         }
-        this.defaultMonth = defaultMonth;
+        this.defaultMonth = options.defaultMonth;
     }
 
-    /**
-     * @inheritDoc
-     */
-    toInputState = (date: Date | null): InputState<Date> => ({value: this.dateToGermanDateString(date)});
+    public valueToString(value: Date | null): string {
+        if (value === null) {
+            return '';
+        }
 
-    /**
-     * @inheritDoc
-     */
-    onFocus = (state: InputState<Date>): InputState<Date> => ({
-        value: state.value,
-        prediction: this.getPrediction(state.value),
-    });
+        const dayNumber = value.getDate();
+        const monthNumber = value.getMonth() + 1;
+        const yearNumber = value.getFullYear();
 
-    /**
-     * @inheritDoc
-     */
-    onChange = (before: InputState<Date>, after: string): InputState<Date> => {
+        const day = dayNumber.toString().padStart(2, '0');
+        const month = monthNumber.toString().padStart(2, '0');
+        const year = yearNumber.toString();
+
+        return `${day}.${month}.${year}`;
+    }
+
+    public stringToValue(string: string): Date | null {
+        const match = string.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        if (!match) {
+            return null;
+        }
+
+        const day: number = parseInt(match[1], 10);
+        const month: number = parseInt(match[2], 10) - 1;
+        const year: number = parseInt(match[3], 10);
+
+        const date: Date = new Date(year, month, day);
+
+        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+            return null;
+        }
+        return date;
+    }
+
+    public onFocus(state: InputState<Date>): InputState<Date> {
+        return {
+            ...state,
+            prediction: this.getPrediction(state.value)
+        };
+    }
+
+    public onChange(before: InputState<Date>, after: string): InputState<Date> {
         // Ensure valid characters: digits, dot
         if (/[^\d.]/.test(after)) {
             return before;
@@ -93,15 +119,12 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
 
         const prediction = this.getPrediction(value);
 
-        return {value, prediction};
-    };
-
-    /**
-     * @inheritDoc
-     */
-    onBlur = (state: InputState<Date>): Date | null => {
-        return state.prediction?.value ?? null;
-    };
+        return {
+            ...super.onChange(before, value),
+            prediction,
+            value,
+        };
+    }
 
     private getPrediction = (value: string): { label: string, value: Date | null } => {
         const parts: Array<string> = value.split('.');
@@ -113,42 +136,8 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
         const predictionLabel: string = parts.join('.');
         return {
             label: predictionLabel,
-            value: this.germanDateStringToDate(predictionLabel)
+            value: this.stringToValue(predictionLabel)
         };
-    };
-
-    private dateToGermanDateString = (date: Date | null): string => {
-        if (date === null) {
-            return '';
-        }
-
-        const dayNumber = date.getDate();
-        const monthNumber = date.getMonth() + 1;
-        const yearNumber = date.getFullYear();
-
-        const day = dayNumber.toString().padStart(2, '0');
-        const month = monthNumber.toString().padStart(2, '0');
-        const year = yearNumber.toString();
-
-        return `${day}.${month}.${year}`;
-    };
-
-    private germanDateStringToDate = (dateString: string): Date | null => {
-        const match = dateString.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-        if (!match) {
-            return null;
-        }
-
-        const day: number = parseInt(match[1], 10);
-        const month: number = parseInt(match[2], 10) - 1;
-        const year: number = parseInt(match[3], 10);
-
-        const date: Date = new Date(year, month, day);
-
-        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
-            return null;
-        }
-        return date;
     };
 
 }

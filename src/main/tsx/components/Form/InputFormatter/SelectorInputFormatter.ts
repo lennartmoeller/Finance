@@ -1,7 +1,13 @@
 import Fuse from 'fuse.js';
 
-import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
+import InputFormatter, {InputFormatterOptions} from "@/components/Form/InputFormatter/InputFormatter";
 import InputState from "@/components/Form/types/InputState";
+
+interface SelectorInputFormatterOptions<T, K, L> extends InputFormatterOptions {
+    options: Array<T>;
+    idProperty: K;
+    labelProperty: L;
+}
 
 /**
  * Input formatter for cent values.
@@ -17,11 +23,11 @@ class SelectorInputFormatter<
     private readonly labelProperty: L;
     private readonly fuse: Fuse<T>;
 
-    constructor(options: Array<T>, idProperty: K, labelProperty: L) {
-        super();
-        this.options = options;
-        this.idProperty = idProperty;
-        this.labelProperty = labelProperty;
+    constructor(options: SelectorInputFormatterOptions<T, K, L>) {
+        super(options);
+        this.options = options.options;
+        this.idProperty = options.idProperty;
+        this.labelProperty = options.labelProperty;
         this.fuse = new Fuse(
             this.options,
             {
@@ -31,44 +37,44 @@ class SelectorInputFormatter<
         );
     }
 
-    /**
-     * @inheritDoc
-     */
-    toInputState = (id: T[K] | null): InputState<T[K]> => {
-        const option: T | undefined = this.options.find(option => option[this.idProperty] === id);
-        return {value: option ? option[this.labelProperty] : ''};
-    };
+    public valueToString(value: T[K] | null): string {
+        const option: T | undefined = this.options.find(option => option[this.idProperty] === value);
+        return option ? option[this.labelProperty] : '';
+    }
+
+    public stringToValue(string: string): T[K] | null {
+        const prediction: T | null = this.getPrediction(string);
+
+        if (!prediction) {
+            return null;
+        }
+
+        return prediction[this.idProperty];
+    }
 
     /**
      * @inheritDoc
      */
-    onFocus = (state: InputState<T[K]>): InputState<T[K]> => state;
+    public onChange(before: InputState<T[K]>, after: string): InputState<T[K]> {
+        const prediction: T | null = this.getPrediction(after);
 
-    /**
-     * @inheritDoc
-     */
-    onChange = (_before: InputState<T[K]>, after: string): InputState<T[K]> => {
-        const prediction = this.getPrediction(after);
+        const result: InputState<T[K]> = super.onChange(before, after);
 
         if (prediction) {
             return {
-                value: prediction.label.slice(0, after.length),
-                prediction: prediction,
+                ...result,
+                value: (prediction[this.labelProperty] as string).slice(0, after.length),
+                prediction: {
+                    label: prediction[this.labelProperty],
+                    value: prediction[this.idProperty],
+                },
             };
         }
 
-        return {value: after};
-    };
+        return result;
+    }
 
-    /**
-     * @inheritDoc
-     */
-    onBlur = (state: InputState<T[K]>): T[K] | null => {
-        const prediction = this.getPrediction(state.value);
-        return prediction?.value ?? null;
-    };
-
-    private getPrediction = (search: string): { label: string, value: T[K] } | undefined => {
+    private getPrediction = (search: string): T | null => {
         const prediction = this.fuse.search(search).find(result => {
             if (result.score! > 0.5) {
                 return false;
@@ -80,13 +86,12 @@ class SelectorInputFormatter<
         });
 
         if (!prediction) {
-            return undefined;
+            return null;
         }
-        return {
-            label: prediction.item[this.labelProperty],
-            value: prediction.item[this.idProperty],
-        };
+
+        return prediction.item;
     };
+
 }
 
 export default SelectorInputFormatter;

@@ -1,37 +1,32 @@
 import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
 import InputState from "@/components/Form/types/InputState";
 
-/**
- * Input formatter for cent values.
- */
 class CentInputFormatter extends InputFormatter<number> {
 
-    /**
-     * @inheritDoc
-     */
-    toInputState = (cents: number | null): InputState<number> => {
+    public valueToString(cents: number | null): string {
         if (cents === null) {
-            return {value: ''};
+            return '';
         }
 
         const isNegative = cents < 0;
         const absoluteCents = Math.abs(cents);
 
-        let formattedValue = (absoluteCents / 100).toFixed(2).replace('.', ',');
-        formattedValue = isNegative ? `-${formattedValue}` : formattedValue;
+        const formattedValue = (absoluteCents / 100).toFixed(2).replace('.', ',');
+        return isNegative ? `-${formattedValue}` : formattedValue;
+    }
 
-        return {value: formattedValue};
-    };
+    public stringToValue(string: string): number | null {
+        const normalizedValue = string.replace(',', '.');
 
-    /**
-     * @inheritDoc
-     */
-    onFocus = (state: InputState<number>): InputState<number> => state;
+        if (normalizedValue === '' || normalizedValue === '-') {
+            return null;
+        }
 
-    /**
-     * @inheritDoc
-     */
-    onChange = (before: InputState<number>, after: string): InputState<number> => {
+        const floatValue = parseFloat(normalizedValue);
+        return Math.round(floatValue * 100);
+    }
+
+    public onChange(before: InputState<number>, after: string): InputState<number> {
         let cleanedValue = after;
 
         // Replace "." with ","
@@ -68,24 +63,9 @@ class CentInputFormatter extends InputFormatter<number> {
             cleanedValue = cleanedValue.replace(/^(-?),/, '$10,');
         }
 
-        return {value: cleanedValue};
-    };
+        return super.onChange(before, cleanedValue);
+    }
 
-    /**
-     * @inheritDoc
-     */
-    onBlur = (state: InputState<number>): number | null => {
-        let normalizedValue: string = state.value;
-
-        normalizedValue = normalizedValue.replace(',', '.');
-
-        if (normalizedValue === '' || normalizedValue === '-') {
-            return null;
-        }
-
-        const floatValue = parseFloat(normalizedValue);
-        return Math.round(floatValue * 100);
-    };
 }
 
 export default CentInputFormatter;

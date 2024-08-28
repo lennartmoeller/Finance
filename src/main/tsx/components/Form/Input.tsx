@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
+import React, {RefObject, useEffect, useRef, useState} from "react";
 
 import {motion} from "framer-motion";
 
+import {FormFieldState} from "@/components/Form/hooks/useForm";
 import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
 import StyledInput from "@/components/Form/styles/StyledInput";
 import StyledInputField from "@/components/Form/styles/StyledInputField";
 import StyledInputFieldPlaceholder from "@/components/Form/styles/StyledInputFieldPlaceholder";
 import StyledInputFieldWrapper from "@/components/Form/styles/StyledInputFieldWrapper";
-import FieldErrorType from "@/components/Form/types/FieldErrorType";
 import InputState from "@/components/Form/types/InputState";
 import Icon from "@/components/Icon/Icon";
 
@@ -15,68 +15,70 @@ export interface InputProps<T> {
     property: string | number | symbol;
     inputFormatter: InputFormatter<T>;
     initial?: T | null;
-    register?: (setValue: (value: T | null, errors: Array<FieldErrorType>) => void) => void;
-    onChange?: (value: T | null, errors: Array<FieldErrorType>) => void;
-    required?: boolean;
+    register?: (getFormFieldState: () => FormFieldState<T | null>) => void;
+    onChange?: () => void;
     textAlign?: 'left' | 'center' | 'right';
 }
 
-const Input = <T, >({
-                        property,
-                        inputFormatter,
-                        initial = null,
-                        register,
-                        onChange,
-                        required = false,
-                        textAlign,
-                    }: InputProps<T>) => {
+const Input = <T, >(
+    {
+        property,
+        inputFormatter,
+        initial = null,
+        register,
+        onChange,
+        textAlign,
+    }: InputProps<T>
+) => {
+    const input: RefObject<HTMLInputElement> = useRef(null);
 
-    const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.toInputState(initial));
+    const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
 
-    const [errors, setErrors] = useState(new Array<FieldErrorType>);
-
-    // register so that useForm can use it
+    // register once so that useForm can use it
     useEffect(() => {
-        if (register) {
-            register((value: T | null, errors: Array<FieldErrorType>) => {
-                setInputState(inputFormatter.toInputState(value));
-                setErrors(errors);
-            });
-        }
-    }, [register, inputFormatter]);
-
-    const getErrors = (value: T | null) => {
-        const errors: Array<FieldErrorType> = [];
-        if (required && value === null) {
-            errors.push(FieldErrorType.REQUIRED);
-        }
-        return errors;
-    };
+        register?.(
+            () => {
+                if (!input.current) {
+                    throw new Error('Input not registered');
+                }
+                const value: T | null = inputFormatter.stringToValue(input.current.value);
+                return {
+                    value: value,
+                    setValue: (value: T | null) => {
+                        setInputState((previous) => ({
+                            ...previous,
+                            value: inputFormatter.valueToString(value),
+                        }));
+                    },
+                    errors: inputFormatter.validate(value),
+                    hasFocus: document.activeElement === input.current,
+                };
+            }
+        );
+    });
 
     return (
         <StyledInput>
             <StyledInputFieldWrapper>
                 <StyledInputField
-                    $textAlign={textAlign}
+                    ref={input}
                     name={String(property)}
-                    type="text"
+                    value={inputState.value}
                     onFocus={() => {
-                        const state: InputState<T> = inputFormatter.onFocus(inputState);
-                        setInputState(state);
+                        setInputState((previous: InputState<T>) => inputFormatter.onFocus(previous));
                     }}
                     onChange={(event) => {
-                        const value: string = event.target.value;
-                        const state: InputState<T> = inputFormatter.onChange(inputState, value);
-                        setInputState(state);
-                        setErrors([]);
+                        const stringValue: string = event.target.value;
+                        const newInputState: InputState<T> = inputFormatter.onChange(inputState, stringValue);
+                        setInputState(newInputState);
                     }}
-                    onBlur={() => {
-                        const value: T | null = inputFormatter.onBlur(inputState);
-                        const currentErrors: Array<FieldErrorType> = getErrors(value);
-                        setErrors(currentErrors);
-                        onChange && onChange(value, currentErrors);
+                    onBlur={async () => {
+                        setInputState((previous: InputState<T>) => inputFormatter.onBlur(previous));
+                        await new Promise(requestAnimationFrame); // wait until new element is focused
+                        onChange?.();
                     }}
-                    value={inputState.value}
+                    type="text"
+                    $textAlign={textAlign}
                 />
                 {inputState.prediction && (
                     <StyledInputFieldPlaceholder
@@ -90,7 +92,7 @@ const Input = <T, >({
                     </StyledInputFieldPlaceholder>
                 )}
             </StyledInputFieldWrapper>
-            {errors.length > 0 && (
+            {inputState.errors.length > 0 && (
                 <Icon id="fa-regular fa-circle-exclamation" size={18} color="red"/>
             )}
         </StyledInput>
