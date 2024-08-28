@@ -1,30 +1,30 @@
 import React from 'react';
 
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import ReactDOM from 'react-dom/client';
 import '@/index.css';
+import {PersistQueryClientProvider} from '@tanstack/react-query-persist-client';
+import ReactDOM from 'react-dom/client';
 import {BrowserRouter, useRoutes} from "react-router-dom";
 import {ThemeProvider} from "styled-components";
 
+import {persister, queryClient} from "@/config/queryClient";
 import routes from "@/routing/routes";
 import theme from "@/styles/theme";
 
-const queryClient: QueryClient = new QueryClient();
-
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
-const AppRoutes = () => {
-    return useRoutes(routes);
-};
+const AppRoutes = () => useRoutes(routes);
 
 root.render(
     <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{persister}}
+        >
             <ThemeProvider theme={theme}>
                 <BrowserRouter>
                     <AppRoutes/>
                 </BrowserRouter>
             </ThemeProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
     </React.StrictMode>
 );
