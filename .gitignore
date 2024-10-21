@@ -16,6 +16,4 @@
 /package-lock.json
 
 # Files with secrets
-/src/main/java/com/lennartmoeller/finance/DataMigrator.java
-/src/main/resources/application-prod.properties
-/src/main/resources/application-test.properties
+/env/
