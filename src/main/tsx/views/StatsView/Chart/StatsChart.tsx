@@ -53,6 +53,7 @@ const StatsChart: React.FC<StatsChartProps> = ({mode, stats}) => {
             handleScroll: false,
             layout: {
                 textColor: 'transparent',
+                attributionLogo: false,
             },
             timeScale: {
                 borderVisible: false,
