@@ -18,7 +18,9 @@ public class CategoryService {
 	private final CategoryMapper categoryMapper;
 
 	public List<CategoryDTO> findAll() {
-		return categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();
+		return categoryRepository.findAll().stream()
+			.map(categoryMapper::toDto)
+			.toList();
 	}
 
 	public Optional<CategoryDTO> findById(Long id) {

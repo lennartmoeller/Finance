@@ -6,7 +6,6 @@ const StyledCellContent = styled.div<{
     $horAlign?: 'left' | 'center' | 'right',
     $vertAlign?: 'top' | 'center' | 'bottom',
 }>`
-    box-sizing: border-box;
     padding: ${({$padding}) => $padding ?? "4px 8px"};
     display: flex;
     justify-content: ${({$horAlign}) => {

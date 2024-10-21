@@ -172,8 +172,8 @@ public class StatisticsService {
 						));
 
 					// calculate performance
-					ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS);
-					ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS);
+					ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS, category.getTransactionType());
+					ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS, category.getTransactionType());
 					monthlyStats.forEach((month, cellStatsDTO) -> cellStatsDTO.calculatePerformance(rawBounds, smoothedBounds));
 
 					categoryStatsNodeDTO.setStats(new RowStatsDTO(monthlyStats));
@@ -262,8 +262,8 @@ public class StatisticsService {
 		});
 
 		// calculate performance
-		ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS);
-		ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS);
+		ImmutableTriple<Double, Double, Double> rawBounds = PerformanceDTO.calculateBounds(rawSurplusesDS, category.getTransactionType());
+		ImmutableTriple<Double, Double, Double> smoothedBounds = PerformanceDTO.calculateBounds(smoothedSurplusesDS, category.getTransactionType());
 		monthlyCategoryStats.forEach((month, cellStats) -> cellStats.calculatePerformance(rawBounds, smoothedBounds));
 
 		return monthlyCategoryStats;

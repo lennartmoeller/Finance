@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,11 +26,15 @@ public class TransactionService {
 		} else {
 			transactions = transactionRepository.findAll();
 		}
-		return transactions.stream().map(transactionMapper::toDto).toList();
+		return transactions.stream()
+			.sorted(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getId))
+			.map(transactionMapper::toDto)
+			.toList();
 	}
 
 	public Optional<TransactionDTO> findById(Long id) {
-		return transactionRepository.findById(id).map(transactionMapper::toDto);
+		return transactionRepository.findById(id)
+			.map(transactionMapper::toDto);
 	}
 
 	public TransactionDTO save(TransactionDTO transactionDTO) {

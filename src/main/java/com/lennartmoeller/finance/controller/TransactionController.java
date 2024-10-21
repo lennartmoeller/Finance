@@ -19,13 +19,7 @@ public class TransactionController {
 
 	@GetMapping
 	public List<TransactionDTO> getTransactions(@RequestParam(required = false) YearMonth yearMonth) {
-		List<TransactionDTO> transactions = transactionService.findAll(yearMonth);
-		if (yearMonth != null) {
-			return transactions.stream()
-				.filter(transactionDTO -> YearMonth.from(transactionDTO.getDate()).equals(yearMonth))
-				.toList();
-		}
-		return transactions;
+		return transactionService.findAll(yearMonth);
 	}
 
 	@GetMapping("/{id}")

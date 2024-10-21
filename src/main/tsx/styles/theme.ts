@@ -17,7 +17,8 @@ const theme = {
             backgroundColor: "white",
             fontWeight: "normal",
         }
-    }
+    },
+    mainPadding: 30,
 };
 
 export default theme;

@@ -36,6 +36,8 @@ public class Category {
 	@Column
 	private String icon;
 
+	// TODO: Maybe add domain name to fetch logo from https://docs.logo.dev
+
 	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
 	private List<Target> targets;
 

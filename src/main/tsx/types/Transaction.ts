@@ -1,5 +1,6 @@
 import dateMapper from "@/mapper/dateMapper";
 import TypeMapper from "@/mapper/TypeMapper";
+import {Nullable} from "@/utils/types";
 
 interface Transaction {
     id: number;
@@ -18,6 +19,15 @@ export interface TransactionDTO {
     amount: number;
     description: string;
 }
+
+export const emptyTransaction: Nullable<Transaction> = {
+    id: null,
+    accountId: null,
+    categoryId: null,
+    date: null,
+    amount: null,
+    description: null,
+};
 
 export const transactionMapper: TypeMapper<Transaction, TransactionDTO> = {
     fromDTO: (dto: TransactionDTO) => ({

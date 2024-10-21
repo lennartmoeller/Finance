@@ -3,8 +3,8 @@ import React from 'react';
 import {RouteObject} from 'react-router-dom';
 
 import Skeleton from "@/components/Skeleton/Skeleton";
-import Stats from "@/views/Stats/Stats";
-import Transactions from "@/views/Transactions/Transactions";
+import Stats from "@/views/StatsView/Stats";
+import TrackingView from "@/views/TrackingView/TrackingView";
 
 const routes: RouteObject[] = [
     {
@@ -12,7 +12,7 @@ const routes: RouteObject[] = [
         element: <Skeleton/>,
         children: [
             {path: "", element: <></>},
-            {path: "transactions", element: <Transactions/>},
+            {path: "transactions", element: <TrackingView/>},
             {path: "stats", element: <Stats/>},
         ]
     }

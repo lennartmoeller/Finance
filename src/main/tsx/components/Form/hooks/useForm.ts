@@ -1,14 +1,17 @@
 import {useRef} from "react";
 
+import isEqual from "react-fast-compare";
+
 import {InputProps} from "@/components/Form/Input";
 import FieldErrorType from "@/components/Form/types/FieldErrorType";
 import {Nullable} from "@/utils/types";
 
 interface FormOptions<I extends object> {
     initial: Nullable<I>;
-    onSuccess?: (item: Nullable<I>) => Nullable<I> | void;
-    onError?: (item: Nullable<I>, errors: ItemErrors<I>) => Nullable<I> | void;
-    onSettled?: (item: Nullable<I>, errors: ItemErrors<I>) => Nullable<I> | void;
+    onSuccess?: (item: I) => Promise<Nullable<I> | void>;
+    onError?: (item: Nullable<I>, errors: ItemErrors<I>) => Promise<Nullable<I> | void>;
+    onSettled?: (item: Nullable<I>, errors: ItemErrors<I>) => Promise<Nullable<I> | void>;
+    resetOnSuccess?: boolean;
 }
 
 export interface FormFieldState<T> {
@@ -16,19 +19,26 @@ export interface FormFieldState<T> {
     setValue: (value: T | null) => void;
     errors: Array<FieldErrorType>;
     hasFocus: boolean;
+    reset: () => void;
 }
 
 type ItemErrors<I> = Array<{ property: keyof I, errors: Array<FieldErrorType> }>;
 
 type RegisterFunction<I> = (<P extends keyof I>(property: P) => Pick<InputProps<I[P]>, 'property' | 'initial' | 'register' | 'onChange'>);
 
-const useForm = <I extends object>(formOptions: FormOptions<I>): RegisterFunction<I> => {
+const useForm = <I extends object>(
+    {
+        initial,
+        onSuccess,
+        onError,
+        onSettled,
+        resetOnSuccess = false,
+    }: FormOptions<I>
+): RegisterFunction<I> => {
 
     const formFieldStateGetters = useRef(new Map<keyof I, () => FormFieldState<I[keyof I] | null>>);
 
     return <P extends keyof I>(property: P) => {
-
-        const initial: Nullable<I>[P] = formOptions.initial[property];
 
         const register = (getFormFieldState: () => FormFieldState<I[P] | null>) => {
             formFieldStateGetters.current.set(
@@ -37,7 +47,7 @@ const useForm = <I extends object>(formOptions: FormOptions<I>): RegisterFunctio
             );
         };
 
-        const onChange = (): void => {
+        const onChange = async (): Promise<void> => {
 
             const formFieldStates: Map<keyof I, FormFieldState<I[keyof I] | null>> = new Map();
             formFieldStateGetters.current.forEach((getFormFieldState, property) => {
@@ -50,10 +60,15 @@ const useForm = <I extends object>(formOptions: FormOptions<I>): RegisterFunctio
             }
 
             // create item
-            const item: Nullable<I> = formOptions.initial;
+            const item: Nullable<I> = {...initial};
             formFieldStates.forEach(({value}, property) => {
                 item[property] = value;
             });
+
+            // check if item has changed
+            if (isEqual(item, initial)) {
+                return;
+            }
 
             // collect errors
             const errors: ItemErrors<I> = [];
@@ -65,23 +80,31 @@ const useForm = <I extends object>(formOptions: FormOptions<I>): RegisterFunctio
 
             // call onSuccess, onError, onSettled and update item
             let updatedItem: Nullable<I> = item;
-            if (errors.length === 0 && formOptions.onSuccess) {
-                const onSuccessResult = formOptions.onSuccess(updatedItem);
+            if (errors.length === 0 && onSuccess) {
+                const onSuccessResult = await onSuccess(updatedItem as I);
                 if (onSuccessResult) {
                     updatedItem = onSuccessResult;
                 }
             }
-            if (errors.length > 0 && formOptions.onError) {
-                const onErrorResult = formOptions.onError(updatedItem, errors);
+            if (errors.length > 0 && onError) {
+                const onErrorResult = await onError(updatedItem, errors);
                 if (onErrorResult) {
                     updatedItem = onErrorResult;
                 }
             }
-            if (formOptions.onSettled) {
-                const onSettledResult = formOptions.onSettled(updatedItem, errors);
+            if (onSettled) {
+                const onSettledResult = await onSettled(updatedItem, errors);
                 if (onSettledResult) {
                     updatedItem = onSettledResult;
                 }
+            }
+
+            // reset all input fields
+            if (errors.length === 0 && resetOnSuccess) {
+                formFieldStates.forEach(({reset}) => {
+                    reset();
+                });
+                return;
             }
 
             // update all input fields
@@ -91,7 +114,12 @@ const useForm = <I extends object>(formOptions: FormOptions<I>): RegisterFunctio
 
         };
 
-        return {property, initial, register, onChange};
+        return {
+            initial: initial[property],
+            onChange,
+            property,
+            register,
+        };
 
     };
 };

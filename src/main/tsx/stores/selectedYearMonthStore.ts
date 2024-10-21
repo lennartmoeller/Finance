@@ -1,16 +1,19 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
 
-import createStorage from "@/stores/util/createStorage";
+import createUrlAndLocalStorage from "@/stores/util/createUrlAndLocalStorage";
 import YearMonth from "@/utils/YearMonth";
 
-type SelectedYearMonthState<T extends (YearMonth | string)> = {
-    selectedYearMonth: T;
+type SelectedYearMonthStateData = {
+    selectedYearMonth: YearMonth;
+}
+
+type SelectedYearMonthState = SelectedYearMonthStateData & {
     previousMonth: () => void;
     nextMonth: () => void;
 }
 
-const selectedYearMonthStore = create<SelectedYearMonthState<YearMonth>>()(
+const selectedYearMonthStore = create<SelectedYearMonthState>()(
     persist(
         (set, get) => ({
             selectedYearMonth: YearMonth.fromDate(new Date()),
@@ -19,14 +22,10 @@ const selectedYearMonthStore = create<SelectedYearMonthState<YearMonth>>()(
         }),
         {
             name: 'selectedYearMonth',
-            storage: createStorage(
-                (state: SelectedYearMonthState<YearMonth>): SelectedYearMonthState<string> => ({
-                    ...state,
-                    selectedYearMonth: YearMonth.toString(state.selectedYearMonth),
-                }),
-                (state: SelectedYearMonthState<string>): SelectedYearMonthState<YearMonth> => ({
-                    ...state,
-                    selectedYearMonth: YearMonth.fromString(state.selectedYearMonth),
+            storage: createUrlAndLocalStorage(
+                (state: SelectedYearMonthStateData): string => YearMonth.toString(state.selectedYearMonth),
+                (stringValue: string): SelectedYearMonthStateData => ({
+                    selectedYearMonth: YearMonth.fromString(stringValue),
                 }),
             ),
         },

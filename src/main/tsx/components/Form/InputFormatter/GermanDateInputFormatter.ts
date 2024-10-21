@@ -40,18 +40,22 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
     }
 
     public stringToValue(string: string): Date | null {
-        const match = string.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        const match = RegExp(/^([x\d]{2})\.([x\d]{2})\.([x\d]{4})$/).exec(string);
         if (!match) {
             return null;
         }
 
-        const day: number = parseInt(match[1], 10);
-        const month: number = parseInt(match[2], 10) - 1;
-        const year: number = parseInt(match[3], 10);
+        const dayString: string = match[1].replace('x', '');
+        const monthString: string = match[2].replace('x', '');
+        const yearString: string = match[3].replace('x', '');
 
-        const date: Date = new Date(year, month, day);
+        const dayNumber: number = parseInt(dayString, 10);
+        const monthNumber: number = parseInt(monthString, 10) - 1;
+        const yearNumber: number = parseInt(yearString, 10);
 
-        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+        const date: Date = new Date(Date.UTC(yearNumber, monthNumber, dayNumber));
+
+        if (date.getFullYear() !== yearNumber || date.getMonth() !== monthNumber || date.getDate() !== dayNumber) {
             return null;
         }
         return date;

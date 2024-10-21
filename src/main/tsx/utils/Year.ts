@@ -18,6 +18,10 @@ class Year {
         return this.year.toString();
     }
 
+    public previous(): Year {
+        return new Year(this.year - 1);
+    }
+
     public next(): Year {
         return new Year(this.year + 1);
     }

@@ -14,6 +14,7 @@ const TableHeaderCell: React.FC<TableCellProps> = (
         padding,
         horAlign,
         vertAlign,
+        backgroundColor,
         colspan,
         sticky,
         width,
@@ -24,6 +25,7 @@ const TableHeaderCell: React.FC<TableCellProps> = (
     return (
         <StyledHeaderCell
             colSpan={colspan}
+            $backgroundColor={backgroundColor}
             $headerLevel={headerLevel}
             $sticky={sticky}
             $width={width}

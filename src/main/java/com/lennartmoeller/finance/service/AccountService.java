@@ -7,6 +7,7 @@ import com.lennartmoeller.finance.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +19,15 @@ public class AccountService {
 	private final AccountMapper accountMapper;
 
 	public List<AccountDTO> findAll() {
-		return accountRepository.findAll().stream().map(accountMapper::toDto).toList();
+		return accountRepository.findAll().stream()
+			.map(accountMapper::toDto)
+			.sorted(Comparator.comparing(AccountDTO::getLabel))
+			.toList();
 	}
 
 	public Optional<AccountDTO> findById(Long id) {
-		return accountRepository.findById(id).map(accountMapper::toDto);
+		return accountRepository.findById(id)
+			.map(accountMapper::toDto);
 	}
 
 	public AccountDTO save(AccountDTO accountDTO) {

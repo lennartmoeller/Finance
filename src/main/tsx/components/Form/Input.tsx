@@ -14,9 +14,10 @@ import Icon from "@/components/Icon/Icon";
 export interface InputProps<T> {
     property: string | number | symbol;
     inputFormatter: InputFormatter<T>;
+    autoFocus?: boolean;
     initial?: T | null;
+    onChange?: () => Promise<void>;
     register?: (getFormFieldState: () => FormFieldState<T | null>) => void;
-    onChange?: () => void;
     textAlign?: 'left' | 'center' | 'right';
 }
 
@@ -24,9 +25,10 @@ const Input = <T, >(
     {
         property,
         inputFormatter,
+        autoFocus = false,
         initial = null,
-        register,
         onChange,
+        register,
         textAlign,
     }: InputProps<T>
 ) => {
@@ -34,8 +36,14 @@ const Input = <T, >(
 
     const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
 
+    const [isRegistered, setIsRegistered] = useState(false);
+
     // register once so that useForm can use it
     useEffect(() => {
+        if (!input.current || isRegistered) {
+            return;
+        }
+        setIsRegistered(true);
         register?.(
             () => {
                 if (!input.current) {
@@ -52,10 +60,14 @@ const Input = <T, >(
                     },
                     errors: inputFormatter.validate(value),
                     hasFocus: document.activeElement === input.current,
+                    reset: () => {
+                        setInputState(inputFormatter.valueToInputState(initial));
+                        autoFocus && input.current!.focus();
+                    }
                 };
             }
         );
-    });
+    }, [autoFocus, initial, inputFormatter, isRegistered, register]);
 
     return (
         <StyledInput>
@@ -75,8 +87,9 @@ const Input = <T, >(
                     onBlur={async () => {
                         setInputState((previous: InputState<T>) => inputFormatter.onBlur(previous));
                         await new Promise(requestAnimationFrame); // wait until new element is focused
-                        onChange?.();
+                        await onChange?.();
                     }}
+                    autoFocus={autoFocus}
                     type="text"
                     $textAlign={textAlign}
                 />

@@ -13,6 +13,10 @@ class Month {
         return this.month;
     }
 
+    public previous(): Month {
+        return new Month((this.month - 2 + 12) % 12 + 1);
+    }
+
     public next(): Month {
         return new Month((this.month % 12) + 1);
     }

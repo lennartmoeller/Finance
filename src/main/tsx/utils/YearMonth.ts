@@ -29,6 +29,14 @@ class YearMonth {
         return otherTotalMonths - thisTotalMonths;
     }
 
+    public previous(): YearMonth {
+        if (this.month.getValue() === 1) {
+            return new YearMonth(this.year.previous(), new Month(12));
+        } else {
+            return new YearMonth(this.year, this.month.previous());
+        }
+    }
+
     public next(): YearMonth {
         if (this.month.getValue() === 12) {
             return new YearMonth(this.year.next(), new Month(1));
@@ -48,6 +56,10 @@ class YearMonth {
     public static fromString(value: string): YearMonth {
         const parts = value.split('-');
         return new YearMonth(Year.fromString(parts[0]), Month.fromString(parts[1]));
+    }
+
+    public static toString(yearMonth: YearMonth): string {
+        return yearMonth.toString();
     }
 
     public static fromDate(date: Date): YearMonth {

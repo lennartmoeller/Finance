@@ -9,13 +9,18 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.20",
-    "@tanstack/react-query": "^5.51.11",
+    "@tanstack/query-sync-storage-persister": "^5.52.0",
+    "@tanstack/react-query": "^5.52.1",
+    "@tanstack/react-query-persist-client": "^5.52.1",
+    "axios": "^1.7.5",
     "framer-motion": "^11.3.28",
     "fuse.js": "^7.0.0",
     "lightweight-charts": "^4.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "styled-components": "^6.1.12"
+    "react-fast-compare": "^3.2.2",
+    "styled-components": "^6.1.12",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.24.9",

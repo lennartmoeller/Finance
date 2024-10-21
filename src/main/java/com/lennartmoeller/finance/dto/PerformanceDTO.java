@@ -1,12 +1,15 @@
 package com.lennartmoeller.finance.dto;
 
+import com.lennartmoeller.finance.model.TransactionType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @RequiredArgsConstructor
@@ -22,23 +25,36 @@ public class PerformanceDTO {
 		return sum;
 	}
 
-	public static ImmutableTriple<Double, Double, Double> calculateBounds(DescriptiveStatistics surplusDS) {
+	public static ImmutableTriple<Double, Double, Double> calculateBounds(DescriptiveStatistics surplusDS, TransactionType transactionType) {
 		double median = surplusDS.getPercentile(50);
-		DescriptiveStatistics lowerSurpluses = new DescriptiveStatistics();
-		DescriptiveStatistics upperSurpluses = new DescriptiveStatistics();
-		for (double surplus : surplusDS.getValues()) {
-			if (surplus < median) lowerSurpluses.addValue(surplus);
-			else if (surplus > median) upperSurpluses.addValue(surplus);
+
+		DescriptiveStatistics lowerSurpluses = new DescriptiveStatistics(
+			Arrays.stream(surplusDS.getValues())
+				.filter(surplus -> surplus < median)
+				.toArray()
+		);
+		DescriptiveStatistics upperSurpluses = new DescriptiveStatistics(
+			Arrays.stream(surplusDS.getValues())
+				.filter(surplus -> surplus > median)
+				.toArray()
+		);
+
+		double lower = Optional.of(lowerSurpluses.getPercentile(25))
+			.filter(Double::isFinite)
+			.orElse(median);
+		double upper = Optional.of(upperSurpluses.getPercentile(75))
+			.filter(Double::isFinite)
+			.orElse(median);
+
+		if (transactionType == TransactionType.INCOME) {
+			lower = Math.max(lower, 0);
+			upper = Math.max(upper, 0);
+		} else if (transactionType == TransactionType.EXPENSE) {
+			lower = Math.min(lower, 0);
+			upper = Math.min(upper, 0);
 		}
-		double madLower = lowerSurpluses.getPercentile(25);
-		double madUpper = upperSurpluses.getPercentile(75);
-		if (Double.isNaN(madLower)) {
-			madLower = median;
-		}
-		if (Double.isNaN(madUpper)) {
-			madUpper = median;
-		}
-		return new ImmutableTriple<>(madLower, median, madUpper);
+
+		return new ImmutableTriple<>(lower, median, upper);
 	}
 
 	public static PerformanceDTO calculate(double rawValue, ImmutableTriple<Double, Double, Double> rawBounds, double smoothedValue, ImmutableTriple<Double, Double, Double> smoothedBounds) {
