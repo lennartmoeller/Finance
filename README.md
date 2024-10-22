@@ -1,21 +1,48 @@
 # Finance
 
-## Run the Application
+## Run the Project
 
-### IntelliJ IDEA
+### Prerequisites
 
-This project comes with three run configurations for IntelliJ IDEA:
+- MariaDB database with credentials in hand
+- IntelliJ IDEA installed (or do run configurations manually)
+- Docker installed (only for production)
+- Java 21 installed (only for development)
+- Node.js 18 installed (only for development)
 
-1. Frontend: Runs the React frontend for development purposes.
-2. Backend Prod: Runs the Spring Boot backend in production mode.
-3. Backend Test: Runs the Spring Boot backend in development mode.
+### Environment Variables
 
-Backend Prod and Backend Test need the environment files `env/prod.env` and `env/test.env` respectively. These files should contain the following properties:
+For development and production, you need to create the environment files `env/dev.env` and `env/prod.env` respectively. These files should contain the following properties:
 
 ```properties
-SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/finance
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=root
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_NAME=finance
+DATABASE_USER=root
+DATABASE_PASS=root
+```
+
+### Development Mode
+
+In Development mode you have two separate servers running: A frontend React server with Live Reload enabled and a backend Spring Boot server.
+
+To run the project in development mode, follow these steps:
+
+1. Install the frontend dependencies:
+   ```sh
+   npm install
+   ```
+
+2. Start the backend server with the <u>Dev Backend</u> run configuration in IntelliJ IDEA.
+
+3. Start the frontend development server with the <u>Dev Frontend</u> run configuration in IntelliJ IDEA.
+
+### Production Deployment
+
+To start the project in production mode, start the <u>Production</u> run configuration in IntelliJ IDEA or run the following command:
+
+```sh
+docker-compose --env-file env/prod.env up
 ```
 
 ## Dependency Version Checking
