@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Backend Test" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="Dev Backend" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="envFilePaths">
-      <option value="$PROJECT_DIR$/env/test.env" />
+      <option value="$PROJECT_DIR$/env/dev.env" />
     </option>
     <module name="finance" />
     <selectedOptions>
