@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY src/main/tsx src/main/tsx
-COPY src/main/resources/frontend dist
+COPY src/main/resources/frontend src/main/resources/frontend
 COPY tsconfig.json .
 COPY webpack.config.js .
 

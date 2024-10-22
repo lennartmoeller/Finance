@@ -44,13 +44,11 @@ module.exports = (env, argv) => {
             ]
         },
         plugins: [
-            ...(isProd ? [] : [
-                new CopyWebpackPlugin({
-                    patterns: [
-                        {from: 'src/main/resources/frontend', to: ''}
-                    ]
-                })
-            ]),
+            new CopyWebpackPlugin({
+                patterns: [
+                    {from: 'src/main/resources/frontend', to: ''}
+                ]
+            })
         ],
         devtool: isProd ? 'source-map' : 'eval-source-map',
         optimization: {
