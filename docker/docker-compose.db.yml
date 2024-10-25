@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    platform: "linux/amd64"
+    environment:
+      - MYSQL_DATABASE=finance
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASS}
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    platform: "linux/amd64"
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
+    driver: local
