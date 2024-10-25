@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  namespace: finance-phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+        - name: phpmyadmin
+          image: phpmyadmin/phpmyadmin:5.2.1
+          env:
+            - name: PMA_HOSTS
+              value: "${MARIADB_SERVICES}"
+            - name: PMA_PORT
+              value: "3306"
+          ports:
+            - containerPort: 80

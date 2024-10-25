@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: finance-phpmyadmin
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: db.${DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: phpmyadmin
+                port:
+                  number: 80

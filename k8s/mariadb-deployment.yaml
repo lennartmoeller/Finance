@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+  namespace: finance-${ENVIRONMENT}
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.6
+          env:
+            - name: MYSQL_DATABASE
+              value: "finance-${ENVIRONMENT}"
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_PASS
+            - name: MARIADB_RANDOM_ROOT_PASSWORD
+              value: "yes"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mariadb-data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: mariadb-pvc

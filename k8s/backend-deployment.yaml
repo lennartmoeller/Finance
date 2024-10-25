@@ -20,20 +20,11 @@ spec:
             - containerPort: 8080
           env:
             - name: DATABASE_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: database-secret
-                  key: DATABASE_HOST
+              value: "mariadb-service"
             - name: DATABASE_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: database-secret
-                  key: DATABASE_PORT
+              value: "3306"
             - name: DATABASE_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: database-secret
-                  key: DATABASE_NAME
+              value: "finance-${ENVIRONMENT}"
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
