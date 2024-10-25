@@ -60,15 +60,11 @@ With the registry created, you can now build and push the images to it.
     ```sh
     docker tag finance-backend $AZURE_CONTAINER_REGISTRY/backend
     docker tag finance-frontend $AZURE_CONTAINER_REGISTRY/frontend
-    docker tag mariadb $AZURE_CONTAINER_REGISTRY/mariadb
-    docker tag phpmyadmin $AZURE_CONTAINER_REGISTRY/phpmyadmin
     ```
 3. Push the images:
     ```sh
     docker push $AZURE_CONTAINER_REGISTRY/backend
     docker push $AZURE_CONTAINER_REGISTRY/frontend
-    docker push $AZURE_CONTAINER_REGISTRY/mariadb
-    docker push $AZURE_CONTAINER_REGISTRY/phpmyadmin
     ```
 
 ### Step 5: Create a Kubernetes Cluster

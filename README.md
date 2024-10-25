@@ -1,49 +1,18 @@
 # Finance
 
-## Run the Project
+This project is a demo project to practice full-stack development with React, Spring Boot, and MariaDB as well as DevOps with Docker, Kubernetes, and Azure.
 
-### Prerequisites
+The frontend is accessible at [http://localhost:80](http://localhost:80).
+The backend is accessible at [http://localhost:8080](http://localhost:8080).
+phpMyAdmin is accessible at [http://localhost:8081](http://localhost:8081).
 
-- MariaDB database with credentials in hand
-- IntelliJ IDEA installed (or do run configurations manually)
-- Java 21 installed (only for development)
-- Node.js 18 installed (only for development)
-- Docker installed (only for production mode)
+## Run in Development Mode
 
-### Environment Variables
+[Read here](docs/development-mode.md) how to run this application in development mode.
 
-For development and production, you need to create the environment files `env/dev.env` and `env/prod.env` respectively. These files should contain the following properties:
+## Run in Production Mode
 
-```properties
-DATABASE_HOST=localhost
-DATABASE_PORT=3306
-DATABASE_NAME=finance
-DATABASE_USER=root
-DATABASE_PASS=root
-```
-
-### Development Mode
-
-In Development mode you have two separate servers running: A frontend React server with Live Reload enabled and a backend Spring Boot server.
-
-To run the project in development mode, follow these steps:
-
-1. Install the frontend dependencies:
-   ```sh
-   npm install
-   ```
-
-2. Start the backend server with the <u>Dev Backend</u> run configuration in IntelliJ IDEA.
-
-3. Start the frontend development server with the <u>Dev Frontend</u> run configuration in IntelliJ IDEA.
-
-### Production Mode
-
-To start the project in production mode, start the <u>Production</u> run configuration in IntelliJ IDEA or run the following command:
-
-```sh
-docker compose --env-file env/prod.env up
-```
+[Read here](docs/production-mode.md) how to run this application in production mode.
 
 ## Deploy to Azure
 
