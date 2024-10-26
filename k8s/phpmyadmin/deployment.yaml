@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phpmyadmin
+  name: deployment
   namespace: finance-phpmyadmin
 spec:
   replicas: 1

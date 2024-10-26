@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: phpmyadmin
+  name: service
   namespace: finance-phpmyadmin
 spec:
   type: ClusterIP

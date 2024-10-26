@@ -3,7 +3,9 @@
 This project is a demo project to practice full-stack development with React, Spring Boot, and MariaDB as well as DevOps with Docker, Kubernetes, and Azure.
 
 The frontend is accessible at [http://localhost:80](http://localhost:80).
+
 The backend is accessible at [http://localhost:8080](http://localhost:8080).
+
 phpMyAdmin is accessible at [http://localhost:8081](http://localhost:8081).
 
 ## Run in Development Mode

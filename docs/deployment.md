@@ -54,14 +54,10 @@ With the registry created, you can now build and push the images to it.
 
 1. Build the images:
     ```sh
-    docker compose build
+    docker build -t $AZURE_CONTAINER_REGISTRY/backend -f docker/backend/Dockerfile .
+    docker build -t $AZURE_CONTAINER_REGISTRY/frontend -f docker/frontend/Dockerfile .
     ```
-2. Tag the images:
-    ```sh
-    docker tag finance-backend $AZURE_CONTAINER_REGISTRY/backend
-    docker tag finance-frontend $AZURE_CONTAINER_REGISTRY/frontend
-    ```
-3. Push the images:
+2. Push the images:
     ```sh
     docker push $AZURE_CONTAINER_REGISTRY/backend
     docker push $AZURE_CONTAINER_REGISTRY/frontend
@@ -113,9 +109,9 @@ The NGINX Ingress Controller is an application that enables Kubernetes to manage
    ```
 3. Create PHPMyAdmin Deployment, Service and Ingress:
    ```sh
-   envsubst < k8s/phpmyadmin-deployment.yaml | kubectl apply -f -
-   envsubst < k8s/phpmyadmin-service.yaml | kubectl apply -f -
-   envsubst < k8s/phpmyadmin-ingress.yaml | kubectl apply -f -
+   envsubst < k8s/phpmyadmin/deployment.yaml | kubectl apply -f -
+   envsubst < k8s/phpmyadmin/service.yaml | kubectl apply -f -
+   envsubst < k8s/phpmyadmin/ingress.yaml | kubectl apply -f -
    ```
 4. Get the external IP of the ingress controller:
    ```sh
@@ -153,23 +149,23 @@ Repeat this step for each new instance you want to add to the cluster.
    ```
 6. Create MariaDB Persistent Volume, Deployment, and Service:
    ```sh
-   envsubst < k8s/mariadb-pvc.yaml | kubectl apply -f -
-   envsubst < k8s/mariadb-deployment.yaml | kubectl apply -f -
-   envsubst < k8s/mariadb-service.yaml | kubectl apply -f -
+   envsubst < k8s/instance/mariadb-pvc.yaml | kubectl apply -f -
+   envsubst < k8s/instance/mariadb-deployment.yaml | kubectl apply -f -
+   envsubst < k8s/instance/mariadb-service.yaml | kubectl apply -f -
    ```
 7. Create Backend Deployment and Service:
    ```sh
-   envsubst < k8s/backend-deployment.yaml | kubectl apply -f -
-   envsubst < k8s/backend-service.yaml | kubectl apply -f -
+   envsubst < k8s/instance/backend-deployment.yaml | kubectl apply -f -
+   envsubst < k8s/instance/backend-service.yaml | kubectl apply -f -
    ```
 8. Create Frontend Deployment and Service:
    ```sh
-   envsubst < k8s/frontend-deployment.yaml | kubectl apply -f -
-   envsubst < k8s/frontend-service.yaml | kubectl apply -f -
+   envsubst < k8s/instance/frontend-deployment.yaml | kubectl apply -f -
+   envsubst < k8s/instance/frontend-service.yaml | kubectl apply -f -
    ```
 9. Create the ingress resource:
    ```sh
-   envsubst < k8s/instance-ingress.yaml | kubectl apply -f -
+   envsubst < k8s/instance/ingress.yaml | kubectl apply -f -
    ```
 10. Get the external IP of the ingress controller:
     ```sh
@@ -185,7 +181,7 @@ Repeat this step for each new instance you want to add to the cluster.
     ```
 13. Update the phpMyAdmin deployment:
     ```sh
-    envsubst < k8s/phpmyadmin-deployment.yaml | kubectl apply -f -
+    envsubst < k8s/instance/deployment.yaml | kubectl apply -f -
     ```
 
 ---
