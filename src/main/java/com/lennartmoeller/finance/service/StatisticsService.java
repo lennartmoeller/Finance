@@ -54,8 +54,8 @@ public class StatisticsService {
 		statsDTO.setDailyStats(dailyStats);
 
 		Map<TransactionType, CategoryStatsDTO> categoryStatsByType = getCategoryStatsByType(dailyBalances, dateRange);
-		statsDTO.setIncomeStats(categoryStatsByType.get(TransactionType.INCOME));
-		statsDTO.setExpenseStats(categoryStatsByType.get(TransactionType.EXPENSE));
+		statsDTO.setIncomeStats(categoryStatsByType.getOrDefault(TransactionType.INCOME, CategoryStatsDTO.empty(dateRange)));
+		statsDTO.setExpenseStats(categoryStatsByType.getOrDefault(TransactionType.EXPENSE, CategoryStatsDTO.empty(dateRange)));
 
 		statsDTO.setStartDate(dateRange.getStartDate());
 		statsDTO.setEndDate(dateRange.getEndDate());
@@ -124,7 +124,7 @@ public class StatisticsService {
 				Category::getTransactionType,
 				Collectors.collectingAndThen(
 					Collectors.toList(),
-					filteredCategories -> new CategoryStatsDTO(getCategoryStats(dailyBalances, dateRange, filteredCategories, null))
+					filteredCategories -> new CategoryStatsDTO(getCategoryStats(dailyBalances, dateRange, filteredCategories, null), dateRange)
 				)
 			));
 	}

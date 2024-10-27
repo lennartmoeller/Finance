@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -16,19 +17,18 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Setter
 public class StatsDTO {
+
 	private List<DailyStatsDTO> dailyStats;
 	private CategoryStatsDTO incomeStats;
 	private CategoryStatsDTO expenseStats;
-	private LocalDate startDate;
-	private LocalDate endDate;
+	private @Nullable LocalDate startDate;
+	private @Nullable LocalDate endDate;
 
 	public static StatsDTO empty() {
 		StatsDTO statsDTO = new StatsDTO();
 		statsDTO.setDailyStats(List.of());
-		statsDTO.setIncomeStats(CategoryStatsDTO.empty());
-		statsDTO.setExpenseStats(CategoryStatsDTO.empty());
-		statsDTO.setStartDate(LocalDate.now());
-		statsDTO.setEndDate(LocalDate.now());
+		statsDTO.setIncomeStats(CategoryStatsDTO.empty(null));
+		statsDTO.setExpenseStats(CategoryStatsDTO.empty(null));
 		return statsDTO;
 	}
 
