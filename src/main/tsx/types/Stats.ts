@@ -1,4 +1,4 @@
-import dateMapper from "@/mapper/dateMapper";
+import dateMapperNullable from "@/mapper/dateMapperNullable";
 import TypeMapper from "@/mapper/TypeMapper";
 import CategoryStats, {CategoryStatsDTO, categoryStatsMapper} from "@/types/CategoryStats";
 import DailyStats, {DailyStatsDTO, dailyStatsMapper} from "@/types/DailyStats";
@@ -9,8 +9,8 @@ interface Stats {
     incomeStats: CategoryStats;
     expenseStats: CategoryStats;
     totalStats: RowStats;
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | null;
+    endDate: Date | null;
 }
 
 export interface StatsDTO {
@@ -18,8 +18,8 @@ export interface StatsDTO {
     incomeStats: CategoryStatsDTO;
     expenseStats: CategoryStatsDTO;
     totalStats: RowStatsDTO;
-    startDate: string;
-    endDate: string;
+    startDate: string | null;
+    endDate: string | null;
 }
 
 export const statsMapper: TypeMapper<Stats, StatsDTO> = {
@@ -28,16 +28,16 @@ export const statsMapper: TypeMapper<Stats, StatsDTO> = {
         incomeStats: categoryStatsMapper.fromDTO(dto.incomeStats),
         expenseStats: categoryStatsMapper.fromDTO(dto.expenseStats),
         totalStats: rowStatsMapper.fromDTO(dto.totalStats),
-        startDate: dateMapper.fromDTO(dto.startDate),
-        endDate: dateMapper.fromDTO(dto.endDate),
+        startDate: dateMapperNullable.fromDTO(dto.startDate),
+        endDate: dateMapperNullable.fromDTO(dto.endDate),
     }),
     toDTO: (model: Stats) => ({
         dailyStats: model.dailyStats.map(dailyStatsMapper.toDTO),
         incomeStats: categoryStatsMapper.toDTO(model.incomeStats),
         expenseStats: categoryStatsMapper.toDTO(model.expenseStats),
         totalStats: rowStatsMapper.toDTO(model.totalStats),
-        startDate: dateMapper.toDTO(model.startDate),
-        endDate: dateMapper.toDTO(model.endDate),
+        startDate: dateMapperNullable.toDTO(model.startDate),
+        endDate: dateMapperNullable.toDTO(model.endDate),
     }),
 };
 

@@ -32,7 +32,7 @@ interface StatsTableProps {
 }
 
 const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
-    const months: Array<YearMonth> = getMonths(stats.startDate, stats.endDate);
+    const months: Array<YearMonth> = stats.startDate === null || stats.endDate === null ? [] : getMonths(stats.startDate, stats.endDate);
 
     const categoryStatsNodesToStatsTableRows = (categoryStatsNodes: Array<CategoryStatsNode>): Array<StatsTableRow> =>
         categoryStatsNodes.map((categoryStatsNode: CategoryStatsNode): StatsTableRow =>
@@ -125,8 +125,15 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                     stats={rowData.stats.mean}
                 />
                 {months.map((month: YearMonth) => {
+
+                    const monthString: string = month.toString();
+
+                    if (!Object.hasOwn(rowData.stats.monthly, monthString)) {
+                        return;
+                    }
+
                     const getBodyCellColumnCount = (smoothType: CategorySmoothType, month: YearMonth): number => {
-                        const endMonth: YearMonth = YearMonth.fromDate(stats.endDate);
+                        const endMonth: YearMonth = YearMonth.fromDate(stats.endDate!);
                         const max: number = month.monthsTo(endMonth) + 1;
 
                         const output: number = (() => {
@@ -148,7 +155,6 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                     const columnCount: number = mode.shared && rowData.smoothType ? getBodyCellColumnCount(rowData.smoothType, month) : 1;
                     if (columnCount < 1) return <></>;
 
-                    const monthString: string = month.toString();
                     return (
                         <MoneyTableCell
                             key={monthString}
