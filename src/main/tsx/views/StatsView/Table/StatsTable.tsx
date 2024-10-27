@@ -125,13 +125,6 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                     stats={rowData.stats.mean}
                 />
                 {months.map((month: YearMonth) => {
-
-                    const monthString: string = month.toString();
-
-                    if (!Object.hasOwn(rowData.stats.monthly, monthString)) {
-                        return;
-                    }
-
                     const getBodyCellColumnCount = (smoothType: CategorySmoothType, month: YearMonth): number => {
                         const endMonth: YearMonth = YearMonth.fromDate(stats.endDate!);
                         const max: number = month.monthsTo(endMonth) + 1;
@@ -155,6 +148,7 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                     const columnCount: number = mode.shared && rowData.smoothType ? getBodyCellColumnCount(rowData.smoothType, month) : 1;
                     if (columnCount < 1) return <></>;
 
+                    const monthString: string = month.toString();
                     return (
                         <MoneyTableCell
                             key={monthString}
