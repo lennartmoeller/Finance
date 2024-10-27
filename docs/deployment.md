@@ -54,8 +54,8 @@ With the registry created, you can now build and push the images to it.
 
 1. Build the images:
     ```sh
-    docker build -t $AZURE_CONTAINER_REGISTRY/backend -f docker/backend/Dockerfile .
-    docker build -t $AZURE_CONTAINER_REGISTRY/frontend -f docker/frontend/Dockerfile .
+    docker build -t $AZURE_CONTAINER_REGISTRY/backend -f docker/backend/Dockerfile --platform linux/amd64 .
+    docker build -t $AZURE_CONTAINER_REGISTRY/frontend -f docker/frontend/Dockerfile --platform linux/amd64 .
     ```
 2. Push the images:
     ```sh

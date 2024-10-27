@@ -1,20 +1,15 @@
 # Finance
 
 This project is a demo project to practice full-stack development with React, Spring Boot, and MariaDB as well as DevOps with Docker, Kubernetes, and Azure.
+It is not intended to be used in production yet as it has no security features implemented.
 
-The frontend is accessible at [http://localhost:80](http://localhost:80).
+## Run in Quick Start Mode
 
-The backend is accessible at [http://localhost:8080](http://localhost:8080).
-
-phpMyAdmin is accessible at [http://localhost:8081](http://localhost:8081).
+[Read here](docs/quick-start-mode.md) how to run this application in quick start mode.
 
 ## Run in Development Mode
 
 [Read here](docs/development-mode.md) how to run this application in development mode.
-
-## Run in Production Mode
-
-[Read here](docs/production-mode.md) how to run this application in production mode.
 
 ## Deploy to Azure
 

@@ -1,6 +1,20 @@
 ## Dependency Version Checking
 
-### Maven
+### Frontend (npm)
+
+To check for updates to all your dependencies, run the following command:
+
+```sh
+ncu
+```
+
+If you want the plugin to automatically update your `package.json`, you can use the following command:
+
+```sh
+ncu -u
+```
+
+### Backend (Maven)
 
 To ensure that your project's dependencies are up-to-date, use the `versions-maven-plugin`. This plugin helps you check for and update any outdated dependencies.
 
@@ -25,6 +39,7 @@ To check for updates to the **parent versions** specified in your `pom.xml`, use
 ```
 
 #### Automatic Updates
+
 If you want the plugin to automatically update your `pom.xml`, you can use the following commands:
 
 ```sh
