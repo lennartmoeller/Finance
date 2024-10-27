@@ -31,4 +31,5 @@ public abstract class CategoryMapper {
 	Long mapParentToParentId(Category parent) {
 		return parent != null ? parent.getId() : null;
 	}
+
 }

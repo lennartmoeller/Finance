@@ -15,6 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Setter
 public class PerformanceDTO {
+
 	private double raw;
 	private double smoothed;
 

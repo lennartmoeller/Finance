@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 @Getter
 public class DateRange {
+
 	private final LocalDate startDate;
 	private final LocalDate endDate;
 

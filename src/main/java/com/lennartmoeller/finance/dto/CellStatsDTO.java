@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Setter
 public class CellStatsDTO {
+
 	private StatsMetricDTO surplus;
 	private Double target;
 	private @Nullable PerformanceDTO performance;

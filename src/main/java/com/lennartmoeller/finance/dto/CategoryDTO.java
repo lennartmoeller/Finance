@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Setter
 public class CategoryDTO {
+
 	private Long id;
 	private Long parentId;
 	private String label;
@@ -19,4 +20,5 @@ public class CategoryDTO {
 	private CategorySmoothType smoothType;
 	private String icon;
 	private List<TargetDTO> targets;
+
 }

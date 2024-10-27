@@ -10,6 +10,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Setter
 public class StatsMetricDTO {
+
 	private double raw;
 	private double smoothed;
 

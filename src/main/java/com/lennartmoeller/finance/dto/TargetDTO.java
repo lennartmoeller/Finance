@@ -10,9 +10,11 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Setter
 public class TargetDTO {
+
 	private Long id;
 	private Long categoryId;
 	private LocalDate start;
 	private LocalDate end;
 	private Long amount;
+
 }

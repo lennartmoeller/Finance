@@ -8,6 +8,8 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class AccountBalanceDTO {
+
 	private Long accountId;
 	private Long balance;
+
 }

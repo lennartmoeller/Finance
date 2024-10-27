@@ -10,7 +10,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Setter
 public class CategoryStatsNodeDTO {
+
 	private CategoryDTO category;
 	private RowStatsDTO stats;
 	private List<CategoryStatsNodeDTO> children;
+
 }

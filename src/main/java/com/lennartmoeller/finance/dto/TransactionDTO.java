@@ -10,10 +10,12 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Setter
 public class TransactionDTO {
+
 	private Long id;
 	private Long accountId;
 	private Long categoryId;
 	private LocalDate date;
 	private Long amount;
 	private String description;
+
 }
