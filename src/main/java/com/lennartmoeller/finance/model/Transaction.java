@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -16,7 +17,7 @@ public class Transaction {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "account", nullable = false)

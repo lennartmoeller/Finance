@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 @Mapper(componentModel = "spring", uses = TargetMapper.class)
 public abstract class CategoryMapper {
 
@@ -28,7 +30,7 @@ public abstract class CategoryMapper {
 	}
 
 	@Named("mapParentToParentId")
-	Long mapParentToParentId(Category parent) {
+	UUID mapParentToParentId(Category parent) {
 		return parent != null ? parent.getId() : null;
 	}
 }
