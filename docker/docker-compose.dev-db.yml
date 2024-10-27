@@ -14,7 +14,8 @@ services:
       - mariadb_data:/var/lib/mysql
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5.2.1
+    image: phpmyadmin/phpmyadmin:latest  # no compatibility errors expected, so latest is fine
+    platform: linux/amd64  # there is no linux/arm64v8 image
     ports:
       - "8081:80"
     environment:
