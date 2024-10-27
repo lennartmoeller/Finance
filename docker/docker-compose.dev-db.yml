@@ -3,9 +3,10 @@ version: '3.8'
 services:
   mariadb:
     image: mariadb:10.6
-    platform: "linux/amd64"
+    ports:
+      - "3306:3306"
     environment:
-      - MYSQL_DATABASE=finance
+      - MYSQL_DATABASE=${DATABASE_NAME}
       - MYSQL_USER=${DATABASE_USER}
       - MYSQL_PASSWORD=${DATABASE_PASS}
       - MARIADB_RANDOM_ROOT_PASSWORD=yes
@@ -14,7 +15,6 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.2.1
-    platform: "linux/amd64"
     ports:
       - "8081:80"
     environment:

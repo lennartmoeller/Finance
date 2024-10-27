@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ../.
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        - NGINX_BACKEND_API_REDIRECT=true
+    ports:
+      - "80:80"
+    networks:
+      - default
+      - internal
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../.
+      dockerfile: docker/backend/Dockerfile
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASS=${DATABASE_PASS}
+    networks:
+      - default
+      - internal
+    depends_on:
+      - mariadb
+
+  mariadb:
+    image: mariadb:10.6
+    environment:
+      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASS}
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - internal
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  default:
+  internal:
+    internal: true
