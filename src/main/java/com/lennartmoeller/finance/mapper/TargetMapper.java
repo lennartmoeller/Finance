@@ -9,8 +9,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.UUID;
-
 @Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public abstract class TargetMapper {
 
@@ -29,7 +27,7 @@ public abstract class TargetMapper {
 	}
 
 	@Named("mapCategoryToCategoryId")
-	UUID mapCategoryToCategoryId(Category category) {
+	Long mapCategoryToCategoryId(Category category) {
 		return category != null ? category.getId() : null;
 	}
 

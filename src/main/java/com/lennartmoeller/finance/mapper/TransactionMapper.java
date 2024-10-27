@@ -11,8 +11,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.UUID;
-
 @Mapper(componentModel = "spring", uses = {AccountMapper.class, CategoryMapper.class})
 public abstract class TransactionMapper {
 
@@ -36,7 +34,7 @@ public abstract class TransactionMapper {
 	}
 
 	@Named("mapAccountToAccountId")
-	UUID mapAccountToAccountId(Account account) {
+	Long mapAccountToAccountId(Account account) {
 		return account != null ? account.getId() : null;
 	}
 
@@ -46,7 +44,7 @@ public abstract class TransactionMapper {
 	}
 
 	@Named("mapCategoryToCategoryId")
-	UUID mapCategoryToCategoryId(Category category) {
+	Long mapCategoryToCategoryId(Category category) {
 		return category != null ? category.getId() : null;
 	}
 
