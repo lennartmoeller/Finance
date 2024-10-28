@@ -18,8 +18,12 @@ public class TransactionController {
 	private final TransactionService transactionService;
 
 	@GetMapping
-	public List<TransactionDTO> getTransactions(@RequestParam(required = false) YearMonth yearMonth) {
-		return transactionService.findAll(yearMonth);
+	public List<TransactionDTO> getTransactions(
+		@RequestParam(required = false) List<Long> accountIds,
+		@RequestParam(required = false) List<Long> categoryIds,
+		@RequestParam(required = false) List<YearMonth> yearMonths
+	) {
+		return transactionService.findFiltered(accountIds, categoryIds, yearMonths);
 	}
 
 	@GetMapping("/{id}")

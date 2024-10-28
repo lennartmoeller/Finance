@@ -7,6 +7,7 @@ import com.lennartmoeller.finance.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -19,13 +20,14 @@ public class TransactionService {
 	private final TransactionRepository transactionRepository;
 	private final TransactionMapper transactionMapper;
 
-	public List<TransactionDTO> findAll(YearMonth yearMonth) {
-		List<Transaction> transactions;
-		if (yearMonth != null) {
-			transactions = transactionRepository.findAllByYearMonth(yearMonth.getYear(), yearMonth.getMonthValue());
-		} else {
-			transactions = transactionRepository.findAll();
-		}
+	public List<TransactionDTO> findFiltered(
+		@Nullable List<Long> accountIds,
+		@Nullable List<Long> categoryIds,
+		@Nullable List<YearMonth> yearMonths
+	) {
+		List<String> yearMonthStrings = yearMonths == null ? null : yearMonths.stream().map(YearMonth::toString).toList();
+
+		List<Transaction> transactions = transactionRepository.findFiltered(accountIds, categoryIds, yearMonthStrings);
 		return transactions.stream()
 			.sorted(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getId))
 			.map(transactionMapper::toDto)
