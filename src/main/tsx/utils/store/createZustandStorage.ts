@@ -11,7 +11,7 @@ export interface CreateZustandStorageOptions<STATE, SERIALIZED extends Serialize
     parse: (stringValue: SERIALIZED) => STATE,
 }
 
-const createStorage = <STATE, SERIALIZED extends Serialized>(
+const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
     {
         storeInLocalStorage = false,
         storeInUrl = false,
@@ -82,4 +82,4 @@ const createStorage = <STATE, SERIALIZED extends Serialized>(
     },
 });
 
-export default createStorage;
+export default createZustandStorage;
