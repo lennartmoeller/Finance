@@ -33,12 +33,9 @@ const Input = <T, >(
     }: InputProps<T>
 ) => {
     const input: RefObject<HTMLInputElement> = useRef(null);
-
     const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
-
     const [isRegistered, setIsRegistered] = useState(false);
 
-    // register once so that useForm can use it
     useEffect(() => {
         if (!input.current || isRegistered) {
             return;
@@ -83,6 +80,13 @@ const Input = <T, >(
                         const stringValue: string = event.target.value;
                         const newInputState: InputState<T> = inputFormatter.onChange(inputState, stringValue);
                         setInputState(newInputState);
+                    }}
+                    onKeyDown={async (event: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (event.key === "Enter") {
+                            input.current?.blur();
+                            await new Promise(requestAnimationFrame); // wait until new element is focused
+                            input.current?.focus();
+                        }
                     }}
                     onBlur={async () => {
                         setInputState((previous: InputState<T>) => inputFormatter.onBlur(previous));
