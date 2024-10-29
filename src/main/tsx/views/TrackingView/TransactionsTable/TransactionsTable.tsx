@@ -7,10 +7,10 @@ import TableRow from "@/components/Table/TableRow";
 import {useAccounts} from "@/services/accounts";
 import {useCategories} from "@/services/categories";
 import {useTransactions} from "@/services/transactions";
-import Transaction, {emptyTransaction} from "@/types/Transaction";
-import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
-import {filterDuplicates} from "@/utils/array";
 import Category from "@/types/Category";
+import Transaction, {emptyTransaction} from "@/types/Transaction";
+import {filterDuplicates} from "@/utils/array";
+import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 
 const TransactionsTable: React.FC = () => {
     const accounts = useAccounts();

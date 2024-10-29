@@ -11,11 +11,11 @@ import Icon from "@/components/Icon/Icon";
 import TableBodyCell from "@/components/Table/TableBodyCell";
 import TableRow from "@/components/Table/TableRow";
 import {useDeleteTransaction, useSaveTransaction} from "@/services/transactions";
-import selectedYearMonthStore from "@/stores/selectedYearMonthStore";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
 import {Nullable} from "@/utils/types";
+import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 
 interface TransactionsTableRowProps {
     transaction: Nullable<Transaction>;
@@ -42,11 +42,11 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = (
         resetOnSuccess: draft,
     });
 
-    const {selectedYearMonth} = selectedYearMonthStore();
+    const {yearMonths} = useTransactionFilter();
 
     const dateInputFormatter = new GermanDateInputFormatter({
-        defaultYear: selectedYearMonth.getYear().getValue(),
-        defaultMonth: selectedYearMonth.getMonth().getValue(),
+        defaultYear: yearMonths.length !== 1 ? undefined : yearMonths[0].getYear().getValue(),
+        defaultMonth: yearMonths.length !== 1 ? undefined : yearMonths[0].getMonth().getValue(),
         required: true
     });
     const descriptionInputFormatter = new StringInputFormatter();
