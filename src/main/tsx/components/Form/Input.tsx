@@ -19,7 +19,6 @@ export interface InputProps<T> {
     onChange?: () => Promise<void>;
     register?: (getFormFieldState: () => FormFieldState<T | null>) => void;
     textAlign?: 'left' | 'center' | 'right';
-    onFocusChange?: (hasFocus: boolean) => void;
 }
 
 const Input = <T, >(
@@ -31,7 +30,6 @@ const Input = <T, >(
         onChange,
         register,
         textAlign,
-        onFocusChange,
     }: InputProps<T>
 ) => {
     const input: RefObject<HTMLInputElement> = useRef(null);
@@ -79,7 +77,6 @@ const Input = <T, >(
                     name={String(property)}
                     value={inputState.value}
                     onFocus={() => {
-                        onFocusChange?.(true);
                         setInputState((previous: InputState<T>) => inputFormatter.onFocus(previous));
                     }}
                     onChange={(event) => {
@@ -88,7 +85,6 @@ const Input = <T, >(
                         setInputState(newInputState);
                     }}
                     onBlur={async () => {
-                        onFocusChange?.(false);
                         setInputState((previous: InputState<T>) => inputFormatter.onBlur(previous));
                         await new Promise(requestAnimationFrame); // wait until new element is focused
                         await onChange?.();
