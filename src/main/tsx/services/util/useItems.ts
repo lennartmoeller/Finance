@@ -4,7 +4,7 @@ import axios from "@/services/util/axios";
 import {ExtURL} from "@/utils/ExtURL";
 
 export interface UseItemsOptions<Body, Data> {
-    url: ExtURL
+    url: ExtURL;
     converter: (body: Body) => Data;
 }
 

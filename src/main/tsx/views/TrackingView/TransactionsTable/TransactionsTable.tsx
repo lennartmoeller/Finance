@@ -4,31 +4,29 @@ import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInp
 import Table from "@/components/Table/Table";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
 import TableRow from "@/components/Table/TableRow";
-import {useAccounts} from "@/services/accounts";
-import {useCategories} from "@/services/categories";
-import {useTransactions} from "@/services/transactions";
+import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, {emptyTransaction} from "@/types/Transaction";
 import {filterDuplicates} from "@/utils/array";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
+import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 
-const TransactionsTable: React.FC = () => {
-    const accounts = useAccounts();
-    const categories = useCategories();
-    const transactions = useTransactions();
+interface TransactionsTableProps {
+    accounts: Account[];
+    categories: Category[];
+    transactions: Transaction[];
+}
 
-    if (accounts.isLoading || categories.isLoading || transactions.isLoading) return (
-        <div>Loading...</div>
-    );
-    if (accounts.error || categories.error || transactions.error) return (
-        <div>Error: {accounts.error?.message ?? categories.error?.message ?? transactions.error?.message}</div>
-    );
-    if (!accounts.data || !categories.data || !transactions.data) return (
-        <div>No data available</div>
-    );
+const TransactionsTable: React.FC<TransactionsTableProps> = (
+    {
+        accounts,
+        categories,
+        transactions,
+    }: TransactionsTableProps
+) => {
 
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
-        options: accounts.data,
+        options: accounts,
         idProperty: "id",
         labelProperty: "label",
         required: true
@@ -36,12 +34,12 @@ const TransactionsTable: React.FC = () => {
     const categoriesSelectorInputFormatter = new SelectorInputFormatter({
         options: (() => {
             // find non-leaf nodes
-            const nonLeaf: number[] = categories.data
+            const nonLeaf: number[] = categories
                 .map((category: Category) => category.parentId)
                 .filter((parentId: number | null) => parentId !== null);
             const nonLeafUnique: number[] = filterDuplicates(nonLeaf);
             // return only leaf nodes as options
-            return categories.data.filter((category: Category) => !nonLeafUnique.includes(category.id));
+            return categories.filter((category: Category) => !nonLeafUnique.includes(category.id));
         })(),
         idProperty: "id",
         labelProperty: "label",
@@ -49,35 +47,37 @@ const TransactionsTable: React.FC = () => {
     });
 
     return (
-        <Table
-            data={transactions.data}
-            header={(
-                <TableRow>
-                    <TableHeaderCell sticky="top">Date</TableHeaderCell>
-                    <TableHeaderCell sticky="top">Account</TableHeaderCell>
-                    <TableHeaderCell sticky="top">Category</TableHeaderCell>
-                    <TableHeaderCell sticky="top">Description</TableHeaderCell>
-                    <TableHeaderCell sticky="top" horAlign="center">Amount</TableHeaderCell>
-                    <TableHeaderCell sticky="top"></TableHeaderCell>
-                </TableRow>
-            )}
-            body={(transaction: Transaction) => (
-                <TransactionsTableRow
-                    key={transaction.id}
-                    transaction={transaction}
-                    accountInputFormatter={accountsSelectorInputFormatter}
-                    categoryInputFormatter={categoriesSelectorInputFormatter}
-                />
-            )}
-            postRow={(
-                <TransactionsTableRow
-                    transaction={emptyTransaction}
-                    accountInputFormatter={accountsSelectorInputFormatter}
-                    categoryInputFormatter={categoriesSelectorInputFormatter}
-                    draft
-                />
-            )}
-        />
+        <StyledTransactionTable>
+            <Table
+                data={transactions ?? []}
+                header={(
+                    <TableRow>
+                        <TableHeaderCell sticky="top">Date</TableHeaderCell>
+                        <TableHeaderCell sticky="top">Account</TableHeaderCell>
+                        <TableHeaderCell sticky="top">Category</TableHeaderCell>
+                        <TableHeaderCell sticky="top">Description</TableHeaderCell>
+                        <TableHeaderCell sticky="top" horAlign="center">Amount</TableHeaderCell>
+                        <TableHeaderCell sticky="top"></TableHeaderCell>
+                    </TableRow>
+                )}
+                body={(transaction: Transaction) => (
+                    <TransactionsTableRow
+                        key={transaction.id}
+                        transaction={transaction}
+                        accountInputFormatter={accountsSelectorInputFormatter}
+                        categoryInputFormatter={categoriesSelectorInputFormatter}
+                    />
+                )}
+                postRow={(
+                    <TransactionsTableRow
+                        transaction={emptyTransaction}
+                        accountInputFormatter={accountsSelectorInputFormatter}
+                        categoryInputFormatter={categoriesSelectorInputFormatter}
+                        draft
+                    />
+                )}
+            />
+        </StyledTransactionTable>
     );
 };
 

@@ -1,20 +1,40 @@
 import React from "react";
 
+import {useAccounts} from "@/services/accounts";
+import {useCategories} from "@/services/categories";
+import {useTransactions} from "@/services/transactions";
 import AccountList from "@/views/TrackingView/AccountList/AccountList";
-import StyledAccountsListContainer from "@/views/TrackingView/styles/StyledAccountsListContainer";
 import StyledTrackingView from "@/views/TrackingView/styles/StyledTrackingView";
-import StyledTransactionsTableContainer from "@/views/TrackingView/styles/StyledTransactionsTableContainer";
 import TransactionsTable from "@/views/TrackingView/TransactionsTable/TransactionsTable";
+import TransactionsTableFilters from "@/views/TrackingView/TransactionsTableFilters/TransactionsTableFilters";
 
 const TrackingView: React.FC = () => {
+    const accounts = useAccounts();
+    const categories = useCategories();
+    const transactions = useTransactions();
+
+    if (accounts.isLoading || categories.isLoading) return (
+        <div>Loading...</div>
+    );
+    if (accounts.error || categories.error) return (
+        <div>Error: {accounts.error?.message ?? categories.error?.message}</div>
+    );
+    if (!accounts.data || !categories.data) return (
+        <div>No data available</div>
+    );
+
     return (
         <StyledTrackingView>
-            <StyledTransactionsTableContainer>
-                <TransactionsTable/>
-            </StyledTransactionsTableContainer>
-            <StyledAccountsListContainer>
-                <AccountList/>
-            </StyledAccountsListContainer>
+            <TransactionsTableFilters
+                accounts={accounts.data}
+                categories={categories.data}
+            />
+            <TransactionsTable
+                accounts={accounts.data}
+                categories={categories.data}
+                transactions={transactions.data ?? []}
+            />
+            <AccountList/>
         </StyledTrackingView>
     );
 };

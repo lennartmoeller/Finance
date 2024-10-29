@@ -86,7 +86,7 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = (
                     textAlign="right"
                 />
             </TableBodyCell>
-            <TableBodyCell horAlign="center">
+            <TableBodyCell horAlign="center" width={31}>
                 {!draft && (
                     <Button onClick={() => deleteTransaction(transaction as Transaction)}>
                         <Icon id="fa-solid fa-trash" color="red"/>
