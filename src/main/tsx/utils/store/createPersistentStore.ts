@@ -1,7 +1,7 @@
 import {create, StateCreator} from "zustand/index";
 import {persist} from "zustand/middleware";
 
-import createStorage, {CreateZustandStorageOptions, Serialized} from "@/utils/store/createStorage";
+import createZustandStorage, {CreateZustandStorageOptions, Serialized} from "@/utils/store/createZustandStorage";
 
 type PersistentStoreOptions<STATE, STATEDATA, SERIALIZED extends Serialized> = {
     name: string;
@@ -15,15 +15,14 @@ const createPersistentStore = <STATE, STATEDATA, SERIALIZED extends Serialized>(
             options.stateCreator,
             {
                 name: options.name,
-                storage: createStorage(options.storage),
+                storage: createZustandStorage(options.storage),
             },
         ),
     );
-    if (options.storage.storeInLocalStorage && options.storage.storeInUrl) {
-        // synchronize, if both url and local storage are used
-        boundStore.setState(boundStore.getState());
-    }
-    return boundStore();
+    return () => ({
+        reinit: () => boundStore.setState(boundStore.getState()),
+        ...boundStore()
+    });
 };
 
 export default createPersistentStore;
