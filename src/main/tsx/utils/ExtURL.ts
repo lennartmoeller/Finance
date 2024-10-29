@@ -16,7 +16,13 @@ export class ExtURL {
     }
 
     setSearchParam(key: string, value: string): void {
-        this.url.searchParams.set(key, value);
+        if (value) {
+            this.url.searchParams.set(key, value);
+        }
+    }
+
+    setSearchParams(searchParams: Record<string, string>): void {
+        Object.entries(searchParams).forEach(([key, value]) => this.setSearchParam(key, value));
     }
 
     deleteSearchParam(key: string): void {
