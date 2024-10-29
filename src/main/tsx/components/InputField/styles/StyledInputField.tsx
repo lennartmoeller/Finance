@@ -13,8 +13,8 @@ const StyledInputField = styled.div<{
     padding: ${paddingVertical}px ${paddingHorizontal}px;
     width: ${({$width}) => $width}px;
     background-color: #f8f8f8;
-    opacity: .85;
-    transition: background-color .2s, opacity .2s;
+    opacity: .8;
+    transition: background-color .15s, opacity .15s, border-color .15s;
 
     &:focus-within {
         background-color: white;

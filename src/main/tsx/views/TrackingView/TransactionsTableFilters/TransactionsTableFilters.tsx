@@ -1,8 +1,8 @@
 import React from "react";
 
 import useForm from "@/components/Form/hooks/useForm";
+import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
-import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import InputField from "@/components/InputField/InputField";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
@@ -33,16 +33,16 @@ const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = (
     } = useTransactionFilter();
     reinit();
 
-    const register = useForm<{ accountIds: number, categoryIds: number, yearMonths: string, }>({
+    const register = useForm<{ accountIds: number, categoryIds: number, yearMonths: YearMonth, }>({
         initial: {
             accountIds: accountIds.length > 0 ? accountIds[0] : null,
             categoryIds: categoryIds.length > 0 ? categoryIds[0] : null,
-            yearMonths: yearMonths.join(","),
+            yearMonths: yearMonths.length > 0 ? yearMonths[0] : null,
         },
         onSuccess: async (filters) => {
             setAccountIds(filters.accountIds === null ? [] : [filters.accountIds]);
             setCategoryIds(filters.categoryIds === null ? [] : [filters.categoryIds]);
-            setYearMonths(filters.yearMonths.split(",").filter(x => x).map(YearMonth.fromString));
+            setYearMonths(filters.yearMonths === null ? [] : [filters.yearMonths]);
         }
     });
 
@@ -56,25 +56,26 @@ const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = (
         idProperty: "id",
         labelProperty: "label",
     });
-
-    const stringInputFormatter = new StringInputFormatter();
+    const yearMonthsSelectorInputFormatter = new GermanYearMonthInputFormatter({
+        defaultYear: new Date().getFullYear(),
+    });
 
     return (
         <StyledTransactionsTableFilters>
             <InputField
-                label="Months"
+                label="Month"
                 width={90}
                 {...register("yearMonths")}
-                inputFormatter={stringInputFormatter}
+                inputFormatter={yearMonthsSelectorInputFormatter}
             />
             <InputField
-                label="Accounts"
+                label="Account"
                 width={140}
                 {...register("accountIds")}
                 inputFormatter={accountsSelectorInputFormatter}
             />
             <InputField
-                label="Categories"
+                label="Category"
                 width={200}
                 {...register("categoryIds")}
                 inputFormatter={categoriesSelectorInputFormatter}

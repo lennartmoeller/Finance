@@ -8,8 +8,8 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, {emptyTransaction} from "@/types/Transaction";
 import {filterDuplicates} from "@/utils/array";
-import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
+import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 
 interface TransactionsTableProps {
     accounts: Account[];
@@ -49,7 +49,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = (
     return (
         <StyledTransactionTable>
             <Table
-                data={transactions ?? []}
+                data={transactions}
                 header={(
                     <TableRow>
                         <TableHeaderCell sticky="top">Date</TableHeaderCell>

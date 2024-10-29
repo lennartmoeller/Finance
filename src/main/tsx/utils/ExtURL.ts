@@ -67,7 +67,9 @@ export class ExtURL {
     }
 
     toCurrent(): void {
-        window.history.replaceState(null, '', this.url.toString());
+        if (window.location.href !== this.url.toString()) {
+            window.history.pushState(null, '', this.url.toString());
+        }
     }
 
     toString(): string {
