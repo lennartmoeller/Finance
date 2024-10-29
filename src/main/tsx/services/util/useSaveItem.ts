@@ -2,11 +2,12 @@ import {useMutation, useQueryClient} from "@tanstack/react-query";
 
 import axios from "@/services/util/axios";
 import {filterDuplicates} from "@/utils/array";
+import {ExtURL} from "@/utils/ExtURL";
 
 export interface UseSaveItemOptions<Body, Item> {
-    url: URL;
+    url: ExtURL;
     converter: (item: Item) => Body;
-    invalidateQueryUrls?: Array<URL> | ((item: Item) => Array<URL> | undefined);
+    invalidateQueryUrls?: Array<ExtURL> | ((item: Item) => Array<ExtURL> | undefined);
 }
 
 export type UseSaveItemResult<T> = (item: T) => Promise<void>;
@@ -21,7 +22,7 @@ const useSaveItem = <Body, Item>(options: UseSaveItemOptions<Body, Item>): UseSa
             return response.data;
         },
         onSuccess: async (_, item: Item) => {
-            const queryUrls: Array<URL> | undefined = typeof options.invalidateQueryUrls === "function" ? options.invalidateQueryUrls(item) : options.invalidateQueryUrls;
+            const queryUrls: Array<ExtURL> | undefined = typeof options.invalidateQueryUrls === "function" ? options.invalidateQueryUrls(item) : options.invalidateQueryUrls;
             for (const queryUrl of filterDuplicates(queryUrls ?? [])) {
                 await queryClient.invalidateQueries({queryKey: [queryUrl.toString()]});
             }

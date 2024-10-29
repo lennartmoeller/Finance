@@ -1,9 +1,10 @@
 import {useQuery} from "@tanstack/react-query";
 
 import axios from "@/services/util/axios";
+import {ExtURL} from "@/utils/ExtURL";
 
 export interface UseItemsOptions<Body, Data> {
-    url: URL;
+    url: ExtURL
     converter: (body: Body) => Data;
 }
 
