@@ -2,7 +2,6 @@ import React, {useState} from "react";
 
 import Select from "@/components/Select/Select";
 import {useStats} from "@/services/stats";
-import StatsChart from "@/views/StatsView/Chart/StatsChart";
 import StatsTable from "@/views/StatsView/Table/StatsTable";
 
 export type StatsMode = { processing: 'raw' | 'smoothed', shared: boolean };
@@ -28,12 +27,6 @@ const Stats: React.FC = () => {
             initialKey={mode}
             onSelect={(key: StatsMode) => setMode(key)}
         />
-        <div style={{marginLeft: '341.5px'}}>
-            <StatsChart
-                mode={mode}
-                stats={stats.data.dailyStats}
-            />
-        </div>
         <StatsTable
             mode={mode}
             stats={stats.data}
