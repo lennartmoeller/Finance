@@ -15,6 +15,10 @@ const theme = {
     ...general,
 
     fontSize: 15,
+    mainPadding: 30,
+    header : {
+        height: 120,
+    },
     inputField: {
         label: {
             fontWeight: 600,
@@ -35,7 +39,6 @@ const theme = {
             fontWeight: "normal",
         }
     },
-    mainPadding: 30,
 };
 
 export default theme;

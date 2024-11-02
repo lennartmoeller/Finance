@@ -7,16 +7,16 @@ export type Serialized = string | Record<string, string>;
 export interface CreateZustandStorageOptions<STATE, SERIALIZED extends Serialized> {
     storeInUrl?: boolean,
     storeInLocalStorage?: boolean,
-    serialize: (state: STATE) => SERIALIZED,
-    parse: (stringValue: SERIALIZED) => STATE,
+    serialize?: (state: STATE) => SERIALIZED,
+    parse?: (stringValue: SERIALIZED) => STATE,
 }
 
 const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
     {
         storeInLocalStorage = false,
         storeInUrl = false,
-        serialize,
-        parse,
+        serialize = (state: STATE): SERIALIZED => state as unknown as SERIALIZED,
+        parse = (serialized: SERIALIZED): STATE => serialized as unknown as STATE,
     }: CreateZustandStorageOptions<STATE, SERIALIZED>
 ): PersistStorage<STATE> => ({
     getItem: (name: string): StorageValue<STATE> | null => {

@@ -12,7 +12,6 @@ import RowStats from "@/types/RowStats";
 import Stats from "@/types/Stats";
 import {getMonths} from "@/utils/date";
 import YearMonth from "@/utils/YearMonth";
-import {StatsMode} from "@/views/StatsView/Stats";
 import MoneyTableCell from "@/views/StatsView/Table/MoneyTableCell/MoneyTableCell";
 
 interface StatsTableRow {
@@ -27,11 +26,12 @@ interface StatsTableRow {
 }
 
 interface StatsTableProps {
-    mode: StatsMode;
     stats: Stats;
+    smoothed: boolean;
+    merged: boolean;
 }
 
-const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
+const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
     const months: Array<YearMonth> = stats.startDate === null || stats.endDate === null ? [] : getMonths(stats.startDate, stats.endDate);
 
     const categoryStatsNodesToStatsTableRows = (categoryStatsNodes: Array<CategoryStatsNode>): Array<StatsTableRow> =>
@@ -121,8 +121,8 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                 </TableBodyHierarchyCell>
                 <MoneyTableCell
                     headerLevel={rowData.headerLevel}
-                    mode={mode}
                     stats={rowData.stats.mean}
+                    smoothed={smoothed}
                 />
                 {months.map((month: YearMonth) => {
                     const getBodyCellColumnCount = (smoothType: CategorySmoothType, month: YearMonth): number => {
@@ -145,7 +145,7 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
 
                         return Math.max(0, Math.min(max, output));
                     };
-                    const columnCount: number = mode.shared && rowData.smoothType ? getBodyCellColumnCount(rowData.smoothType, month) : 1;
+                    const columnCount: number = merged && rowData.smoothType ? getBodyCellColumnCount(rowData.smoothType, month) : 1;
                     if (columnCount < 1) return <></>;
 
                     const monthString: string = month.toString();
@@ -154,8 +154,8 @@ const StatsTable: React.FC<StatsTableProps> = ({mode, stats,}) => {
                             key={monthString}
                             columnCount={columnCount}
                             headerLevel={rowData.headerLevel}
-                            mode={mode}
                             stats={rowData.stats.monthly[monthString]}
+                            smoothed={smoothed}
                         />
                     );
                 })}

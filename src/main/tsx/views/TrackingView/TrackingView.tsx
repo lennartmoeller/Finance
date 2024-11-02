@@ -1,14 +1,21 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 import {useAccounts} from "@/services/accounts";
 import {useCategories} from "@/services/categories";
 import {useTransactions} from "@/services/transactions";
+import useHeader from "@/skeleton/Header/stores/useHeader";
 import AccountList from "@/views/TrackingView/AccountList/AccountList";
 import StyledTrackingView from "@/views/TrackingView/styles/StyledTrackingView";
 import TransactionsTable from "@/views/TrackingView/TransactionsTable/TransactionsTable";
 import TransactionsTableFilters from "@/views/TrackingView/TransactionsTableFilters/TransactionsTableFilters";
 
 const TrackingView: React.FC = () => {
+    const {setHeader} = useHeader();
+
+    useEffect(() => {
+        setHeader({});
+    }, [setHeader]);
+
     const accounts = useAccounts();
     const categories = useCategories();
     const transactions = useTransactions();

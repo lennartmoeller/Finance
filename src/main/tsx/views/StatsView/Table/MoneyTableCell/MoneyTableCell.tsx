@@ -3,7 +3,6 @@ import React from "react";
 import TableBodyCell from "@/components/Table/TableBodyCell";
 import CellStats from "@/types/CellStats";
 import {getEuroString} from "@/utils/money";
-import {StatsMode} from "@/views/StatsView/Stats";
 import PerformanceArrow from "@/views/StatsView/Table/MoneyTableCell/PerformanceArrow";
 import StyledMoneyString from "@/views/StatsView/Table/MoneyTableCell/styles/StyledMoneyString";
 import StyledMoneyTableCell from "@/views/StatsView/Table/MoneyTableCell/styles/StyledMoneyTableCell";
@@ -11,14 +10,15 @@ import StyledMoneyTableCell from "@/views/StatsView/Table/MoneyTableCell/styles/
 interface MoneyTableCellProps {
     columnCount?: number,
     headerLevel?: 1 | 2,
-    mode: StatsMode,
     stats: CellStats,
+    smoothed: boolean,
 }
 
-const MoneyTableCell: React.FC<MoneyTableCellProps> = ({columnCount = 1, headerLevel, mode, stats,}) => {
-    const centsValue: number = stats.surplus[mode.processing] * columnCount;
+const MoneyTableCell: React.FC<MoneyTableCellProps> = ({columnCount = 1, headerLevel, stats, smoothed,}) => {
+    const statsMetricKey: 'raw' | 'smoothed' = smoothed ? "smoothed" : "raw";
+    const centsValue: number = stats.surplus[statsMetricKey] * columnCount;
     const euroString: string = getEuroString(centsValue, 12);
-    const performance: number | undefined = stats.performance?.[mode.processing];
+    const performance: number | undefined = stats.performance?.[statsMetricKey];
 
     return (
         <TableBodyCell
