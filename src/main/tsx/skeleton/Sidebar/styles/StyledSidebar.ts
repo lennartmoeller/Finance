@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-const StyledSidebarDummy = styled.div`
+const StyledSidebar = styled.div`
     grid-area: sidebar;
-    width: 200px;
+    width: 170px;
     border-right: ${props => `${props.theme.border.width}px solid ${props.theme.border.color}`};
 `;
 
-export default StyledSidebarDummy;
+export default StyledSidebar;
