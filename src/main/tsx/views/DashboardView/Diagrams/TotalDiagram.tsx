@@ -14,7 +14,7 @@ import {
 } from 'chart.js';
 import {Line} from 'react-chartjs-2';
 
-import {useStats} from "@/services/stats";
+import {useDailyBalanceStats} from "@/services/dailyBalanceStats";
 import {getEuroString} from "@/utils/money";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
@@ -78,12 +78,12 @@ const chartOptions: ChartOptions<'line'> = {
 };
 
 const DiagramView: React.FC = () => {
-    const {data: statsData} = useStats();
+    const {data: statsData} = useDailyBalanceStats();
 
     const chartData = useMemo(() => {
-        if (!statsData?.dailyStats) return null;
+        if (!statsData) return null;
 
-        const labels: string[] = statsData.dailyStats.map(stat =>
+        const labels: string[] = statsData.map(stat =>
             new Date(stat.date).toLocaleDateString('de-DE', {
                 day: '2-digit',
                 month: '2-digit',
@@ -93,7 +93,7 @@ const DiagramView: React.FC = () => {
 
         const datasets = [{
             label: 'Smoothed Value',
-            data: statsData.dailyStats.map(stat => stat.balance.smoothed),
+            data: statsData.map(stat => stat.balance.smoothed),
             fill: true,
             borderColor: 'rgba(76, 175, 80, 1)',
             backgroundColor: ({chart: {ctx, height}}: ScriptableContext<'line'>) => {

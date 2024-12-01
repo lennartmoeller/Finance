@@ -1,5 +1,7 @@
 package com.lennartmoeller.finance.util;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -9,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 
 @Getter
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 public class DateRange {
 
 	private final LocalDate startDate;
@@ -64,6 +67,22 @@ public class DateRange {
 		this.endDate = endDate.atMonth(12).atDay(31);
 	}
 
+	public static DateRange getOverlapRange(DateRange range1, DateRange range2) {
+		LocalDate start1 = range1.getStartDate();
+		LocalDate end1 = range1.getEndDate();
+		LocalDate start2 = range2.getStartDate();
+		LocalDate end2 = range2.getEndDate();
+
+		LocalDate overlapStart = start1.isAfter(start2) ? start1 : start2;
+		LocalDate overlapEnd = end1.isBefore(end2) ? end1 : end2;
+
+		if (overlapStart.isBefore(overlapEnd) || overlapStart.isEqual(overlapEnd)) {
+			return new DateRange(overlapStart, overlapEnd);
+		} else {
+			return new DateRange(overlapEnd, overlapEnd);
+		}
+	}
+
 	public YearMonth getStartMonth() {
 		return YearMonth.from(startDate);
 	}
@@ -105,22 +124,6 @@ public class DateRange {
 			return ChronoUnit.MONTHS.between(overlapStart, overlapEnd) + 1;
 		} else {
 			return 0;
-		}
-	}
-
-	public static DateRange getOverlapRange(DateRange range1, DateRange range2) {
-		LocalDate start1 = range1.getStartDate();
-		LocalDate end1 = range1.getEndDate();
-		LocalDate start2 = range2.getStartDate();
-		LocalDate end2 = range2.getEndDate();
-
-		LocalDate overlapStart = start1.isAfter(start2) ? start1 : start2;
-		LocalDate overlapEnd = end1.isBefore(end2) ? end1 : end2;
-
-		if (overlapStart.isBefore(overlapEnd) || overlapStart.isEqual(overlapEnd)) {
-			return new DateRange(overlapStart, overlapEnd);
-		} else {
-			return new DateRange(overlapEnd, overlapEnd);
 		}
 	}
 

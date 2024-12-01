@@ -1,5 +1,5 @@
 import {accountBalancesUrl} from "@/services/accountBalances";
-import {statsUrl} from "@/services/stats";
+import {monthlyCategoryBalanceStatsUrl} from "@/services/monthlyCategoryBalanceStats";
 import useDeleteItem, {UseDeleteItemResult} from "@/services/util/useDeleteItem";
 import useItems, {UseItemsResult} from "@/services/util/useItems";
 import useSaveItem, {UseSaveItemResult} from "@/services/util/useSaveItem";
@@ -49,7 +49,7 @@ export const useSaveTransaction = (): UseSaveItemResult<Transaction> => {
                 currentTransactionsUrl,
                 targetTransactionsUrl,
                 accountBalancesUrl,
-                statsUrl,
+                monthlyCategoryBalanceStatsUrl,
             ];
         },
     });
@@ -66,7 +66,7 @@ export const useDeleteTransaction = (): UseDeleteItemResult<Transaction> => {
             return [
                 url,
                 accountBalancesUrl,
-                statsUrl,
+                monthlyCategoryBalanceStatsUrl,
             ];
         },
     });

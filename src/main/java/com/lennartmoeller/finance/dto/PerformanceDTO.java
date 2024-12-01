@@ -47,12 +47,12 @@ public class PerformanceDTO {
 			.filter(Double::isFinite)
 			.orElse(median);
 
-		if (transactionType == TransactionType.INCOME) {
-			lower = Math.max(lower, 0);
-			upper = Math.max(upper, 0);
-		} else if (transactionType == TransactionType.EXPENSE) {
+		if (transactionType == TransactionType.EXPENSE) {
 			lower = Math.min(lower, 0);
 			upper = Math.min(upper, 0);
+		} else {
+			lower = Math.max(lower, 0);
+			upper = Math.max(upper, 0);
 		}
 
 		return new ImmutableTriple<>(lower, median, upper);

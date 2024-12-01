@@ -4,15 +4,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
 @RequiredArgsConstructor
 @Setter
-public class CategoryStatsNodeDTO {
+public class DailyBalanceStatsDTO {
 
-	private CategoryDTO category;
-	private RowStatsDTO stats;
-	private List<CategoryStatsNodeDTO> children;
+	private LocalDate date;
+	private StatsMetricDTO balance;
 
 }

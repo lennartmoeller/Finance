@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 
 import Icon from "@/components/Icon/Icon";
 import Switch from "@/components/Switch/Switch";
-import {useStats} from "@/services/stats";
+import {useMonthlyCategoryBalanceStats} from "@/services/monthlyCategoryBalanceStats";
 import useHeader from "@/skeleton/Header/stores/useHeader";
 import useStatsMode from "@/views/StatsView/stores/useStatsMode";
 import StatsTable from "@/views/StatsView/Table/StatsTable";
@@ -10,7 +10,7 @@ import StatsTable from "@/views/StatsView/Table/StatsTable";
 const StatsView: React.FC = () => {
     const {setHeader} = useHeader();
     const {smoothed, setSmoothed, merged, setMerged,} = useStatsMode();
-    const stats = useStats();
+    const stats = useMonthlyCategoryBalanceStats();
 
     useEffect(() => {
         setHeader({
