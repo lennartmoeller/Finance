@@ -1,8 +1,11 @@
 import styled from "styled-components";
 
 const StyledTrackingView = styled.div`
-    display: grid;
+    width: max-content;
     height: 100%;
+    padding: ${props => props.theme.mainPadding}px;
+    padding-top: 0;
+    display: grid;
     grid-template:
     "transactionsTableFilters empty"
     "transactionsTable accountList";

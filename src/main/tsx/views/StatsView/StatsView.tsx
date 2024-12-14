@@ -6,6 +6,7 @@ import {useMonthlyCategoryBalanceStats} from "@/services/monthlyCategoryBalanceS
 import useHeader from "@/skeleton/Header/stores/useHeader";
 import useStatsMode from "@/views/StatsView/stores/useStatsMode";
 import StatsTable from "@/views/StatsView/Table/StatsTable";
+import StyledStatsView from "@/views/StatsView/styles/StyledStatsView";
 
 const StatsView: React.FC = () => {
     const {setHeader} = useHeader();
@@ -48,11 +49,13 @@ const StatsView: React.FC = () => {
     if (!stats.data) return <div>No data available</div>;
 
     return (
-        <StatsTable
-            stats={stats.data}
-            merged={merged}
-            smoothed={smoothed}
-        />
+        <StyledStatsView>
+            <StatsTable
+                stats={stats.data}
+                merged={merged}
+                smoothed={smoothed}
+            />
+        </StyledStatsView>
     );
 };
 
