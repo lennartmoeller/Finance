@@ -1,27 +1,24 @@
 package com.lennartmoeller.finance.service;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.lennartmoeller.finance.dto.DailyBalanceStatsDTO;
 import com.lennartmoeller.finance.dto.StatsMetricDTO;
-import com.lennartmoeller.finance.model.CategorySmoothType;
+import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.DateRange;
-import com.lennartmoeller.finance.util.YearHalf;
-import com.lennartmoeller.finance.util.YearQuarter;
+import com.lennartmoeller.finance.util.smoother.SmootherDaily;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.Year;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.lennartmoeller.finance.util.AggregationUtils.aggregateBalances;
 
 @Service
 @RequiredArgsConstructor
@@ -33,60 +30,54 @@ public class DailyBalanceStatsService {
 	public List<DailyBalanceStatsDTO> getStats() {
 		List<DailyBalanceProjection> dailyBalances = transactionRepository.getDailyBalances();
 
+		Map<TransactionType, SmootherDaily> smoothers = Arrays.stream(TransactionType.values())
+			.collect(Collectors.toMap(
+				Function.identity(),
+				transactionType -> new SmootherDaily()
+			));
+		dailyBalances.forEach(projection -> smoothers.get(projection.getCategory().getTransactionType()).add(
+			projection.getDate(),
+			projection.getCategory().getSmoothType(),
+			projection.getBalance()
+		));
+
 		DateRange dateRange = new DateRange(
 			dailyBalances.getFirst().getDate().withDayOfMonth(1),
 			LocalDate.now()
 		);
 
-		Map<CategorySmoothType, List<DailyBalanceProjection>> dailyBalancesBySmoothType = dailyBalances.stream()
-			.collect(Collectors.groupingBy(projection -> projection.getCategory().getSmoothType()));
-
-		Map<LocalDate, Long> rawBalancesMap = aggregateBalances(dailyBalances, LocalDate::from);
-		Map<LocalDate, Long> smoothedBalancesMapDaily = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.DAILY), LocalDate::from);
-		Map<YearMonth, Long> smoothedBalancesMapMonthly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.MONTHLY), YearMonth::from);
-		Map<YearQuarter, Long> smoothedBalancesMapQuarterYearly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.QUARTER_YEARLY), YearQuarter::from);
-		Map<YearHalf, Long> smoothedBalancesMapHalfYearly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.HALF_YEARLY), YearHalf::from);
-		Map<Year, Long> smoothedBalancesMapYearly = aggregateBalances(dailyBalancesBySmoothType.get(CategorySmoothType.YEARLY), Year::from);
-
 		double initialBalance = accountRepository.getSummedStartBalance();
-		AtomicDouble balance = new AtomicDouble(initialBalance);
-		AtomicDouble smoothedBalance = new AtomicDouble(initialBalance);
+
+		AtomicReference<StatsMetricDTO> balance = new AtomicReference<>(new StatsMetricDTO());
+		balance.get().setRaw(initialBalance);
+		balance.get().setSmoothed(initialBalance);
+
+		AtomicReference<StatsMetricDTO> target = new AtomicReference<>(new StatsMetricDTO());
+		target.get().setRaw(initialBalance);
+		target.get().setSmoothed(initialBalance);
 
 		return dateRange.createDateStream().map(date -> {
 			DailyBalanceStatsDTO dailyBalanceStatsDTO = new DailyBalanceStatsDTO();
 			dailyBalanceStatsDTO.setDate(date);
 
-			StatsMetricDTO statsMetricDTO = new StatsMetricDTO();
+			StatsMetricDTO incomeBalance = smoothers.get(TransactionType.INCOME).get(date);
+			StatsMetricDTO investmentBalance = smoothers.get(TransactionType.INVESTMENT).get(date);
+			StatsMetricDTO expenseBalance = smoothers.get(TransactionType.EXPENSE).get(date);
 
-			balance.addAndGet(Optional.ofNullable(rawBalancesMap.get(date)).orElse(0L));
+			balance.set(StatsMetricDTO.add(List.of(
+				balance.get(),
+				incomeBalance,
+				investmentBalance,
+				expenseBalance
+			)));
+			dailyBalanceStatsDTO.setBalance(balance.get());
 
-			double surplusesOfDailySmoothedTransactions = smoothedBalancesMapDaily.getOrDefault(date, 0L).doubleValue();
-			smoothedBalance.addAndGet(surplusesOfDailySmoothedTransactions);
-
-			YearMonth month = YearMonth.from(date);
-			double surplusesOfMonthlySmoothedTransactions = smoothedBalancesMapMonthly.getOrDefault(month, 0L).doubleValue();
-			long daysInMonth = dateRange.getOverlapDays(new DateRange(month));
-			smoothedBalance.addAndGet(surplusesOfMonthlySmoothedTransactions / daysInMonth);
-
-			YearQuarter yearQuarter = YearQuarter.from(date);
-			double surplusesOfQuarterYearlySmoothedTransactions = smoothedBalancesMapQuarterYearly.getOrDefault(yearQuarter, 0L).doubleValue();
-			long daysInQuarterYear = dateRange.getOverlapDays(new DateRange(yearQuarter));
-			smoothedBalance.addAndGet(surplusesOfQuarterYearlySmoothedTransactions / daysInQuarterYear);
-
-			YearHalf yearHalf = YearHalf.from(date);
-			double surplusesOfHalfYearlySmoothedTransactions = smoothedBalancesMapHalfYearly.getOrDefault(yearHalf, 0L).doubleValue();
-			long daysInHalfYear = dateRange.getOverlapDays(new DateRange(yearHalf));
-			smoothedBalance.addAndGet(surplusesOfHalfYearlySmoothedTransactions / daysInHalfYear);
-
-			Year year = Year.from(date);
-			double surplusesOfYearlySmoothedTransactions = smoothedBalancesMapYearly.getOrDefault(year, 0L).doubleValue();
-			long daysInYear = dateRange.getOverlapDays(new DateRange(year));
-			smoothedBalance.addAndGet(surplusesOfYearlySmoothedTransactions / daysInYear);
-
-			statsMetricDTO.setRaw(balance.get());
-			statsMetricDTO.setSmoothed(smoothedBalance.get());
-
-			dailyBalanceStatsDTO.setBalance(statsMetricDTO);
+			target.set(StatsMetricDTO.add(List.of(
+				target.get(),
+				StatsMetricDTO.multiply(incomeBalance, 0.2),
+				investmentBalance
+			)));
+			dailyBalanceStatsDTO.setTarget(target.get());
 
 			return dailyBalanceStatsDTO;
 		}).toList();

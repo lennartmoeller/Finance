@@ -95,6 +95,10 @@ public class DateRange {
 		return ChronoUnit.DAYS.between(startDate, endDate) + 1;
 	}
 
+	public long getMonths() {
+		return ChronoUnit.MONTHS.between(YearMonth.from(startDate), YearMonth.from(endDate)) + 1;
+	}
+
 	public long getOverlapDays(DateRange other) {
 		LocalDate start1 = this.getStartDate();
 		LocalDate end1 = this.getEndDate();

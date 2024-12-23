@@ -13,5 +13,6 @@ public class DailyBalanceStatsDTO {
 
 	private LocalDate date;
 	private StatsMetricDTO balance;
+	private StatsMetricDTO target;
 
 }

@@ -28,6 +28,13 @@ public class StatsMetricDTO {
 		return result;
 	}
 
+	public static StatsMetricDTO multiply(StatsMetricDTO statsMetricDTO, double factor) {
+		StatsMetricDTO result = new StatsMetricDTO();
+		result.setRaw(statsMetricDTO.getRaw() * factor);
+		result.setSmoothed(statsMetricDTO.getSmoothed() * factor);
+		return result;
+	}
+
 	public static StatsMetricDTO mean(List<StatsMetricDTO> statsMetricDTOs) {
 		if (statsMetricDTOs.isEmpty()) {
 			return StatsMetricDTO.empty();
