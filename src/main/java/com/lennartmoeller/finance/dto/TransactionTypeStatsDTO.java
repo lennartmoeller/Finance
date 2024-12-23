@@ -2,7 +2,6 @@ package com.lennartmoeller.finance.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.util.DateRange;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +16,15 @@ import java.util.stream.Collectors;
 @Getter
 @RequiredArgsConstructor
 @Setter
-public class TransactionTypeCategoryStatsDTO {
+public class TransactionTypeStatsDTO {
 
-	private final TransactionType transactionType;
 	private final List<CategoryStatsDTO> categoryStats;
 
 	@JsonIgnore
 	private final @Nullable DateRange dateRange;
 
-	public static TransactionTypeCategoryStatsDTO empty(TransactionType transactionType, @Nullable DateRange dateRange) {
-		return new TransactionTypeCategoryStatsDTO(transactionType, List.of(), dateRange);
+	public static TransactionTypeStatsDTO empty(@Nullable DateRange dateRange) {
+		return new TransactionTypeStatsDTO(List.of(), dateRange);
 	}
 
 	@JsonProperty

@@ -1,10 +1,10 @@
 import useItems, {UseItemsResult} from "@/services/util/useItems";
-import MonthlyCategoryBalanceStats, {monthlyCategoryBalanceStatsMapper} from "@/types/MonthlyCategoryBalanceStats";
+import MonthlyCategoryStats, {monthlyCategoryStatsMapper} from "@/types/MonthlyCategoryStats";
 import {ExtURL} from "@/utils/ExtURL";
 
 export const monthlyCategoryBalanceStatsUrl = new ExtURL("api/stats/monthlyCategoryBalances", window.location.origin);
 
-export const useMonthlyCategoryBalanceStats = (): UseItemsResult<MonthlyCategoryBalanceStats> => useItems({
+export const useMonthlyCategoryBalanceStats = (): UseItemsResult<MonthlyCategoryStats> => useItems({
     url: monthlyCategoryBalanceStatsUrl,
-    converter: monthlyCategoryBalanceStatsMapper.fromDTO,
+    converter: monthlyCategoryStatsMapper.fromDTO,
 });

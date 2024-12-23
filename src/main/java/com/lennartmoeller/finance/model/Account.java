@@ -25,4 +25,7 @@ public class Account {
 	@Column(nullable = false)
 	private Boolean active = true;
 
+	@Column(nullable = false)
+	private Boolean deposits = false;
+
 }

@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,11 +35,11 @@ public class MonthlyCategoryBalanceStatsService {
 	private final CategoryRepository categoryRepository;
 	private final TransactionRepository transactionRepository;
 
-	public MonthlyCategoryBalanceStatsDTO getStats() {
+	public MonthlyCategoryStatsDTO getStats() {
 		List<DailyBalanceProjection> dailyBalances = transactionRepository.getDailyBalances();
 
 		if (dailyBalances.isEmpty()) {
-			return MonthlyCategoryBalanceStatsDTO.empty();
+			return MonthlyCategoryStatsDTO.empty();
 		}
 
 		DateRange dateRange = new DateRange(
@@ -46,31 +47,33 @@ public class MonthlyCategoryBalanceStatsService {
 			LocalDate.now()
 		);
 
-		MonthlyCategoryBalanceStatsDTO monthlyCategoryBalanceStatsDTO = new MonthlyCategoryBalanceStatsDTO();
+		MonthlyCategoryStatsDTO monthlyCategoryStatsDTO = new MonthlyCategoryStatsDTO();
 
-		List<TransactionTypeCategoryStatsDTO> categoryStatsByType = getCategoryStatsByType(dailyBalances, dateRange);
-		monthlyCategoryBalanceStatsDTO.setStats(categoryStatsByType);
+		Map<TransactionType, TransactionTypeStatsDTO> categoryStatsByType = getCategoryStatsByType(dailyBalances, dateRange);
+		monthlyCategoryStatsDTO.setStats(categoryStatsByType);
 
-		monthlyCategoryBalanceStatsDTO.setStartDate(dateRange.getStartDate());
-		monthlyCategoryBalanceStatsDTO.setEndDate(dateRange.getEndDate());
+		monthlyCategoryStatsDTO.setStartDate(dateRange.getStartDate());
+		monthlyCategoryStatsDTO.setEndDate(dateRange.getEndDate());
 
-		return monthlyCategoryBalanceStatsDTO;
+		return monthlyCategoryStatsDTO;
 	}
 
-	private List<TransactionTypeCategoryStatsDTO> getCategoryStatsByType(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
+	private Map<TransactionType, TransactionTypeStatsDTO> getCategoryStatsByType(List<DailyBalanceProjection> dailyBalances, DateRange dateRange) {
 		Map<TransactionType, List<Category>> categoriesByType = categoryRepository.findAll().stream()
 			.collect(Collectors.groupingBy(Category::getTransactionType));
 
 		return Arrays.stream(TransactionType.values())
-			.map(transactionType -> {
-				List<Category> categories = categoriesByType.getOrDefault(transactionType, List.of());
-				if (categories.isEmpty()) {
-					return TransactionTypeCategoryStatsDTO.empty(transactionType, dateRange);
+			.collect(Collectors.toMap(
+				Function.identity(),
+				transactionType -> {
+					List<Category> categories = categoriesByType.getOrDefault(transactionType, List.of());
+					if (categories.isEmpty()) {
+						return TransactionTypeStatsDTO.empty(dateRange);
+					}
+					List<CategoryStatsDTO> categoryStats = getCategoryStats(dailyBalances, dateRange, categories, null);
+					return new TransactionTypeStatsDTO(categoryStats, dateRange);
 				}
-				List<CategoryStatsDTO> categoryStats = getCategoryStats(dailyBalances, dateRange, categories, null);
-				return new TransactionTypeCategoryStatsDTO(transactionType, categoryStats, dateRange);
-			})
-			.toList();
+			));
 	}
 
 	private List<CategoryStatsDTO> getCategoryStats(List<DailyBalanceProjection> dailyBalances, DateRange dateRange, List<Category> categories, Category parent) {

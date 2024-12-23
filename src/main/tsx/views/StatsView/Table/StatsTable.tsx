@@ -8,7 +8,7 @@ import TableHierarchyLevel from "@/components/Table/TableHierarchyLevel";
 import TableRow from "@/components/Table/TableRow";
 import CategorySmoothType from "@/types/CategorySmoothType";
 import CategoryStats from "@/types/CategoryStats";
-import MonthlyCategoryBalanceStats from "@/types/MonthlyCategoryBalanceStats";
+import MonthlyCategoryStats from "@/types/MonthlyCategoryStats";
 import RowStats from "@/types/RowStats";
 import {getMonths} from "@/utils/date";
 import YearMonth from "@/utils/YearMonth";
@@ -26,7 +26,7 @@ interface StatsTableRow {
 }
 
 interface StatsTableProps {
-    stats: MonthlyCategoryBalanceStats;
+    stats: MonthlyCategoryStats;
     smoothed: boolean;
     merged: boolean;
 }
@@ -42,34 +42,32 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
                 icon: categoryStatsNode.category.icon ?? undefined,
                 stats: categoryStatsNode.stats,
                 smoothType: categoryStatsNode.category.smoothType,
-                open: false,
+                open: true,
                 children: categoryStatsNodesToStatsTableRows(categoryStatsNode.children),
             })
         );
-
-    const transactionTypeCategoryStats = Object.fromEntries(stats.stats.map(e => [e.transactionType, e]));
 
     const tableData: Array<StatsTableRow> = [
         {
             id: "incomes",
             label: "Incomes",
             headerLevel: 2,
-            stats: transactionTypeCategoryStats['INCOME'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(transactionTypeCategoryStats['INCOME'].categoryStats)
+            stats: stats.stats['INCOME'].totalStats,
+            children: categoryStatsNodesToStatsTableRows(stats.stats['INCOME'].categoryStats)
         },
         {
             id: "investments",
             label: "Investments",
             headerLevel: 2,
-            stats: transactionTypeCategoryStats['INVESTMENT'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(transactionTypeCategoryStats['INVESTMENT'].categoryStats)
+            stats: stats.stats['INVESTMENT'].totalStats,
+            children: categoryStatsNodesToStatsTableRows(stats.stats['INVESTMENT'].categoryStats)
         },
         {
             id: "expenses",
             label: "Expenses",
             headerLevel: 2,
-            stats: transactionTypeCategoryStats['EXPENSE'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(transactionTypeCategoryStats['EXPENSE'].categoryStats)
+            stats: stats.stats['EXPENSE'].totalStats,
+            children: categoryStatsNodesToStatsTableRows(stats.stats['EXPENSE'].categoryStats)
         },
         {
             id: "surplus",

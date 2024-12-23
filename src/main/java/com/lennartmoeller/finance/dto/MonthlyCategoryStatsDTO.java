@@ -10,31 +10,33 @@ import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
 @Setter
-public class MonthlyCategoryBalanceStatsDTO {
+public class MonthlyCategoryStatsDTO {
 
-	private List<TransactionTypeCategoryStatsDTO> stats;
+	private Map<TransactionType, TransactionTypeStatsDTO> stats;
 	private @Nullable LocalDate startDate;
 	private @Nullable LocalDate endDate;
 
-	public static MonthlyCategoryBalanceStatsDTO empty() {
-		MonthlyCategoryBalanceStatsDTO monthlyCategoryBalanceStatsDTO = new MonthlyCategoryBalanceStatsDTO();
-		monthlyCategoryBalanceStatsDTO.stats = Arrays.stream(TransactionType.values())
-			.map(transactionType -> TransactionTypeCategoryStatsDTO.empty(transactionType, null))
-			.toList();
-		return monthlyCategoryBalanceStatsDTO;
+	public static MonthlyCategoryStatsDTO empty() {
+		MonthlyCategoryStatsDTO monthlyCategoryStatsDTO = new MonthlyCategoryStatsDTO();
+		monthlyCategoryStatsDTO.stats = Arrays.stream(TransactionType.values())
+			.collect(Collectors.toMap(
+				Function.identity(),
+				transactionType -> TransactionTypeStatsDTO.empty(null)
+			));
+		return monthlyCategoryStatsDTO;
 	}
 
 	@JsonProperty
 	public RowStatsDTO getTotalStats() {
-		Map<YearMonth, CellStatsDTO> totalStats = this.stats.stream()
-			.flatMap(transactionTypeCategoryStatsDTO -> transactionTypeCategoryStatsDTO.getCategoryStats().stream())
+		Map<YearMonth, CellStatsDTO> totalStats = this.stats.values().stream()
+			.flatMap(transactionTypeStatsDTO -> transactionTypeStatsDTO.getCategoryStats().stream())
 			.flatMap(categoryStatsNodeDTO -> categoryStatsNodeDTO.getStats().getMonthly().entrySet().stream())
 			.collect(Collectors.groupingBy(
 				Map.Entry::getKey,
