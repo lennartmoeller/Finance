@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @RequiredArgsConstructor
 @Setter
-public class DailyBalanceStatsDTO {
+public class DailySavingStatsDTO {
 
 	private LocalDate date;
 	private StatsMetricDTO balance;

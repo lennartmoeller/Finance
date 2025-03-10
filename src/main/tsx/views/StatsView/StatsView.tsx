@@ -5,8 +5,8 @@ import Switch from "@/components/Switch/Switch";
 import {useMonthlyCategoryBalanceStats} from "@/services/monthlyCategoryBalanceStats";
 import useHeader from "@/skeleton/Header/stores/useHeader";
 import useStatsMode from "@/views/StatsView/stores/useStatsMode";
-import StatsTable from "@/views/StatsView/Table/StatsTable";
 import StyledStatsView from "@/views/StatsView/styles/StyledStatsView";
+import StatsTable from "@/views/StatsView/Table/StatsTable";
 
 const StatsView: React.FC = () => {
     const {setHeader} = useHeader();

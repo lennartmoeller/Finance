@@ -17,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TransactionService {
 
+	private final CategoryService categoryService;
 	private final TransactionRepository transactionRepository;
 	private final TransactionMapper transactionMapper;
 
@@ -25,9 +26,11 @@ public class TransactionService {
 		@Nullable List<Long> categoryIds,
 		@Nullable List<YearMonth> yearMonths
 	) {
+		List<Long> extendedCategoryIds = categoryService.collectChildCategoryIdsRecursively(categoryIds);
+
 		List<String> yearMonthStrings = yearMonths == null ? null : yearMonths.stream().map(YearMonth::toString).toList();
 
-		List<Transaction> transactions = transactionRepository.findFiltered(accountIds, categoryIds, yearMonthStrings);
+		List<Transaction> transactions = transactionRepository.findFiltered(accountIds, extendedCategoryIds, yearMonthStrings);
 		return transactions.stream()
 			.sorted(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getId))
 			.map(transactionMapper::toDto)

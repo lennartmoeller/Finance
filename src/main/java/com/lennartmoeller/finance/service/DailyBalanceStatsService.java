@@ -1,6 +1,6 @@
 package com.lennartmoeller.finance.service;
 
-import com.lennartmoeller.finance.dto.DailyBalanceStatsDTO;
+import com.lennartmoeller.finance.dto.DailySavingStatsDTO;
 import com.lennartmoeller.finance.dto.StatsMetricDTO;
 import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
@@ -27,7 +27,7 @@ public class DailyBalanceStatsService {
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
 
-	public List<DailyBalanceStatsDTO> getStats() {
+	public List<DailySavingStatsDTO> getStats() {
 		List<DailyBalanceProjection> dailyBalances = transactionRepository.getDailyBalances();
 
 		Map<TransactionType, SmootherDaily> smoothers = Arrays.stream(TransactionType.values())
@@ -57,8 +57,8 @@ public class DailyBalanceStatsService {
 		target.get().setSmoothed(initialBalance);
 
 		return dateRange.createDateStream().map(date -> {
-			DailyBalanceStatsDTO dailyBalanceStatsDTO = new DailyBalanceStatsDTO();
-			dailyBalanceStatsDTO.setDate(date);
+			DailySavingStatsDTO dailySavingStatsDTO = new DailySavingStatsDTO();
+			dailySavingStatsDTO.setDate(date);
 
 			StatsMetricDTO incomeBalance = smoothers.get(TransactionType.INCOME).get(date);
 			StatsMetricDTO investmentBalance = smoothers.get(TransactionType.INVESTMENT).get(date);
@@ -70,16 +70,16 @@ public class DailyBalanceStatsService {
 				investmentBalance,
 				expenseBalance
 			)));
-			dailyBalanceStatsDTO.setBalance(balance.get());
+			dailySavingStatsDTO.setBalance(balance.get());
 
 			target.set(StatsMetricDTO.add(List.of(
 				target.get(),
 				StatsMetricDTO.multiply(incomeBalance, 0.2),
 				investmentBalance
 			)));
-			dailyBalanceStatsDTO.setTarget(target.get());
+			dailySavingStatsDTO.setTarget(target.get());
 
-			return dailyBalanceStatsDTO;
+			return dailySavingStatsDTO;
 		}).toList();
 	}
 
@@ -88,7 +88,7 @@ public class DailyBalanceStatsService {
 			.collect(Collectors.groupingBy(
 				dailyBalance -> YearMonth.from(dailyBalance.getDate()),
 				Collectors.collectingAndThen(
-					Collectors.mapping(DailyBalanceStatsDTO::getBalance, Collectors.toList()),
+					Collectors.mapping(DailySavingStatsDTO::getBalance, Collectors.toList()),
 					StatsMetricDTO::mean
 				)
 			));

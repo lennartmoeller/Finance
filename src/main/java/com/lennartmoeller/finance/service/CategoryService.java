@@ -7,8 +7,9 @@ import com.lennartmoeller.finance.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,31 @@ public class CategoryService {
 
 	public void deleteById(Long id) {
 		categoryRepository.deleteById(id);
+	}
+
+	public @Nullable List<Long> collectChildCategoryIdsRecursively(@Nullable List<Long> rootCategoryIds) {
+		if (rootCategoryIds == null || rootCategoryIds.isEmpty()) {
+			return rootCategoryIds;
+		}
+
+		Map<Long, List<Long>> parentToChildIdsMap = categoryRepository.findAll().stream()
+			.filter(category -> category.getParent() != null)
+			.collect(Collectors.groupingBy(
+				category -> category.getParent().getId(),
+				Collectors.mapping(Category::getId, Collectors.toList())
+			));
+
+		Set<Long> visited = new LinkedHashSet<>();
+		Deque<Long> queue = new ArrayDeque<>(rootCategoryIds);
+
+		while (!queue.isEmpty()) {
+			Long current = queue.poll();
+			if (visited.add(current)) {
+				queue.addAll(parentToChildIdsMap.getOrDefault(current, List.of()));
+			}
+		}
+
+		return new ArrayList<>(visited);
 	}
 
 }

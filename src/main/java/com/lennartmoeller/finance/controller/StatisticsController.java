@@ -1,6 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
-import com.lennartmoeller.finance.dto.DailyBalanceStatsDTO;
+import com.lennartmoeller.finance.dto.DailySavingStatsDTO;
 import com.lennartmoeller.finance.dto.MonthlyCategoryStatsDTO;
 import com.lennartmoeller.finance.dto.MonthlySavingStatsDTO;
 import com.lennartmoeller.finance.service.DailyBalanceStatsService;
@@ -23,7 +23,7 @@ public class StatisticsController {
 	private final MonthlySavingStatsService monthlySavingStatsService;
 
 	@GetMapping("/dailyBalances")
-	public List<DailyBalanceStatsDTO> getDailyBalances() {
+	public List<DailySavingStatsDTO> getDailyBalances() {
 		return dailyBalanceStatsService.getStats();
 	}
 
