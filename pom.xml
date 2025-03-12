@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.lennartmoeller</groupId>
     <artifactId>finance</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>Finance</name>
     <description>An application to manage personal finances</description>
     <url/>
