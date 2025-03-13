@@ -19,4 +19,4 @@ It is not intended to be used in production yet as it has no security features i
 
 [Read here](docs/dependency-updates.md) how to update dependencies in both frontend and backend.
 
-Test change
+Test change 2
