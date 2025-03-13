@@ -1,5 +1,5 @@
 # Maven
-${Pipeline.Workspace}
+/${Pipeline.Workspace}
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
