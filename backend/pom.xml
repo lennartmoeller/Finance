@@ -173,4 +173,8 @@
             </plugin>
         </plugins>
     </build>
+    <repositories>
+    </repositories>
+    <pluginRepositories>
+    </pluginRepositories>
 </project>
