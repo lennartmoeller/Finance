@@ -24,11 +24,11 @@ public class Target {
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
-	private LocalDate start;
+	private LocalDate startDate;
 
 	@Column
 	@Temporal(TemporalType.DATE)
-	private LocalDate end;
+	private LocalDate endDate;
 
 	@Column
 	private Long amount;

@@ -155,7 +155,7 @@ public class MonthlyCategoryBalanceStatsService {
 					double target = category.getTargets().stream()
 						.mapToDouble(t -> {
 							double amount = t.getAmount().doubleValue();
-							long overlapDays = monthRange.getOverlapDays(new DateRange(t.getStart(), t.getEnd()));
+							long overlapDays = monthRange.getOverlapDays(new DateRange(t.getStartDate(), t.getEndDate()));
 							return amount / daysInMonth * overlapDays;
 						})
 						.sum();

@@ -16,7 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 		    FROM Transaction t
 		    WHERE (:accountIds IS NULL OR t.account.id IN :accountIds)
 		    AND (:categoryIds IS NULL OR t.category.id IN :categoryIds)
-		    AND (:yearMonths IS NULL OR CONCAT(FUNCTION('YEAR', t.date), '-', LPAD(CAST(FUNCTION('MONTH', t.date) AS string), 2, '0')) IN :yearMonths)
+		    AND (:yearMonths IS NULL OR FUNCTION('TO_CHAR', t.date, 'YYYY-MM') IN :yearMonths)
 		""")
 	List<Transaction> findFiltered(
 		@Nullable List<Long> accountIds,
