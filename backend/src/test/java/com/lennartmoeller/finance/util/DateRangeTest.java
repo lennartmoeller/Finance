@@ -9,12 +9,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DateRangeTest {
+class DateRangeTest {
 
 	// --- Constructors ---
 
 	@Test
-	public void testSingleDateConstructor() {
+	void testSingleDateConstructor() {
 		LocalDate date = LocalDate.of(2021, 1, 1);
 		DateRange range = new DateRange(date);
 		assertEquals(date, range.getStartDate());
@@ -23,7 +23,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testDateRangeConstructor() {
+	void testDateRangeConstructor() {
 		LocalDate start = LocalDate.of(2021, 1, 1);
 		LocalDate end = LocalDate.of(2021, 1, 10);
 		DateRange range = new DateRange(start, end);
@@ -33,7 +33,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearMonthConstructor() {
+	void testYearMonthConstructor() {
 		YearMonth ym = YearMonth.of(2021, 1);
 		DateRange range = new DateRange(ym);
 		assertEquals(ym.atDay(1), range.getStartDate());
@@ -42,7 +42,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearMonthRangeConstructor() {
+	void testYearMonthRangeConstructor() {
 		YearMonth start = YearMonth.of(2021, 2);
 		YearMonth end = YearMonth.of(2021, 4);
 		DateRange range = new DateRange(start, end);
@@ -51,7 +51,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearQuarterConstructor() {
+	void testYearQuarterConstructor() {
 		YearQuarter quarter = new YearQuarter(2021, 2); // Q2: Apr 1 - Jun 30
 		DateRange range = new DateRange(quarter);
 		assertEquals(quarter.firstDay(), range.getStartDate());
@@ -59,7 +59,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearQuarterRangeConstructor() {
+	void testYearQuarterRangeConstructor() {
 		YearQuarter startQuarter = new YearQuarter(2021, 1); // Q1: Jan 1 - Mar 31
 		YearQuarter endQuarter = new YearQuarter(2021, 3);   // Q3: Jul 1 - Sep 30
 		DateRange range = new DateRange(startQuarter, endQuarter);
@@ -68,7 +68,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearHalfConstructor() {
+	void testYearHalfConstructor() {
 		YearHalf half = new YearHalf(2021, 1); // H1: Jan 1 - Jun 30
 		DateRange range = new DateRange(half);
 		assertEquals(half.firstDay(), range.getStartDate());
@@ -76,7 +76,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearHalfRangeConstructor() {
+	void testYearHalfRangeConstructor() {
 		YearHalf startHalf = new YearHalf(2021, 1); // H1: Jan 1 - Jun 30
 		YearHalf endHalf = new YearHalf(2021, 2);     // H2: Jul 1 - Dec 31
 		DateRange range = new DateRange(startHalf, endHalf);
@@ -85,7 +85,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearConstructor() {
+	void testYearConstructor() {
 		Year year = Year.of(2021);
 		DateRange range = new DateRange(year);
 		assertEquals(year.atDay(1), range.getStartDate());
@@ -95,7 +95,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testYearRangeConstructor() {
+	void testYearRangeConstructor() {
 		Year startYear = Year.of(2020);
 		Year endYear = Year.of(2021);
 		DateRange range = new DateRange(startYear, endYear);
@@ -108,7 +108,7 @@ public class DateRangeTest {
 	// --- Overlap Methods ---
 
 	@Test
-	public void testOverlapRange() {
+	void testOverlapRange() {
 		DateRange range1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
 		DateRange range2 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
 		DateRange overlap = DateRange.getOverlapRange(range1, range2);
@@ -117,7 +117,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testNoOverlapRange() {
+	void testNoOverlapRange() {
 		// When there is no overlap, the method returns a DateRange where both start and end are set to the lesser of the two end dates.
 		DateRange range1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 5));
 		DateRange range2 = new DateRange(LocalDate.of(2021, 1, 10), LocalDate.of(2021, 1, 15));
@@ -128,7 +128,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testGetOverlapDays() {
+	void testGetOverlapDays() {
 		DateRange range1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
 		DateRange range2 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
 		// Overlap from Jan 5 to Jan 10 is 6 days (inclusive)
@@ -136,7 +136,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testGetOverlapMonths() {
+	void testGetOverlapMonths() {
 		DateRange range1 = new DateRange(YearMonth.of(2021, 1), YearMonth.of(2021, 4)); // Jan to Apr → 4 months
 		DateRange range2 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 6)); // Mar to Jun → 4 months
 		// Overlap: Mar and Apr → 2 months.
@@ -146,13 +146,13 @@ public class DateRangeTest {
 	// --- Month/Day Calculations ---
 
 	@Test
-	public void testGetMonths() {
+	void testGetMonths() {
 		DateRange range = new DateRange(YearMonth.of(2021, 1), YearMonth.of(2021, 3));
 		assertEquals(3, range.getMonths());
 	}
 
 	@Test
-	public void testGetStartAndEndMonth() {
+	void testGetStartAndEndMonth() {
 		LocalDate start = LocalDate.of(2021, 2, 15);
 		LocalDate end = LocalDate.of(2021, 5, 20);
 		DateRange range = new DateRange(start, end);
@@ -163,7 +163,7 @@ public class DateRangeTest {
 	// --- Stream Methods ---
 
 	@Test
-	public void testCreateDateStream() {
+	void testCreateDateStream() {
 		LocalDate start = LocalDate.of(2021, 1, 1);
 		LocalDate end = LocalDate.of(2021, 1, 3);
 		DateRange range = new DateRange(start, end);
@@ -175,7 +175,7 @@ public class DateRangeTest {
 	}
 
 	@Test
-	public void testCreateMonthStream() {
+	void testCreateMonthStream() {
 		YearMonth start = YearMonth.of(2021, 1);
 		YearMonth end = YearMonth.of(2021, 3);
 		DateRange range = new DateRange(start, end);
@@ -189,7 +189,7 @@ public class DateRangeTest {
 	// --- Edge Cases ---
 
 	@Test
-	public void testNegativeDateRange() {
+	void testNegativeDateRange() {
 		// When startDate is after endDate, getDays() will be negative.
 		LocalDate start = LocalDate.of(2021, 1, 10);
 		LocalDate end = LocalDate.of(2021, 1, 5);

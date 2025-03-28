@@ -8,10 +8,10 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SmootherDailyTest {
+class SmootherDailyTest {
 
 	@Test
-	public void testAddDaily() {
+	void testAddDaily() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 1, 15);
 		smoother.add(date, CategorySmoothType.DAILY, 100L);
@@ -24,7 +24,7 @@ public class SmootherDailyTest {
 	}
 
 	@Test
-	public void testAddMonthly() {
+	void testAddMonthly() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 1, 15);
 		// For MONTHLY smoothing, the range spans the entire month (January has 31 days)
@@ -39,7 +39,7 @@ public class SmootherDailyTest {
 	}
 
 	@Test
-	public void testAddQuarterYearly() {
+	void testAddQuarterYearly() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 2, 15);
 		// For QUARTER_YEARLY smoothing, the range covers Q1 (Jan 1 - Mar 31, 2021).
@@ -52,7 +52,7 @@ public class SmootherDailyTest {
 	}
 
 	@Test
-	public void testAddHalfYearly() {
+	void testAddHalfYearly() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 4, 15); // belongs to H1 (Jan 1 - Jun 30)
 		// H1 in 2021 has 181 days.
@@ -70,7 +70,7 @@ public class SmootherDailyTest {
 	}
 
 	@Test
-	public void testAddYearly() {
+	void testAddYearly() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 8, 15);
 		// For YEARLY smoothing, the range covers the entire year (365 days for 2021).
@@ -88,7 +88,7 @@ public class SmootherDailyTest {
 	}
 
 	@Test
-	public void testAccumulateAdditionsDaily() {
+	void testAccumulateAdditionsDaily() {
 		SmootherDaily smoother = new SmootherDaily();
 		LocalDate date = LocalDate.of(2021, 1, 15);
 		// Add twice for DAILY smoothing.
