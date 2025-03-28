@@ -6,15 +6,13 @@ import com.lennartmoeller.finance.repository.CategoryRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = TargetMapper.class)
 public abstract class CategoryMapper {
 
-	private final CategoryRepository categoryRepository;
-
-	protected CategoryMapper(CategoryRepository categoryRepository) {
-		this.categoryRepository = categoryRepository;
-	}
+	@Autowired
+	private CategoryRepository categoryRepository;
 
 	@Mapping(source = "parent.id", target = "parentId")
 	@Mapping(source = "targets", target = "targets")

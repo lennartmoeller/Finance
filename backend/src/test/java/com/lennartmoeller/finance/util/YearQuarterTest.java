@@ -10,24 +10,24 @@ import java.time.format.DateTimeParseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class YearQuarterTest {
+class YearQuarterTest {
 
 	@Test
-	public void testValidQuarter() {
+	void testValidQuarter() {
 		YearQuarter q = new YearQuarter(2021, 2);
 		assertEquals(LocalDate.of(2021, 4, 1), q.firstDay());
 		assertEquals(LocalDate.of(2021, 6, 30), q.lastDay());
 	}
 
 	@Test
-	public void testInvalidQuarter() {
+	void testInvalidQuarter() {
 		// Test lower and upper bounds for quarter validity.
 		assertThrows(IllegalArgumentException.class, () -> new YearQuarter(2021, 0));
 		assertThrows(IllegalArgumentException.class, () -> new YearQuarter(2021, 5));
 	}
 
 	@Test
-	public void testFromYearMonth() {
+	void testFromYearMonth() {
 		YearMonth ym = YearMonth.of(2021, 2);
 		YearQuarter q = YearQuarter.from(ym);
 		// February falls in Q1.
@@ -36,7 +36,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testFromLocalDate() {
+	void testFromLocalDate() {
 		LocalDate date = LocalDate.of(2021, 8, 15);
 		YearQuarter q = YearQuarter.from(date);
 		// August falls in Q3.
@@ -45,7 +45,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testFromLocalDateBoundaries() {
+	void testFromLocalDateBoundaries() {
 		// Verify boundary dates for each quarter.
 		// Q1: Jan 1 to Mar 31
 		YearQuarter q1Start = YearQuarter.from(LocalDate.of(2021, 1, 1));
@@ -73,7 +73,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testNow() {
+	void testNow() {
 		// Verify that now() and from(LocalDate.now()) yield the same result.
 		YearQuarter nowFromMethod = YearQuarter.now();
 		YearQuarter nowFromLocalDate = YearQuarter.from(LocalDate.now());
@@ -81,14 +81,14 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testParseValid() {
+	void testParseValid() {
 		YearQuarter q = YearQuarter.parse("2021-Q3");
 		assertEquals(2021, q.getYear());
 		assertEquals(3, q.getQuarter());
 	}
 
 	@Test
-	public void testParseInvalid() {
+	void testParseInvalid() {
 		// Expect DateTimeParseException for an invalid date format.
 		assertThrows(DateTimeParseException.class, () -> YearQuarter.parse("2021/03/31"));
 		// Also, a string with an invalid quarter designator should fail parsing.
@@ -96,7 +96,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testToStringConsistency() {
+	void testToStringConsistency() {
 		// Ensure that toString and parse are consistent.
 		YearQuarter q = new YearQuarter(2021, 4);
 		String str = q.toString();
@@ -105,7 +105,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testCompareTo() {
+	void testCompareTo() {
 		YearQuarter q1 = new YearQuarter(2021, 1);
 		YearQuarter q2 = new YearQuarter(2021, 2);
 		assertTrue(q1.compareTo(q2) < 0);
@@ -115,7 +115,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testCompareDifferentYears() {
+	void testCompareDifferentYears() {
 		YearQuarter q1 = new YearQuarter(2020, 4);
 		YearQuarter q2 = new YearQuarter(2021, 1);
 		assertTrue(q1.compareTo(q2) < 0);
@@ -123,7 +123,7 @@ public class YearQuarterTest {
 	}
 
 	@Test
-	public void testEqualsAndHashCode() {
+	void testEqualsAndHashCode() {
 		YearQuarter q1 = new YearQuarter(2021, 2);
 		YearQuarter q2 = new YearQuarter(2021, 2);
 		YearQuarter q3 = new YearQuarter(2021, 3);
@@ -134,7 +134,7 @@ public class YearQuarterTest {
 
 	@ParameterizedTest
 	@CsvSource({"2021, 1, 2021-01-01, 2021-03-31", "2021, 2, 2021-04-01, 2021-06-30", "2021, 3, 2021-07-01, 2021-09-30", "2021, 4, 2021-10-01, 2021-12-31"})
-	public void testFirstAndLastDay(int year, int quarter, String expectedFirst, String expectedLast) {
+	void testFirstAndLastDay(int year, int quarter, String expectedFirst, String expectedLast) {
 		YearQuarter q = new YearQuarter(year, quarter);
 		assertEquals(LocalDate.parse(expectedFirst), q.firstDay());
 		assertEquals(LocalDate.parse(expectedLast), q.lastDay());

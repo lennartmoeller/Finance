@@ -8,10 +8,10 @@ import java.time.YearMonth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SmootherMonthlyTest {
+class SmootherMonthlyTest {
 
 	@Test
-	public void testAddMonthly() {
+	void testAddMonthly() {
 		SmootherMonthly smoother = new SmootherMonthly();
 		YearMonth ym = YearMonth.of(2021, 5);
 		// For MONTHLY smoothing, the range is the single month.
@@ -23,7 +23,7 @@ public class SmootherMonthlyTest {
 	}
 
 	@Test
-	public void testAddYearly() {
+	void testAddYearly() {
 		SmootherMonthly smoother = new SmootherMonthly();
 		YearMonth ym = YearMonth.of(2021, 1);
 		// For YEARLY smoothing, the range covers all 12 months.
@@ -36,7 +36,7 @@ public class SmootherMonthlyTest {
 	}
 
 	@Test
-	public void testAddQuarterYearly() {
+	void testAddQuarterYearly() {
 		SmootherMonthly smoother = new SmootherMonthly();
 		YearMonth ym = YearMonth.of(2021, 5); // May is in Q2 (April, May, June)
 		// For QUARTER_YEARLY smoothing, the range covers 3 months.
@@ -51,7 +51,7 @@ public class SmootherMonthlyTest {
 	}
 
 	@Test
-	public void testAddHalfYearly() {
+	void testAddHalfYearly() {
 		SmootherMonthly smoother = new SmootherMonthly();
 		YearMonth ym = YearMonth.of(2021, 3); // March belongs to H1 (January to June)
 		// For HALF_YEARLY smoothing, the range covers 6 months.
@@ -67,7 +67,7 @@ public class SmootherMonthlyTest {
 	}
 
 	@Test
-	public void testAccumulateAdditionsMonthly() {
+	void testAccumulateAdditionsMonthly() {
 		SmootherMonthly smoother = new SmootherMonthly();
 		YearMonth ym = YearMonth.of(2021, 5);
 		// Add two additions with MONTHLY smoothing.
