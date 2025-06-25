@@ -51,7 +51,7 @@ public final class YearHalf implements Comparable<YearHalf> {
 		Month startMonth = switch (half) {
 			case 1 -> Month.JANUARY;
 			case 2 -> Month.JULY;
-			default -> throw new IllegalArgumentException("Invalid quarter: " + half);
+                        default -> throw new IllegalArgumentException("Invalid half: " + half);
 		};
 		return YearMonth.of(year, startMonth).atDay(1);
 	}
@@ -60,7 +60,7 @@ public final class YearHalf implements Comparable<YearHalf> {
 		Month month = switch (half) {
 			case 1 -> Month.JUNE;
 			case 2 -> Month.DECEMBER;
-			default -> throw new IllegalArgumentException("Invalid quarter: " + half);
+                        default -> throw new IllegalArgumentException("Invalid half: " + half);
 		};
 		return YearMonth.of(year, month).atEndOfMonth();
 	}
