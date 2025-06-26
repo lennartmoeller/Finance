@@ -6,6 +6,7 @@ import com.lennartmoeller.finance.dto.RowStatsDTO;
 import com.lennartmoeller.finance.mapper.CategoryMapper;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.CategorySmoothType;
+import com.lennartmoeller.finance.model.Target;
 import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.repository.CategoryRepository;
@@ -97,6 +98,37 @@ class MonthlyCategoryBalanceStatsServiceTest {
 
         assertEquals(start, result.getStartDate());
         assertEquals(LocalDate.now(), result.getEndDate());
+    }
+
+    @Test
+    void testGetStatsWithTargets() {
+        LocalDate start = LocalDate.of(2021, 1, 1);
+        Category cat = new Category();
+        cat.setId(1L);
+        cat.setTransactionType(TransactionType.INCOME);
+        cat.setSmoothType(CategorySmoothType.DAILY);
+
+        Target target = new Target();
+        target.setCategory(cat);
+        target.setStartDate(start);
+        target.setEndDate(start.plusDays(1));
+        target.setAmount(100L);
+        cat.setTargets(List.of(target));
+
+        when(categoryRepository.findAll()).thenReturn(List.of(cat));
+        when(categoryMapper.toDto(cat)).thenReturn(new CategoryDTO());
+
+        List<DailyBalanceProjection> balances = List.of(
+                new SimpleProjection(start, cat, 50L),
+                new SimpleProjection(start.plusDays(1), cat, 50L)
+        );
+        when(transactionRepository.getDailyBalances()).thenReturn(balances);
+
+        MonthlyCategoryStatsDTO result = service.getStats();
+        YearMonth ym = YearMonth.of(2021,1);
+        double targetValue = result.getStats().get(TransactionType.INCOME)
+                .getTotalStats().getMonthly().get(ym).getTarget();
+        assertEquals(100.0 / 31 * 2, targetValue, 1e-9);
     }
 
     private static class SimpleProjection implements DailyBalanceProjection {

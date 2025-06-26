@@ -10,6 +10,7 @@ import com.lennartmoeller.finance.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,40 @@ class CategoryMapperTest {
     }
 
     @Test
+    void testToDtoNoParent() throws Exception {
+        Category child = new Category();
+        child.setId(2L);
+        child.setTargets(List.of());
+
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        CategoryDTO dto = mapper.toDto(child);
+        assertNull(dto.getParentId());
+        assertTrue(dto.getTargets().isEmpty());
+    }
+
+    @Test
+    void testNullValues() {
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        assertNull(mapper.toDto(null));
+        assertNull(mapper.toEntity(null));
+    }
+
+    @Test
+    void testNullTargetLists() throws Exception {
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        Category c = new Category();
+        c.setId(1L);
+        c.setTargets(null);
+        CategoryDTO dto = mapper.toDto(c);
+        assertNull(dto.getTargets());
+
+        CategoryDTO dto2 = new CategoryDTO();
+        dto2.setTargets(null);
+        Category entity = mapper.toEntity(dto2);
+        assertNull(entity.getTargets());
+    }
+
+    @Test
     void testToEntityUsesRepository() throws Exception {
         CategoryRepository repo = mock(CategoryRepository.class);
 
@@ -112,5 +147,55 @@ class CategoryMapperTest {
         assertSame(childFromRepo, mappedTarget.getCategory());
         verify(repo).findById(1L);
         verify(repo).findById(2L);
+    }
+
+    @Test
+    void testToEntityMissingParent() throws Exception {
+        CategoryRepository repo = mock(CategoryRepository.class);
+        when(repo.findById(1L)).thenReturn(Optional.empty());
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
+        CategoryDTO dto = new CategoryDTO();
+        dto.setParentId(1L);
+
+        Category entity = mapper.toEntity(dto);
+        assertNull(entity.getParent());
+        verify(repo).findById(1L);
+    }
+
+    @Test
+    void testToEntityNullFields() throws Exception {
+        CategoryRepository repo = mock(CategoryRepository.class);
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
+
+        CategoryDTO dto = new CategoryDTO();
+        dto.setTargets(List.of());
+
+        Category entity = mapper.toEntity(dto);
+        assertNull(entity.getParent());
+        assertNotNull(entity.getTargets());
+        assertTrue(entity.getTargets().isEmpty());
+        verifyNoInteractions(repo);
+    }
+
+    @Test
+    void testMappingHelpers() throws Exception {
+        CategoryRepository repo = mock(CategoryRepository.class);
+        CategoryMapperImpl mapper = new CategoryMapperImpl();
+        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
+
+        Category parent = new Category();
+        parent.setId(5L);
+        when(repo.findById(5L)).thenReturn(Optional.of(parent));
+
+        Method toParent = CategoryMapper.class.getDeclaredMethod("mapParentIdToParent", Long.class);
+        toParent.setAccessible(true);
+        assertSame(parent, toParent.invoke(mapper, 5L));
+        assertNull(toParent.invoke(mapper, (Object) null));
+        Method toId = CategoryMapper.class.getDeclaredMethod("mapParentToParentId", Category.class);
+        toId.setAccessible(true);
+        assertEquals(5L, toId.invoke(mapper, parent));
+        assertNull(toId.invoke(mapper, (Object) null));
     }
 }
