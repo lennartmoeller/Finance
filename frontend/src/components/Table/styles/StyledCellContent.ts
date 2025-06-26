@@ -30,7 +30,7 @@ const StyledCellContent = styled.div<{
     }};
     width: 100%;
     font-weight: ${props => {
-        const cellType: string = props.$headerLevel ? `header${props.$headerLevel}` : 'body';
+        const cellType: "header1" | "header2" | "body" = props.$headerLevel ? `header${props.$headerLevel}` : 'body';
         return props.theme.table[cellType].fontWeight;
     }};
     font-size: ${props => `${props.theme.fontSize}px`};
