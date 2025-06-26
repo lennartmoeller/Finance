@@ -31,9 +31,7 @@ class TransactionRepositoryTest {
 	private CategoryRepository categoryRepository;
 
 	private Account depositAcc;
-	private Account regularAcc;
 	private Category cat1;
-	private Category cat2;
 
 	@BeforeEach
 	void setUp() {
@@ -43,7 +41,7 @@ class TransactionRepositoryTest {
 		depositAcc.setDeposits(true);
 		depositAcc = accountRepository.save(depositAcc);
 
-		regularAcc = new Account();
+		Account regularAcc = new Account();
 		regularAcc.setLabel("R");
 		regularAcc.setStartBalance(0L);
 		regularAcc = accountRepository.save(regularAcc);
@@ -53,7 +51,7 @@ class TransactionRepositoryTest {
 		cat1.setTransactionType(TransactionType.INCOME);
 		cat1 = categoryRepository.save(cat1);
 
-		cat2 = new Category();
+		Category cat2 = new Category();
 		cat2.setLabel("C2");
 		cat2.setTransactionType(TransactionType.EXPENSE);
 		cat2 = categoryRepository.save(cat2);
@@ -77,8 +75,8 @@ class TransactionRepositoryTest {
 	@Test
 	void testFindFiltered() {
 		List<String> jan = List.of("2021-01");
-                List<Transaction> result = transactionRepository.findFiltered(
-                        List.of(depositAcc.getId()), List.of(cat1.getId()), jan, null);
+		List<Transaction> result = transactionRepository.findFiltered(
+			List.of(depositAcc.getId()), List.of(cat1.getId()), jan, null);
 		assertEquals(2, result.size());
 		for (Transaction t : result) {
 			assertEquals(depositAcc.getId(), t.getAccount().getId());
@@ -87,7 +85,7 @@ class TransactionRepositoryTest {
 			assertEquals(1, t.getDate().getMonthValue());
 		}
 
-                List<Transaction> all = transactionRepository.findFiltered(null, null, null, null);
+		List<Transaction> all = transactionRepository.findFiltered(null, null, null, null);
 		assertEquals(5, all.size());
 	}
 

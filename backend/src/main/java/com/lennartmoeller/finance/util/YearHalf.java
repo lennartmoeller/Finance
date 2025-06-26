@@ -40,24 +40,24 @@ public final class YearHalf implements Comparable<YearHalf> {
 		return from(now);
 	}
 
-        public static YearHalf parse(String text) {
-                if (text == null) {
-                        throw new NullPointerException("Text cannot be null");
-                }
-                if (!text.matches("\\d{4}-H[12]")) {
-                        throw new DateTimeParseException(
-                                "Invalid YearHalf format", text, 0);
-                }
-                int year = Integer.parseInt(text.substring(0, 4));
-                int half = Character.digit(text.charAt(6), 10);
-                return new YearHalf(year, half);
-        }
+	public static YearHalf parse(String text) {
+		if (text == null) {
+			throw new NullPointerException("Text cannot be null");
+		}
+		if (!text.matches("\\d{4}-H[12]")) {
+			throw new DateTimeParseException(
+				"Invalid YearHalf format", text, 0);
+		}
+		int year = Integer.parseInt(text.substring(0, 4));
+		int half = Character.digit(text.charAt(6), 10);
+		return new YearHalf(year, half);
+	}
 
 	public LocalDate firstDay() {
 		Month startMonth = switch (half) {
 			case 1 -> Month.JANUARY;
 			case 2 -> Month.JULY;
-                        default -> throw new IllegalArgumentException("Invalid half: " + half);
+			default -> throw new IllegalArgumentException("Invalid half: " + half);
 		};
 		return YearMonth.of(year, startMonth).atDay(1);
 	}
@@ -66,7 +66,7 @@ public final class YearHalf implements Comparable<YearHalf> {
 		Month month = switch (half) {
 			case 1 -> Month.JUNE;
 			case 2 -> Month.DECEMBER;
-                        default -> throw new IllegalArgumentException("Invalid half: " + half);
+			default -> throw new IllegalArgumentException("Invalid half: " + half);
 		};
 		return YearMonth.of(year, month).atEndOfMonth();
 	}

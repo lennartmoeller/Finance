@@ -33,10 +33,10 @@ public class Transaction {
 	@Column(nullable = false)
 	private Long amount;
 
-        @Column(nullable = false)
-        private String description = "";
+	@Column(nullable = false)
+	private String description = "";
 
-        @Column(nullable = false)
-        private Boolean pinned = false;
+	@Column(nullable = false)
+	private Boolean pinned = false;
 
 }

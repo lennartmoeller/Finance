@@ -18,14 +18,14 @@ public class TransactionController {
 	private final TransactionService transactionService;
 
 	@GetMapping
-        public List<TransactionDTO> getTransactions(
-                @RequestParam(required = false) List<Long> accountIds,
-                @RequestParam(required = false) List<Long> categoryIds,
-                @RequestParam(required = false) List<YearMonth> yearMonths,
-                @RequestParam(required = false) Boolean pinned
-        ) {
-                return transactionService.findFiltered(accountIds, categoryIds, yearMonths, pinned);
-        }
+	public List<TransactionDTO> getTransactions(
+		@RequestParam(required = false) List<Long> accountIds,
+		@RequestParam(required = false) List<Long> categoryIds,
+		@RequestParam(required = false) List<YearMonth> yearMonths,
+		@RequestParam(required = false) Boolean pinned
+	) {
+		return transactionService.findFiltered(accountIds, categoryIds, yearMonths, pinned);
+	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
