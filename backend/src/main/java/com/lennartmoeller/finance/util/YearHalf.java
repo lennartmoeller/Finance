@@ -6,14 +6,11 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 @Getter
 @EqualsAndHashCode
 public final class YearHalf implements Comparable<YearHalf> {
-
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-'H'H");
 
 	private final int year;
 	private final int half;
