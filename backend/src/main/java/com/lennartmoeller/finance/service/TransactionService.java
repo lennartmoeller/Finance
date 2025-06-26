@@ -21,17 +21,17 @@ public class TransactionService {
 	private final TransactionRepository transactionRepository;
 	private final TransactionMapper transactionMapper;
 
-        public List<TransactionDTO> findFiltered(
-                @Nullable List<Long> accountIds,
-                @Nullable List<Long> categoryIds,
-                @Nullable List<YearMonth> yearMonths,
-                @Nullable Boolean pinned
-        ) {
+	public List<TransactionDTO> findFiltered(
+		@Nullable List<Long> accountIds,
+		@Nullable List<Long> categoryIds,
+		@Nullable List<YearMonth> yearMonths,
+		@Nullable Boolean pinned
+	) {
 		List<Long> extendedCategoryIds = categoryService.collectChildCategoryIdsRecursively(categoryIds);
 
 		List<String> yearMonthStrings = yearMonths == null ? null : yearMonths.stream().map(YearMonth::toString).toList();
 
-                List<Transaction> transactions = transactionRepository.findFiltered(accountIds, extendedCategoryIds, yearMonthStrings, pinned);
+		List<Transaction> transactions = transactionRepository.findFiltered(accountIds, extendedCategoryIds, yearMonthStrings, pinned);
 		return transactions.stream()
 			.sorted(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getId))
 			.map(transactionMapper::toDto)

@@ -31,14 +31,14 @@ class TransactionControllerTest {
 	void testGetTransactions() {
 		List<Long> aIds = List.of(1L, 2L);
 		List<Long> cIds = List.of(3L);
-                List<YearMonth> months = List.of(YearMonth.of(2024, 1));
-                List<TransactionDTO> list = List.of(new TransactionDTO());
-                when(service.findFiltered(aIds, cIds, months, true)).thenReturn(list);
+		List<YearMonth> months = List.of(YearMonth.of(2024, 1));
+		List<TransactionDTO> list = List.of(new TransactionDTO());
+		when(service.findFiltered(aIds, cIds, months, true)).thenReturn(list);
 
-                List<TransactionDTO> result = controller.getTransactions(aIds, cIds, months, true);
+		List<TransactionDTO> result = controller.getTransactions(aIds, cIds, months, true);
 
-                assertEquals(list, result);
-                verify(service).findFiltered(aIds, cIds, months, true);
+		assertEquals(list, result);
+		verify(service).findFiltered(aIds, cIds, months, true);
 	}
 
 	@Test

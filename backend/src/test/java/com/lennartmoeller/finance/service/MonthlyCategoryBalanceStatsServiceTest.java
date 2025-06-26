@@ -1,9 +1,9 @@
 package com.lennartmoeller.finance.service;
 
 import com.lennartmoeller.finance.dto.CategoryDTO;
+import com.lennartmoeller.finance.dto.CategoryStatsDTO;
 import com.lennartmoeller.finance.dto.MonthlyCategoryStatsDTO;
 import com.lennartmoeller.finance.dto.RowStatsDTO;
-import com.lennartmoeller.finance.dto.CategoryStatsDTO;
 import com.lennartmoeller.finance.mapper.CategoryMapper;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.CategorySmoothType;
@@ -102,7 +102,7 @@ class MonthlyCategoryBalanceStatsServiceTest {
 	}
 
 	@Test
-        void testGetStatsWithTargets() {
+	void testGetStatsWithTargets() {
 		LocalDate start = LocalDate.of(2021, 1, 1);
 		Category cat = new Category();
 		cat.setId(1L);
@@ -129,58 +129,58 @@ class MonthlyCategoryBalanceStatsServiceTest {
 		YearMonth ym = YearMonth.of(2021, 1);
 		double targetValue = result.getStats().get(TransactionType.INCOME)
 			.getTotalStats().getMonthly().get(ym).getTarget();
-                assertEquals(100.0 / 31 * 2, targetValue, 1e-9);
-        }
+		assertEquals(100.0 / 31 * 2, targetValue, 1e-9);
+	}
 
-        @Test
-        void testChildCategoriesSortedByAbsoluteSurplus() {
-                LocalDate date = LocalDate.of(2021, 2, 1);
+	@Test
+	void testChildCategoriesSortedByAbsoluteSurplus() {
+		LocalDate date = LocalDate.of(2021, 2, 1);
 
-                Category parent = new Category();
-                parent.setId(1L);
-                parent.setTransactionType(TransactionType.EXPENSE);
-                parent.setSmoothType(CategorySmoothType.DAILY);
-                parent.setTargets(List.of());
+		Category parent = new Category();
+		parent.setId(1L);
+		parent.setTransactionType(TransactionType.EXPENSE);
+		parent.setSmoothType(CategorySmoothType.DAILY);
+		parent.setTargets(List.of());
 
-                Category childA = new Category();
-                childA.setId(2L);
-                childA.setParent(parent);
-                childA.setTransactionType(TransactionType.EXPENSE);
-                childA.setSmoothType(CategorySmoothType.DAILY);
-                childA.setTargets(List.of());
+		Category childA = new Category();
+		childA.setId(2L);
+		childA.setParent(parent);
+		childA.setTransactionType(TransactionType.EXPENSE);
+		childA.setSmoothType(CategorySmoothType.DAILY);
+		childA.setTargets(List.of());
 
-                Category childB = new Category();
-                childB.setId(3L);
-                childB.setParent(parent);
-                childB.setTransactionType(TransactionType.EXPENSE);
-                childB.setSmoothType(CategorySmoothType.DAILY);
-                childB.setTargets(List.of());
+		Category childB = new Category();
+		childB.setId(3L);
+		childB.setParent(parent);
+		childB.setTransactionType(TransactionType.EXPENSE);
+		childB.setSmoothType(CategorySmoothType.DAILY);
+		childB.setTargets(List.of());
 
-                when(categoryRepository.findAll()).thenReturn(List.of(parent, childA, childB));
+		when(categoryRepository.findAll()).thenReturn(List.of(parent, childA, childB));
 
-                CategoryDTO parentDto = new CategoryDTO();
-                CategoryDTO childADto = new CategoryDTO();
-                CategoryDTO childBDto = new CategoryDTO();
-                when(categoryMapper.toDto(parent)).thenReturn(parentDto);
-                when(categoryMapper.toDto(childA)).thenReturn(childADto);
-                when(categoryMapper.toDto(childB)).thenReturn(childBDto);
+		CategoryDTO parentDto = new CategoryDTO();
+		CategoryDTO childADto = new CategoryDTO();
+		CategoryDTO childBDto = new CategoryDTO();
+		when(categoryMapper.toDto(parent)).thenReturn(parentDto);
+		when(categoryMapper.toDto(childA)).thenReturn(childADto);
+		when(categoryMapper.toDto(childB)).thenReturn(childBDto);
 
-                List<DailyBalanceProjection> projections = List.of(
-                        new SimpleProjection(date, childA, -10L),
-                        new SimpleProjection(date, childB, -20L)
-                );
-                when(transactionRepository.getDailyBalances()).thenReturn(projections);
+		List<DailyBalanceProjection> projections = List.of(
+			new SimpleProjection(date, childA, -10L),
+			new SimpleProjection(date, childB, -20L)
+		);
+		when(transactionRepository.getDailyBalances()).thenReturn(projections);
 
-                MonthlyCategoryStatsDTO result = service.getStats();
+		MonthlyCategoryStatsDTO result = service.getStats();
 
-                List<CategoryStatsDTO> children = result.getStats()
-                        .get(TransactionType.EXPENSE)
-                        .getCategoryStats().get(0)
-                        .getChildren();
+		List<CategoryStatsDTO> children = result.getStats()
+			.get(TransactionType.EXPENSE)
+			.getCategoryStats().getFirst()
+			.getChildren();
 
-                assertEquals(childBDto, children.get(0).getCategory());
-                assertEquals(childADto, children.get(1).getCategory());
-        }
+		assertEquals(childBDto, children.get(0).getCategory());
+		assertEquals(childADto, children.get(1).getCategory());
+	}
 
 	private static class SimpleProjection implements DailyBalanceProjection {
 		private final LocalDate date;

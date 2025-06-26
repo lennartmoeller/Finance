@@ -40,18 +40,18 @@ public final class YearQuarter implements Comparable<YearQuarter> {
 		return from(now);
 	}
 
-        public static YearQuarter parse(String text) {
-                if (text == null) {
-                        throw new NullPointerException("Text cannot be null");
-                }
-                if (!text.matches("\\d{4}-Q[1-4]")) {
-                        throw new DateTimeParseException(
-                                "Invalid YearQuarter format", text, 0);
-                }
-                int year = Integer.parseInt(text.substring(0, 4));
-                int quarter = Character.digit(text.charAt(6), 10);
-                return new YearQuarter(year, quarter);
-        }
+	public static YearQuarter parse(String text) {
+		if (text == null) {
+			throw new NullPointerException("Text cannot be null");
+		}
+		if (!text.matches("\\d{4}-Q[1-4]")) {
+			throw new DateTimeParseException(
+				"Invalid YearQuarter format", text, 0);
+		}
+		int year = Integer.parseInt(text.substring(0, 4));
+		int quarter = Character.digit(text.charAt(6), 10);
+		return new YearQuarter(year, quarter);
+	}
 
 	public LocalDate firstDay() {
 		Month startMonth = switch (quarter) {
