@@ -49,7 +49,7 @@ class TransactionServiceTest {
 		Transaction t3 = new Transaction();
 		t3.setId(3L);
 		t3.setDate(LocalDate.of(2021, 1, 11));
-		when(transactionRepository.findFiltered(accountIds, extendedCategoryIds, monthStrings)).thenReturn(List.of(t1, t2, t3));
+                when(transactionRepository.findFiltered(accountIds, extendedCategoryIds, monthStrings, null)).thenReturn(List.of(t1, t2, t3));
 
 		TransactionDTO d1 = new TransactionDTO();
 		TransactionDTO d2 = new TransactionDTO();
@@ -58,18 +58,18 @@ class TransactionServiceTest {
 		when(transactionMapper.toDto(t2)).thenReturn(d2);
 		when(transactionMapper.toDto(t3)).thenReturn(d3);
 
-		List<TransactionDTO> result = service.findFiltered(accountIds, categoryIds, months);
+                List<TransactionDTO> result = service.findFiltered(accountIds, categoryIds, months, null);
 
 		assertEquals(List.of(d2, d1, d3), result); // sorted by date then id
-		verify(transactionRepository).findFiltered(accountIds, extendedCategoryIds, monthStrings);
+                verify(transactionRepository).findFiltered(accountIds, extendedCategoryIds, monthStrings, null);
 	}
 
 	@Test
 	void testFindFilteredNullParameters() {
 		when(categoryService.collectChildCategoryIdsRecursively(null)).thenReturn(null);
-		when(transactionRepository.findFiltered(null, null, null)).thenReturn(List.of());
+                when(transactionRepository.findFiltered(null, null, null, null)).thenReturn(List.of());
 
-		List<TransactionDTO> result = service.findFiltered(null, null, null);
+                List<TransactionDTO> result = service.findFiltered(null, null, null, null);
 
 		assertTrue(result.isEmpty());
 	}

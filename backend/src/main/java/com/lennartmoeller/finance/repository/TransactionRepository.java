@@ -14,14 +14,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 	@Query("""
 		    SELECT t
 		    FROM Transaction t
-		    WHERE (:accountIds IS NULL OR t.account.id IN :accountIds)
-		    AND (:categoryIds IS NULL OR t.category.id IN :categoryIds)
-		    AND (:yearMonths IS NULL OR FUNCTION('TO_CHAR', t.date, 'YYYY-MM') IN :yearMonths)
-		""")
-	List<Transaction> findFiltered(
-		@Nullable List<Long> accountIds,
-		@Nullable List<Long> categoryIds,
-		@Nullable List<String> yearMonths);
+                    WHERE (:accountIds IS NULL OR t.account.id IN :accountIds)
+                    AND (:categoryIds IS NULL OR t.category.id IN :categoryIds)
+                    AND (:yearMonths IS NULL OR FUNCTION('TO_CHAR', t.date, 'YYYY-MM') IN :yearMonths)
+                    AND (:pinned IS NULL OR t.pinned = :pinned)
+                """)
+        List<Transaction> findFiltered(
+                @Nullable List<Long> accountIds,
+                @Nullable List<Long> categoryIds,
+                @Nullable List<String> yearMonths,
+                @Nullable Boolean pinned);
 
 	@Query("""
 		    SELECT t.date AS date,
