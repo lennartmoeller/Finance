@@ -5,22 +5,23 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class CategoryStatsDTOTest {
-    @Test
-    void gettersAndSetters() {
-        CategoryStatsDTO dto = new CategoryStatsDTO();
-        CategoryDTO cat = new CategoryDTO();
-        RowStatsDTO stats = new RowStatsDTO(Map.of());
-        CategoryStatsDTO child = new CategoryStatsDTO();
+	@Test
+	void gettersAndSetters() {
+		CategoryStatsDTO dto = new CategoryStatsDTO();
+		CategoryDTO cat = new CategoryDTO();
+		RowStatsDTO stats = new RowStatsDTO(Map.of());
+		CategoryStatsDTO child = new CategoryStatsDTO();
 
-        dto.setCategory(cat);
-        dto.setStats(stats);
-        dto.setChildren(List.of(child));
+		dto.setCategory(cat);
+		dto.setStats(stats);
+		dto.setChildren(List.of(child));
 
-        assertSame(cat, dto.getCategory());
-        assertSame(stats, dto.getStats());
-        assertEquals(List.of(child), dto.getChildren());
-    }
+		assertSame(cat, dto.getCategory());
+		assertSame(stats, dto.getStats());
+		assertEquals(List.of(child), dto.getChildren());
+	}
 }

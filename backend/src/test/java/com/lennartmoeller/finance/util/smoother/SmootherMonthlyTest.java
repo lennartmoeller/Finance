@@ -79,5 +79,4 @@ class SmootherMonthlyTest {
 		// Since the range is a single month, smoothed equals the raw value.
 		assertEquals(500.0, metric.getSmoothed(), 0.0001);
 	}
-
 }

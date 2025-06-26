@@ -117,68 +117,68 @@ class DateRangeTest {
 	}
 
 	@Test
-        void testNoOverlapRange() {
+	void testNoOverlapRange() {
 		// When there is no overlap, the method returns a DateRange where both start and end are set to the lesser of the two end dates.
 		DateRange range1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 5));
 		DateRange range2 = new DateRange(LocalDate.of(2021, 1, 10), LocalDate.of(2021, 1, 15));
 		DateRange overlap = DateRange.getOverlapRange(range1, range2);
 		// Expected: both start and end equal to Jan 5 (the minimum of end dates)
 		assertEquals(LocalDate.of(2021, 1, 5), overlap.getStartDate());
-                assertEquals(LocalDate.of(2021, 1, 5), overlap.getEndDate());
-        }
-
-        @Test
-        void testOverlapRangeReverseOrder() {
-                DateRange r1 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
-                DateRange r2 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
-                DateRange overlap = DateRange.getOverlapRange(r1, r2);
-                assertEquals(LocalDate.of(2021,1,5), overlap.getStartDate());
-                assertEquals(LocalDate.of(2021,1,10), overlap.getEndDate());
-        }
+		assertEquals(LocalDate.of(2021, 1, 5), overlap.getEndDate());
+	}
 
 	@Test
-        void testGetOverlapDays() {
+	void testOverlapRangeReverseOrder() {
+		DateRange r1 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
+		DateRange r2 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
+		DateRange overlap = DateRange.getOverlapRange(r1, r2);
+		assertEquals(LocalDate.of(2021, 1, 5), overlap.getStartDate());
+		assertEquals(LocalDate.of(2021, 1, 10), overlap.getEndDate());
+	}
+
+	@Test
+	void testGetOverlapDays() {
 		DateRange range1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
 		DateRange range2 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
 		// Overlap from Jan 5 to Jan 10 is 6 days (inclusive)
-        assertEquals(6, range1.getOverlapDays(range2));
-    }
-
-    @Test
-        void testGetOverlapDaysNoOverlap() {
-        DateRange r1 = new DateRange(LocalDate.of(2021,1,1), LocalDate.of(2021,1,5));
-        DateRange r2 = new DateRange(LocalDate.of(2021,2,1), LocalDate.of(2021,2,5));
-        assertEquals(0, r1.getOverlapDays(r2));
-        }
-
-        @Test
-        void testGetOverlapDaysSingleDay() {
-                DateRange r1 = new DateRange(LocalDate.of(2021,1,5), LocalDate.of(2021,1,5));
-                DateRange r2 = new DateRange(LocalDate.of(2021,1,5), LocalDate.of(2021,1,10));
-                assertEquals(1, r1.getOverlapDays(r2));
-        }
+		assertEquals(6, range1.getOverlapDays(range2));
+	}
 
 	@Test
-        void testGetOverlapMonths() {
+	void testGetOverlapDaysNoOverlap() {
+		DateRange r1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 5));
+		DateRange r2 = new DateRange(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 5));
+		assertEquals(0, r1.getOverlapDays(r2));
+	}
+
+	@Test
+	void testGetOverlapDaysSingleDay() {
+		DateRange r1 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 5));
+		DateRange r2 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 10));
+		assertEquals(1, r1.getOverlapDays(r2));
+	}
+
+	@Test
+	void testGetOverlapMonths() {
 		DateRange range1 = new DateRange(YearMonth.of(2021, 1), YearMonth.of(2021, 4)); // Jan to Apr → 4 months
 		DateRange range2 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 6)); // Mar to Jun → 4 months
 		// Overlap: Mar and Apr → 2 months.
-        assertEquals(2, range1.getOverlapMonths(range2));
-    }
+		assertEquals(2, range1.getOverlapMonths(range2));
+	}
 
-    @Test
-        void testGetOverlapMonthsNoOverlap() {
-        DateRange r1 = new DateRange(YearMonth.of(2021,1), YearMonth.of(2021,3));
-        DateRange r2 = new DateRange(YearMonth.of(2021,6), YearMonth.of(2021,8));
-        assertEquals(0, r1.getOverlapMonths(r2));
-        }
+	@Test
+	void testGetOverlapMonthsNoOverlap() {
+		DateRange r1 = new DateRange(YearMonth.of(2021, 1), YearMonth.of(2021, 3));
+		DateRange r2 = new DateRange(YearMonth.of(2021, 6), YearMonth.of(2021, 8));
+		assertEquals(0, r1.getOverlapMonths(r2));
+	}
 
-        @Test
-        void testGetOverlapMonthsSingle() {
-                DateRange r1 = new DateRange(YearMonth.of(2021,3), YearMonth.of(2021,3));
-                DateRange r2 = new DateRange(YearMonth.of(2021,3), YearMonth.of(2021,5));
-                assertEquals(1, r1.getOverlapMonths(r2));
-        }
+	@Test
+	void testGetOverlapMonthsSingle() {
+		DateRange r1 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 3));
+		DateRange r2 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 5));
+		assertEquals(1, r1.getOverlapMonths(r2));
+	}
 
 	// --- Month/Day Calculations ---
 
@@ -233,5 +233,4 @@ class DateRangeTest {
 		DateRange range = new DateRange(start, end);
 		assertEquals(-4, range.getDays());
 	}
-
 }
