@@ -101,5 +101,4 @@ class SmootherDailyTest {
 		// For DAILY smoothing, smoothed equals the raw value on the same day.
 		assertEquals(120.0, metric.getSmoothed(), 0.0001);
 	}
-
 }
