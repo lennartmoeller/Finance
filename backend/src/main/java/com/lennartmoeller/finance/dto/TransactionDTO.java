@@ -15,7 +15,8 @@ public class TransactionDTO {
 	private Long accountId;
 	private Long categoryId;
 	private LocalDate date;
-	private Long amount;
-	private String description;
+        private Long amount;
+        private String description;
+        private Boolean pinned;
 
 }
