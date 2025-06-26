@@ -77,8 +77,8 @@ class TransactionRepositoryTest {
 	@Test
 	void testFindFiltered() {
 		List<String> jan = List.of("2021-01");
-		List<Transaction> result = transactionRepository.findFiltered(
-			List.of(depositAcc.getId()), List.of(cat1.getId()), jan);
+                List<Transaction> result = transactionRepository.findFiltered(
+                        List.of(depositAcc.getId()), List.of(cat1.getId()), jan, null);
 		assertEquals(2, result.size());
 		for (Transaction t : result) {
 			assertEquals(depositAcc.getId(), t.getAccount().getId());
@@ -87,7 +87,7 @@ class TransactionRepositoryTest {
 			assertEquals(1, t.getDate().getMonthValue());
 		}
 
-		List<Transaction> all = transactionRepository.findFiltered(null, null, null);
+                List<Transaction> all = transactionRepository.findFiltered(null, null, null, null);
 		assertEquals(5, all.size());
 	}
 
