@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,12 +62,13 @@ class YearHalfTest {
 	}
 
 	@Test
-	void testParseInvalid() {
-		// Expect a DateTimeParseException for strings that don't match the expected format.
-		assertThrows(DateTimeParseException.class, () -> YearHalf.parse("2021/07/01"));
-		// Also, a string with an invalid half (e.g. "H3") should fail.
-		assertThrows(DateTimeParseException.class, () -> YearHalf.parse("2021-H3"));
-	}
+        void testParseInvalid() {
+                // Expect a DateTimeParseException for strings that don't match the expected format.
+                assertThrows(DateTimeParseException.class, () -> YearHalf.parse("2021/07/01"));
+                // Also, a string with an invalid half (e.g. "H3") should fail.
+                assertThrows(DateTimeParseException.class, () -> YearHalf.parse("2021-H3"));
+                assertThrows(NullPointerException.class, () -> YearHalf.parse(null));
+        }
 
 	@Test
 	void testToStringConsistency() {
@@ -96,13 +98,23 @@ class YearHalfTest {
 	}
 
 	@Test
-	void testEqualsAndHashCode() {
-		YearHalf h1 = new YearHalf(2021, 1);
-		YearHalf h2 = new YearHalf(2021, 1);
-		YearHalf h3 = new YearHalf(2021, 2);
-		assertEquals(h1, h2);
-		assertEquals(h1.hashCode(), h2.hashCode());
-		assertNotEquals(h1, h3);
-	}
+        void testEqualsAndHashCode() {
+                YearHalf h1 = new YearHalf(2021, 1);
+                YearHalf h2 = new YearHalf(2021, 1);
+                YearHalf h3 = new YearHalf(2021, 2);
+                assertEquals(h1, h2);
+                assertEquals(h1.hashCode(), h2.hashCode());
+                assertNotEquals(h1, h3);
+        }
+
+        @Test
+        void testInvalidFirstDayViaReflection() throws Exception {
+                YearHalf h = new YearHalf(2021, 1);
+                Field f = YearHalf.class.getDeclaredField("half");
+                f.setAccessible(true);
+                f.setInt(h, 3);
+                assertThrows(IllegalArgumentException.class, h::firstDay);
+                assertThrows(IllegalArgumentException.class, h::lastDay);
+        }
 
 }

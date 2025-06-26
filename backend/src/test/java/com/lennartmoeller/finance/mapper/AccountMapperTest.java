@@ -35,4 +35,10 @@ class AccountMapperTest {
         // deposits is not part of the DTO and should remain default (false)
         assertFalse(entity.getDeposits());
     }
+
+    @Test
+    void testNullValues() {
+        assertNull(mapper.toDto(null));
+        assertNull(mapper.toEntity(null));
+    }
 }

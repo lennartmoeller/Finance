@@ -50,4 +50,21 @@ class PerformanceDTOTest {
         assertEquals(0.4, perf.getRaw(), 1e-9);
         assertEquals(0.6, perf.getSmoothed(), 1e-9);
     }
+
+    @Test
+    void testCalculateEdgeCases() {
+        ImmutableTriple<Double, Double, Double> bounds = new ImmutableTriple<>(0.0, 5.0, 10.0);
+
+        PerformanceDTO high = PerformanceDTO.calculate(15.0, bounds, 15.0, bounds);
+        assertEquals(1.0, high.getRaw());
+        assertEquals(1.0, high.getSmoothed());
+
+        PerformanceDTO low = PerformanceDTO.calculate(-1.0, bounds, -1.0, bounds);
+        assertEquals(0.0, low.getRaw());
+        assertEquals(0.0, low.getSmoothed());
+
+        PerformanceDTO mid = PerformanceDTO.calculate(5.0, bounds, 5.0, bounds);
+        assertEquals(0.5, mid.getRaw());
+        assertEquals(0.5, mid.getSmoothed());
+    }
 }
