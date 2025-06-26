@@ -173,12 +173,29 @@ class DateRangeTest {
 		assertEquals(0, r1.getOverlapMonths(r2));
 	}
 
-	@Test
-	void testGetOverlapMonthsSingle() {
-		DateRange r1 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 3));
-		DateRange r2 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 5));
-		assertEquals(1, r1.getOverlapMonths(r2));
-	}
+        @Test
+        void testGetOverlapMonthsSingle() {
+                DateRange r1 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 3));
+                DateRange r2 = new DateRange(YearMonth.of(2021, 3), YearMonth.of(2021, 5));
+                assertEquals(1, r1.getOverlapMonths(r2));
+        }
+
+        @Test
+        void testOverlapRangeSingleDay() {
+                DateRange r1 = new DateRange(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 5));
+                DateRange r2 = new DateRange(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 10));
+                DateRange overlap = DateRange.getOverlapRange(r1, r2);
+                assertEquals(LocalDate.of(2021, 1, 5), overlap.getStartDate());
+                assertEquals(LocalDate.of(2021, 1, 5), overlap.getEndDate());
+        }
+
+        @Test
+        void testGetOverlapMonthsStartAfter() {
+                DateRange r1 = new DateRange(YearMonth.of(2021, 6), YearMonth.of(2021, 8));
+                DateRange r2 = new DateRange(YearMonth.of(2021, 1), YearMonth.of(2021, 7));
+                // Overlap should be June and July -> 2 months
+                assertEquals(2, r1.getOverlapMonths(r2));
+        }
 
 	// --- Month/Day Calculations ---
 
