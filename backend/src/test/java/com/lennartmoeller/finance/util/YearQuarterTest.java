@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -88,12 +89,13 @@ class YearQuarterTest {
 	}
 
 	@Test
-	void testParseInvalid() {
-		// Expect DateTimeParseException for an invalid date format.
-		assertThrows(DateTimeParseException.class, () -> YearQuarter.parse("2021/03/31"));
-		// Also, a string with an invalid quarter designator should fail parsing.
-		assertThrows(DateTimeParseException.class, () -> YearQuarter.parse("2021-Q5"));
-	}
+        void testParseInvalid() {
+                // Expect DateTimeParseException for an invalid date format.
+                assertThrows(DateTimeParseException.class, () -> YearQuarter.parse("2021/03/31"));
+                // Also, a string with an invalid quarter designator should fail parsing.
+                assertThrows(DateTimeParseException.class, () -> YearQuarter.parse("2021-Q5"));
+                assertThrows(NullPointerException.class, () -> YearQuarter.parse(null));
+        }
 
 	@Test
 	void testToStringConsistency() {
@@ -123,14 +125,24 @@ class YearQuarterTest {
 	}
 
 	@Test
-	void testEqualsAndHashCode() {
-		YearQuarter q1 = new YearQuarter(2021, 2);
-		YearQuarter q2 = new YearQuarter(2021, 2);
-		YearQuarter q3 = new YearQuarter(2021, 3);
-		assertEquals(q1, q2);
-		assertEquals(q1.hashCode(), q2.hashCode());
-		assertNotEquals(q1, q3);
-	}
+        void testEqualsAndHashCode() {
+                YearQuarter q1 = new YearQuarter(2021, 2);
+                YearQuarter q2 = new YearQuarter(2021, 2);
+                YearQuarter q3 = new YearQuarter(2021, 3);
+                assertEquals(q1, q2);
+                assertEquals(q1.hashCode(), q2.hashCode());
+                assertNotEquals(q1, q3);
+        }
+
+        @Test
+        void testInvalidQuarterViaReflection() throws Exception {
+                YearQuarter q = new YearQuarter(2021, 1);
+                Field f = YearQuarter.class.getDeclaredField("quarter");
+                f.setAccessible(true);
+                f.setInt(q, 5);
+                assertThrows(IllegalArgumentException.class, q::firstDay);
+                assertThrows(IllegalArgumentException.class, q::lastDay);
+        }
 
 	@ParameterizedTest
 	@CsvSource({"2021, 1, 2021-01-01, 2021-03-31", "2021, 2, 2021-04-01, 2021-06-30", "2021, 3, 2021-07-01, 2021-09-30", "2021, 4, 2021-10-01, 2021-12-31"})
