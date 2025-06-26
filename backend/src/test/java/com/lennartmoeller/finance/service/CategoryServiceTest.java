@@ -108,8 +108,8 @@ class CategoryServiceTest {
 		verifyNoInteractions(categoryRepository);
 	}
 
-	@Test
-	void testCollectChildCategoryIdsRecursivelyHierarchy() {
+        @Test
+        void testCollectChildCategoryIdsRecursivelyHierarchy() {
 		Category root1 = makeCategory(1L, null);
 		Category root2 = makeCategory(2L, null);
 		Category child3 = makeCategory(3L, root1);
@@ -121,6 +121,16 @@ class CategoryServiceTest {
 
 		List<Long> result = categoryService.collectChildCategoryIdsRecursively(List.of(1L));
 
-		assertEquals(List.of(1L, 3L, 4L, 5L), result);
-	}
+                assertEquals(List.of(1L, 3L, 4L, 5L), result);
+        }
+
+        @Test
+        void testCollectChildCategoryIdsRecursivelyWithDuplicates() {
+                Category root = makeCategory(1L, null);
+                when(categoryRepository.findAll()).thenReturn(List.of(root));
+
+                List<Long> result = categoryService.collectChildCategoryIdsRecursively(List.of(1L, 1L));
+
+                assertEquals(List.of(1L), result);
+        }
 }
