@@ -1,8 +1,30 @@
 #!/bin/bash
-# Git pre-commit hook to format backend code and run tests
-set -e
+# Git pre-commit hook to format backend code and run tests with concise output
+
 repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root/backend"
+cd "$repo_root/backend" || exit 1
 chmod +x ./mvnw
-./mvnw spotless:apply
-./mvnw test
+
+# run formatter
+./mvnw spotless:apply >/dev/null 2>&1
+format_status=$?
+
+# run tests
+./mvnw test >/dev/null 2>&1
+test_status=$?
+
+if [ $format_status -eq 0 ]; then
+    echo "✅ Backend code is formatted"
+else
+    echo "❌ Backend code formatting failed"
+fi
+
+if [ $test_status -eq 0 ]; then
+    echo "✅ Backend tests passed"
+else
+    echo "❌ Backend tests failed"
+fi
+
+if [ $format_status -ne 0 ] || [ $test_status -ne 0 ]; then
+    exit 1
+fi
