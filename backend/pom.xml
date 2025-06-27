@@ -41,6 +41,7 @@
         <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
         <h2database.version>2.3.232</h2database.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <spotless.version>2.44.5</spotless.version>
     </properties>
     <dependencies>
         <dependency>
@@ -111,6 +112,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring.boot.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless.version}</version>
         </dependency>
     </dependencies>
 
@@ -197,6 +203,16 @@
                 <version>${versions-maven-plugin.version}</version>
                 <configuration>
                     <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat/>
+                    </java>
                 </configuration>
             </plugin>
         </plugins>
