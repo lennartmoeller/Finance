@@ -2,8 +2,7 @@ package com.lennartmoeller.finance.projection;
 
 public interface MonthlyDepositsProjection {
 
-	String getYearMonth();
+    String getYearMonth();
 
-	Long getDeposits();
-
+    Long getDeposits();
 }

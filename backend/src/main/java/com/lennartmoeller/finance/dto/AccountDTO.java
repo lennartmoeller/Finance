@@ -9,9 +9,8 @@ import lombok.Setter;
 @Setter
 public class AccountDTO {
 
-	private Long id;
-	private String label;
-	private Long startBalance;
-	private Boolean active;
-
+    private Long id;
+    private String label;
+    private Long startBalance;
+    private Boolean active;
 }

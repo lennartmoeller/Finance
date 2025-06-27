@@ -12,23 +12,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public abstract class TargetMapper {
 
-	@Autowired
-	private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-	@Mapping(source = "category.id", target = "categoryId")
-	public abstract TargetDTO toDto(Target target);
+    @Mapping(source = "category.id", target = "categoryId")
+    public abstract TargetDTO toDto(Target target);
 
-	@Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
-	public abstract Target toEntity(TargetDTO targetDTO);
+    @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
+    public abstract Target toEntity(TargetDTO targetDTO);
 
-	@Named("mapCategoryIdToCategory")
-	Category mapCategoryIdToCategory(Long categoryId) {
-		return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
-	}
+    @Named("mapCategoryIdToCategory")
+    Category mapCategoryIdToCategory(Long categoryId) {
+        return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
+    }
 
-	@Named("mapCategoryToCategoryId")
-	Long mapCategoryToCategoryId(Category category) {
-		return category != null ? category.getId() : null;
-	}
-
+    @Named("mapCategoryToCategoryId")
+    Long mapCategoryToCategoryId(Category category) {
+        return category != null ? category.getId() : null;
+    }
 }
