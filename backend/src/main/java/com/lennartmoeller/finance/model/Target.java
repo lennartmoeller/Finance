@@ -1,11 +1,10 @@
 package com.lennartmoeller.finance.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @Entity
@@ -14,23 +13,22 @@ import java.time.LocalDate;
 @Table(name = "targets")
 public class Target {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category", nullable = false)
-	private Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category", nullable = false)
+    private Category category;
 
-	@Column(nullable = false)
-	@Temporal(TemporalType.DATE)
-	private LocalDate startDate;
+    @Column(nullable = false)
+    @Temporal(TemporalType.DATE)
+    private LocalDate startDate;
 
-	@Column
-	@Temporal(TemporalType.DATE)
-	private LocalDate endDate;
+    @Column
+    @Temporal(TemporalType.DATE)
+    private LocalDate endDate;
 
-	@Column
-	private Long amount;
-
+    @Column
+    private Long amount;
 }

@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class AccountBalanceDTO {
 
-	private Long accountId;
-	private Long balance;
-
+    private Long accountId;
+    private Long balance;
 }

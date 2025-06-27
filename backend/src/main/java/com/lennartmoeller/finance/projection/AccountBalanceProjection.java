@@ -2,10 +2,9 @@ package com.lennartmoeller.finance.projection;
 
 public interface AccountBalanceProjection {
 
-	Long getAccountId();
+    Long getAccountId();
 
-	Long getBalance();
+    Long getBalance();
 
-	Long getTransactionCount();
-
+    Long getTransactionCount();
 }

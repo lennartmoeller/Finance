@@ -11,41 +11,42 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses = {AccountMapper.class, CategoryMapper.class})
+@Mapper(
+        componentModel = "spring",
+        uses = {AccountMapper.class, CategoryMapper.class})
 public abstract class TransactionMapper {
 
-	@Autowired
-	private AccountRepository accountRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
-	@Autowired
-	private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-	@Mapping(source = "account.id", target = "accountId")
-	@Mapping(source = "category.id", target = "categoryId")
-	public abstract TransactionDTO toDto(Transaction transaction);
+    @Mapping(source = "account.id", target = "accountId")
+    @Mapping(source = "category.id", target = "categoryId")
+    public abstract TransactionDTO toDto(Transaction transaction);
 
-	@Mapping(target = "account", source = "accountId", qualifiedByName = "mapAccountIdToAccount")
-	@Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
-	public abstract Transaction toEntity(TransactionDTO transactionDTO);
+    @Mapping(target = "account", source = "accountId", qualifiedByName = "mapAccountIdToAccount")
+    @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
+    public abstract Transaction toEntity(TransactionDTO transactionDTO);
 
-	@Named("mapAccountIdToAccount")
-	Account mapAccountIdToAccount(Long accountId) {
-		return accountId != null ? accountRepository.findById(accountId).orElse(null) : null;
-	}
+    @Named("mapAccountIdToAccount")
+    Account mapAccountIdToAccount(Long accountId) {
+        return accountId != null ? accountRepository.findById(accountId).orElse(null) : null;
+    }
 
-	@Named("mapAccountToAccountId")
-	Long mapAccountToAccountId(Account account) {
-		return account != null ? account.getId() : null;
-	}
+    @Named("mapAccountToAccountId")
+    Long mapAccountToAccountId(Account account) {
+        return account != null ? account.getId() : null;
+    }
 
-	@Named("mapCategoryIdToCategory")
-	Category mapCategoryIdToCategory(Long categoryId) {
-		return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
-	}
+    @Named("mapCategoryIdToCategory")
+    Category mapCategoryIdToCategory(Long categoryId) {
+        return categoryId != null ? categoryRepository.findById(categoryId).orElse(null) : null;
+    }
 
-	@Named("mapCategoryToCategoryId")
-	Long mapCategoryToCategoryId(Category category) {
-		return category != null ? category.getId() : null;
-	}
-
+    @Named("mapCategoryToCategoryId")
+    Long mapCategoryToCategoryId(Category category) {
+        return category != null ? category.getId() : null;
+    }
 }
