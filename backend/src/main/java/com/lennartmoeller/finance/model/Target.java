@@ -22,11 +22,9 @@ public class Target {
     private Category category;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate startDate;
 
     @Column
-    @Temporal(TemporalType.DATE)
     private LocalDate endDate;
 
     @Column

@@ -26,7 +26,6 @@ public class Transaction {
     private Category category;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate date = LocalDate.now();
 
     @Column(nullable = false)
