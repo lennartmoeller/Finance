@@ -1,0 +1,8 @@
+#!/bin/bash
+# Git pre-commit hook to format backend code with Maven Spotless
+set -e
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root/backend"
+chmod +x ./mvnw
+./mvnw spotless:apply
+
