@@ -6,9 +6,12 @@ on:
 
 jobs:
   commit-message:
+    name: Conventional Commit Message
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Validate commit messages
         run: |
           regex="^((Merge[ a-z-]* branch.*)|(Revert*)|((build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\(.*\\))?!?: .*))"
@@ -24,10 +27,13 @@ jobs:
           done <<< "$commits"
           exit $status
 
-  format-check:
+  backend-format-check:
+    name: Backend Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -39,9 +45,12 @@ jobs:
           ./mvnw spotless:check
 
   backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
