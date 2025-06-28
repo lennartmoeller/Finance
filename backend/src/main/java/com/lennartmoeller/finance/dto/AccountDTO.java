@@ -13,4 +13,5 @@ public class AccountDTO {
     private String label;
     private Long startBalance;
     private Boolean active;
+    private Boolean deposits;
 }
