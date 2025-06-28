@@ -25,6 +25,7 @@ class AccountMapperTest {
         assertEquals(account.getLabel(), dto.getLabel());
         assertEquals(account.getStartBalance(), dto.getStartBalance());
         assertEquals(account.getActive(), dto.getActive());
+        assertEquals(account.getDeposits(), dto.getDeposits());
 
         Account entity = mapper.toEntity(dto);
         assertNotNull(entity);
@@ -32,8 +33,7 @@ class AccountMapperTest {
         assertEquals(account.getLabel(), entity.getLabel());
         assertEquals(account.getStartBalance(), entity.getStartBalance());
         assertEquals(account.getActive(), entity.getActive());
-        // deposits is not part of the DTO and should remain default (false)
-        assertFalse(entity.getDeposits());
+        assertEquals(account.getDeposits(), entity.getDeposits());
     }
 
     @Test

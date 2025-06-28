@@ -16,9 +16,13 @@ public abstract class TargetMapper {
     private CategoryRepository categoryRepository;
 
     @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(source = "startDate", target = "start")
+    @Mapping(source = "endDate", target = "end")
     public abstract TargetDTO toDto(Target target);
 
     @Mapping(target = "category", source = "categoryId", qualifiedByName = "mapCategoryIdToCategory")
+    @Mapping(source = "start", target = "startDate")
+    @Mapping(source = "end", target = "endDate")
     public abstract Target toEntity(TargetDTO targetDTO);
 
     @Named("mapCategoryIdToCategory")
