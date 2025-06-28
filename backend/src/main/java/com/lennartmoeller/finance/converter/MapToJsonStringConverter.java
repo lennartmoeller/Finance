@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Converter
 public class MapToJsonStringConverter implements AttributeConverter<Map<String, String>, String> {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(Map<String, String> attribute) {
@@ -19,7 +19,7 @@ public class MapToJsonStringConverter implements AttributeConverter<Map<String, 
             return null;
         }
         try {
-            return objectMapper.writeValueAsString(attribute);
+            return OBJECT_MAPPER.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Cannot write map to JSON", e);
         }
@@ -31,7 +31,7 @@ public class MapToJsonStringConverter implements AttributeConverter<Map<String, 
             return new HashMap<>();
         }
         try {
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, String>>() {});
+            return OBJECT_MAPPER.readValue(dbData, new TypeReference<Map<String, String>>() {});
         } catch (IOException e) {
             throw new IllegalArgumentException("Cannot read JSON to map", e);
         }

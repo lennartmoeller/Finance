@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.csv;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import java.io.ByteArrayInputStream;
@@ -23,5 +24,13 @@ Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Wäh
         List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
         assertEquals(1, list.size());
         assertEquals("DE12345678901234567890", list.get(0).getIban());
+    }
+
+    @Test
+    void returnsEmptyWithoutHeader() throws Exception {
+        String csv = "IBAN;DE12\nfoo";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(list.isEmpty());
     }
 }

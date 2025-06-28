@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -59,5 +60,43 @@ class BankCsvImportServiceTest {
 
         assertEquals(List.of(resultDto), result);
         verify(repository).save(entity);
+    }
+
+    @Test
+    void testImportCsvSkipsExisting() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
+        dto.setIban("DE");
+        dto.setBookingDate(java.time.LocalDate.now());
+        dto.setPurpose("p");
+        dto.setCounterparty("c");
+        dto.setAmount(1L);
+        when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
+        when(ingParser.parse(any())).thenReturn(List.of(dto));
+        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+                .thenReturn(true);
+
+        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+
+        assertTrue(result.isEmpty());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void testImportCsvCamt() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
+        when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
+        when(camtParser.parse(any())).thenReturn(List.of(dto));
+        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+                .thenReturn(false);
+        BankTransaction entity = new BankTransaction();
+        when(mapper.toEntity(dto)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(entity);
+        when(mapper.toDto(entity)).thenReturn(dto);
+
+        List<BankTransactionDTO> result = service.importCsv(BankType.CAMT_V8, file);
+
+        assertEquals(List.of(dto), result);
     }
 }
