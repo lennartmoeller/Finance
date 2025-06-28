@@ -2,22 +2,27 @@
 
 This Agents.md file provides comprehensive guidance for AI agents working with this codebase.
 
-## Java Guidelines
+## Coding Guidelines
 
-To ensure consistency and maintainability in the Java codebase, please adhere to the following guidelines:
+To ensure consistency and maintainability in the codebase, please adhere to the following guidelines:
+
+- Follow common coding best practices
+- Follow clean code principals
+
+### Java
 
 - Use @Nullable and @NotNull annotations to indicate nullable and non-nullable fields
 - Use Lombok annotations like @Data, @Getter, @Setter, @Builder, and @AllArgsConstructor to reduce boilerplate code
 - Use the Stream API in favor of traditional for-loops for better readability and performance
 - Use Optionals to handle potential null values gracefully
 
-## Java Test Guidelines
+### Java Tests
 
 - Always write unit tests for new features and bug fixes
 - Aim for 100% test coverage
 - Make sure that the tests are testing functions completely and covering all edge cases
 
-## Pull Request Guidelines for OpenAI Codex
+## Pull Request Guidelines
 
 When an AI agent helps create a PR, please ensure it:
 
