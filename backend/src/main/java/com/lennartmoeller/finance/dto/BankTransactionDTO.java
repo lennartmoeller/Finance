@@ -3,13 +3,13 @@ package com.lennartmoeller.finance.dto;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
 import java.util.Map;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@SuperBuilder
+@NoArgsConstructor
 public class BankTransactionDTO {
     private Long id;
     private BankType bank;

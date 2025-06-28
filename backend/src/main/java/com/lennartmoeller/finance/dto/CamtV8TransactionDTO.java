@@ -1,13 +1,15 @@
 package com.lennartmoeller.finance.dto;
 
 import java.time.LocalDate;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CamtV8TransactionDTO extends BankTransactionDTO {
     private LocalDate valueDate;
     private String bookingText;

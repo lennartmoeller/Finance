@@ -9,10 +9,13 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.annotation.Nonnull;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,7 +24,8 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yy");
 
     @Override
-    public List<CamtV8TransactionDTO> parse(InputStream inputStream) throws IOException {
+    @Nonnull
+    public List<CamtV8TransactionDTO> parse(@Nonnull InputStream inputStream) throws IOException {
         List<String> lines = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
                 .toList();
@@ -29,47 +33,48 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
             return List.of();
         }
         String[] headers = parseLine(lines.get(0));
-        List<CamtV8TransactionDTO> result = new ArrayList<>();
-        for (int r = 1; r < lines.size(); r++) {
-            String line = lines.get(r);
-            if (line.isBlank()) {
-                continue;
-            }
-            String[] values = parseLine(line);
-            if (values.length < headers.length) {
-                continue;
-            }
-            Map<String, String> map = new LinkedHashMap<>();
-            for (int i = 0; i < headers.length; i++) {
-                map.put(headers[i], values[i]);
-            }
-            Map<String, Integer> idx = new java.util.HashMap<>();
-            for (int i = 0; i < headers.length; i++) {
-                idx.put(headers[i], i);
-            }
-            CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
-            dto.setBank(BankType.CAMT_V8);
-            String iban = values[idx.get("Auftragskonto")];
-            dto.setIban(iban.replaceAll("\\s+", ""));
-            dto.setBookingDate(LocalDate.parse(values[idx.get("Buchungstag")], DATE));
-            dto.setValueDate(LocalDate.parse(values[idx.get("Valutadatum")], DATE));
-            dto.setBookingText(values[idx.get("Buchungstext")]);
-            dto.setPurpose(values[idx.get("Verwendungszweck")]);
-            dto.setCounterparty(values[idx.get("Beguenstigter/Zahlungspflichtiger")]);
-            dto.setAmount(EuroParser.parseToCents(values[idx.get("Betrag")]));
-            dto.setCurrency(values[idx.get("Waehrung")]);
-            dto.setCreditorId(values[idx.get("Glaeubiger ID")]);
-            dto.setMandateReference(values[idx.get("Mandatsreferenz")]);
-            dto.setCustomerReference(values[idx.get("Kundenreferenz (End-to-End)")]);
-            dto.setCollectorReference(values[idx.get("Sammlerreferenz")]);
-            dto.setDirectDebitOriginalAmount(values[idx.get("Lastschrift Ursprungsbetrag")]);
-            dto.setRefundFee(values[idx.get("Auslagenersatz Ruecklastschrift")]);
-            dto.setBic(values[idx.get("BIC (SWIFT-Code)")]);
-            dto.setInfo(values[idx.get("Info")]);
-            dto.setData(map);
-            result.add(dto);
+        Map<String, Integer> idx =
+                IntStream.range(0, headers.length).boxed().collect(Collectors.toMap(i -> headers[i], i -> i));
+
+        return IntStream.range(1, lines.size())
+                .mapToObj(i -> buildDto(lines.get(i), headers, idx))
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    private Optional<CamtV8TransactionDTO> buildDto(String line, String[] headers, Map<String, Integer> idx) {
+        if (line.isBlank()) {
+            return Optional.empty();
         }
-        return result;
+        String[] values = parseLine(line);
+        if (values.length < headers.length) {
+            return Optional.empty();
+        }
+        Map<String, String> data = IntStream.range(0, headers.length)
+                .boxed()
+                .collect(Collectors.toMap(i -> headers[i], i -> values[i], (a, b) -> b, LinkedHashMap::new));
+        String iban = values[idx.get("Auftragskonto")].replaceAll("\\s+", "");
+
+        return Optional.of(CamtV8TransactionDTO.builder()
+                .bank(BankType.CAMT_V8)
+                .iban(iban)
+                .bookingDate(LocalDate.parse(values[idx.get("Buchungstag")], DATE))
+                .valueDate(LocalDate.parse(values[idx.get("Valutadatum")], DATE))
+                .bookingText(values[idx.get("Buchungstext")])
+                .purpose(values[idx.get("Verwendungszweck")])
+                .counterparty(values[idx.get("Beguenstigter/Zahlungspflichtiger")])
+                .amount(EuroParser.parseToCents(values[idx.get("Betrag")]).orElse(null))
+                .currency(values[idx.get("Waehrung")])
+                .creditorId(values[idx.get("Glaeubiger ID")])
+                .mandateReference(values[idx.get("Mandatsreferenz")])
+                .customerReference(values[idx.get("Kundenreferenz (End-to-End)")])
+                .collectorReference(values[idx.get("Sammlerreferenz")])
+                .directDebitOriginalAmount(values[idx.get("Lastschrift Ursprungsbetrag")])
+                .refundFee(values[idx.get("Auslagenersatz Ruecklastschrift")])
+                .bic(values[idx.get("BIC (SWIFT-Code)")])
+                .info(values[idx.get("Info")])
+                .data(data)
+                .build());
     }
 
     private String[] parseLine(String line) {

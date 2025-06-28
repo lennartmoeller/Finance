@@ -4,7 +4,10 @@ import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public interface BankCsvParser<T extends BankTransactionDTO> {
-    List<T> parse(InputStream inputStream) throws IOException;
+
+    @Nonnull
+    List<T> parse(@Nonnull InputStream inputStream) throws IOException;
 }
