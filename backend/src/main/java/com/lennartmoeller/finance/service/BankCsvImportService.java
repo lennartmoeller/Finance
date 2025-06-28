@@ -10,7 +10,7 @@ import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,23 +33,21 @@ public class BankCsvImportService {
                 case CAMT_V8 -> camtParser.parse(is);
             };
         }
-        List<BankTransactionDTO> saved = new ArrayList<>();
-        for (BankTransactionDTO dto : parsed) {
-            if (repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                    dto.getIban(), dto.getBookingDate(), dto.getPurpose(), dto.getCounterparty(), dto.getAmount())) {
-                continue;
-            }
-            BankTransaction entity;
-            if (dto instanceof IngV1TransactionDTO ing) {
-                entity = mapper.toEntity(ing);
-            } else if (dto instanceof CamtV8TransactionDTO camt) {
-                entity = mapper.toEntity(camt);
-            } else {
-                entity = mapper.toEntity(dto);
-            }
-            BankTransaction persisted = repository.save(entity);
-            saved.add(mapper.toDto(persisted));
-        }
-        return saved;
+
+        return parsed.stream()
+                .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
+                .filter(dto -> !repository.existsDuplicate(
+                        dto.getIban(), dto.getBookingDate(), dto.getPurpose(), dto.getCounterparty(), dto.getAmount()))
+                .map(dto -> {
+                    BankTransaction entity =
+                            switch (dto) {
+                                case IngV1TransactionDTO ing -> mapper.toEntity(ing);
+                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt);
+                                default -> mapper.toEntity(dto);
+                            };
+                    BankTransaction persisted = repository.save(entity);
+                    return mapper.toDto(persisted);
+                })
+                .toList();
     }
 }

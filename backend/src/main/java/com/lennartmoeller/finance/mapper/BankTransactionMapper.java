@@ -8,15 +8,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface BankTransactionMapper {
+public abstract class BankTransactionMapper {
 
-    BankTransactionDTO toDto(BankTransaction entity);
+    public abstract BankTransactionDTO toDto(BankTransaction entity);
 
-    BankTransaction toEntity(BankTransactionDTO dto);
+    public abstract BankTransaction toEntity(BankTransactionDTO dto);
 
     @Mapping(target = "bank", constant = "ING_V1")
-    BankTransaction toEntity(IngV1TransactionDTO dto);
+    public abstract BankTransaction toEntity(IngV1TransactionDTO dto);
 
     @Mapping(target = "bank", constant = "CAMT_V8")
-    BankTransaction toEntity(CamtV8TransactionDTO dto);
+    public abstract BankTransaction toEntity(CamtV8TransactionDTO dto);
 }
