@@ -8,6 +8,7 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 
 - Follow common coding best practices
 - Follow clean code principals
+- Coding style should be as consistent as possible over the whole codebase
 
 ### Java
 
