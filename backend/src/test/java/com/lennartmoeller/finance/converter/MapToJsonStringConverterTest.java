@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -26,5 +27,19 @@ class MapToJsonStringConverterTest {
 
         Map<String, String> map = converter.convertToEntityAttribute(null);
         assertTrue(map.isEmpty());
+    }
+
+    @Test
+    void invalidJsonThrows() {
+        assertThrows(IllegalArgumentException.class, () -> converter.convertToEntityAttribute("{"));
+    }
+
+    @Test
+    void serializationFailureThrows() {
+        Map raw = new HashMap();
+        raw.put("self", raw);
+        @SuppressWarnings("unchecked")
+        Map<String, String> unsafe = (Map<String, String>) raw;
+        assertThrows(IllegalArgumentException.class, () -> converter.convertToDatabaseColumn(unsafe));
     }
 }

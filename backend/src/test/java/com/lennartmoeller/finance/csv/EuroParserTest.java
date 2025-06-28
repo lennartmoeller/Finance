@@ -27,4 +27,9 @@ class EuroParserTest {
     void invalidThrows() {
         assertThrows(IllegalArgumentException.class, () -> EuroParser.parseToCents("abc"));
     }
+
+    @Test
+    void nullReturnsEmpty() {
+        assertTrue(EuroParser.parseToCents(null).isEmpty());
+    }
 }

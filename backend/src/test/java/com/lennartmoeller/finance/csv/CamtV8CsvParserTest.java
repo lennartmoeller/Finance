@@ -38,4 +38,19 @@ class CamtV8CsvParserTest {
         List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
         assertTrue(list.isEmpty());
     }
+
+    @Test
+    void emptyInputReturnsEmpty() throws Exception {
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(new byte[0]));
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void skipsShortLine() throws Exception {
+        String csv = "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\"\n\"DE\";\"01.01.25\"";
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(list.isEmpty());
+    }
 }

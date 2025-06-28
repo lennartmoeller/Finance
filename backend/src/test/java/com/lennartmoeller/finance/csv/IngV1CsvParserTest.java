@@ -33,4 +33,32 @@ Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Wäh
         List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
         assertTrue(list.isEmpty());
     }
+
+    @Test
+    void skipsInvalidLine() throws Exception {
+        String csv = "IBAN;DE12\nBuchung;Wertstellungsdatum\ninvalid";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void parsesDuplicateHeaders() throws Exception {
+        String csv =
+                "IBAN;DE12\nBuchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung;Währung\n01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR;EUR";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).getData().containsKey("Währung"));
+        assertTrue(list.get(0).getData().containsKey("Währung_9"));
+    }
+
+    @Test
+    void skipsBlankLine() throws Exception {
+        String csv =
+                "IBAN;DE12\nBuchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung\n";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(list.isEmpty());
+    }
 }

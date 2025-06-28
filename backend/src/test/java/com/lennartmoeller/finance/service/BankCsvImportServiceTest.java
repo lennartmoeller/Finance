@@ -99,4 +99,39 @@ class BankCsvImportServiceTest {
 
         assertEquals(List.of(dto), result);
     }
+
+    @Test
+    void testImportCsvDefaultAndSorting() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        BankTransactionDTO dto1 = new BankTransactionDTO();
+        dto1.setIban("DE");
+        dto1.setBookingDate(java.time.LocalDate.of(2024, 2, 2));
+        dto1.setPurpose("p1");
+        dto1.setCounterparty("c");
+        dto1.setAmount(1L);
+
+        BankTransactionDTO dto2 = new BankTransactionDTO();
+        dto2.setIban("DE");
+        dto2.setBookingDate(java.time.LocalDate.of(2024, 1, 1));
+        dto2.setPurpose("p2");
+        dto2.setCounterparty("c");
+        dto2.setAmount(2L);
+
+        when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
+        when(ingParser.parse(any())).thenReturn((List) List.of(dto1, dto2));
+        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+                .thenReturn(false);
+
+        BankTransaction e1 = new BankTransaction();
+        BankTransaction e2 = new BankTransaction();
+        when(mapper.toEntity(dto1)).thenReturn(e1);
+        when(mapper.toEntity(dto2)).thenReturn(e2);
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toDto(same(e1))).thenReturn(dto1);
+        when(mapper.toDto(same(e2))).thenReturn(dto2);
+
+        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+
+        assertEquals(List.of(dto2, dto1), result);
+    }
 }
