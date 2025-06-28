@@ -4,12 +4,12 @@ import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
 import java.util.Map;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@RequiredArgsConstructor
 @SuperBuilder
-@NoArgsConstructor
 public class BankTransactionDTO {
     private Long id;
     private BankType bank;

@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Table(
         name = "bank_transactions",
         uniqueConstraints =

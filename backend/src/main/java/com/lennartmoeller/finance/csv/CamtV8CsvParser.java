@@ -32,7 +32,7 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
         if (lines.isEmpty()) {
             return List.of();
         }
-        String[] headers = parseLine(lines.get(0));
+        String[] headers = parseLine(lines.getFirst());
         Map<String, Integer> idx =
                 IntStream.range(0, headers.length).boxed().collect(Collectors.toMap(i -> headers[i], i -> i));
 

@@ -31,7 +31,7 @@ public class MapToJsonStringConverter implements AttributeConverter<Map<String, 
             return new HashMap<>();
         }
         try {
-            return OBJECT_MAPPER.readValue(dbData, new TypeReference<Map<String, String>>() {});
+            return OBJECT_MAPPER.readValue(dbData, new TypeReference<>() {});
         } catch (IOException e) {
             throw new IllegalArgumentException("Cannot read JSON to map", e);
         }

@@ -1,15 +1,15 @@
 package com.lennartmoeller.finance.dto;
 
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
+@RequiredArgsConstructor
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 public class IngV1TransactionDTO extends BankTransactionDTO {
     private LocalDate valueDate;
     private String bookingText;

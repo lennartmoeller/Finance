@@ -48,7 +48,7 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
         String[] headers = lines.get(headerIdx).split(";");
 
         return lines.stream()
-                .skip(headerIdx + 1)
+                .skip(headerIdx + 1L)
                 .map(line -> parseLine(line, headers, iban))
                 .flatMap(Optional::stream)
                 .toList();

@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Table(name = "categories")
 public class Category {
 
