@@ -1,6 +1,6 @@
 # Maven
-/${Pipeline.Workspace}/
 /target/
 
-# Files with secrets
+# Environment files
+*.env
 /env/
