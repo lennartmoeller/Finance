@@ -49,7 +49,8 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
             }
             CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
             dto.setBank(BankType.CAMT_V8);
-            dto.setIban(values[idx.get("Kontonummer/IBAN")]);
+            String iban = values[idx.get("Auftragskonto")];
+            dto.setIban(iban.replaceAll("\\s+", ""));
             dto.setBookingDate(LocalDate.parse(values[idx.get("Buchungstag")], DATE));
             dto.setValueDate(LocalDate.parse(values[idx.get("Valutadatum")], DATE));
             dto.setBookingText(values[idx.get("Buchungstext")]);

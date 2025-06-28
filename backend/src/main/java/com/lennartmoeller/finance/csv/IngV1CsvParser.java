@@ -30,6 +30,7 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
                 .map(l -> l.split(";", 2)[1])
                 .findFirst()
                 .orElse("");
+        iban = iban.replaceAll("\\s+", "");
         int headerIdx = 0;
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).startsWith("Buchung;")) {
