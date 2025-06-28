@@ -56,9 +56,22 @@ Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Wäh
     @Test
     void skipsBlankLine() throws Exception {
         String csv =
-                "IBAN;DE12\nBuchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung\n";
+                "IBAN;DE12\nBuchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung\n\n";
         IngV1CsvParser parser = new IngV1CsvParser();
         List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
         assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void parseLineDirect() throws Exception {
+        IngV1CsvParser parser = new IngV1CsvParser();
+        java.lang.reflect.Method m =
+                IngV1CsvParser.class.getDeclaredMethod("parseLine", String.class, String[].class, String.class);
+        m.setAccessible(true);
+        String[] headers = {"Date", "Col"};
+        Object r1 = m.invoke(parser, "", headers, "DE");
+        assertTrue(((java.util.Optional<?>) r1).isEmpty());
+        Object r2 = m.invoke(parser, "01.01.2025;01.01.2025;C;T;P;1,0;EUR;2,0;EUR", headers, "DE");
+        assertTrue(((java.util.Optional<?>) r2).isPresent());
     }
 }

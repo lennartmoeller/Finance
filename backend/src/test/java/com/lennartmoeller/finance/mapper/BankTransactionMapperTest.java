@@ -20,6 +20,8 @@ class BankTransactionMapperTest {
         dto.setPurpose("p");
         dto.setCounterparty("c");
         dto.setAmount(100L);
+        dto.setData(new java.util.HashMap<>());
+        dto.getData().put("a", "b");
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
         BankTransaction entity = mapper.toEntity(dto);
@@ -30,6 +32,7 @@ class BankTransactionMapperTest {
         assertEquals(dto.getCounterparty(), entity.getCounterparty());
         assertEquals(dto.getAmount(), entity.getAmount());
         assertEquals("ING_V1", entity.getBank().name());
+        assertEquals(dto.getData(), entity.getData());
     }
 
     @Test
@@ -40,12 +43,15 @@ class BankTransactionMapperTest {
         dto.setPurpose("p2");
         dto.setCounterparty("c2");
         dto.setAmount(200L);
+        dto.setData(new java.util.HashMap<>());
+        dto.getData().put("x", "y");
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
         BankTransaction entity = mapper.toEntity(dto);
 
         assertEquals("CAMT_V8", entity.getBank().name());
         assertEquals(dto.getIban(), entity.getIban());
+        assertEquals(dto.getData(), entity.getData());
     }
 
     @Test
@@ -76,10 +82,13 @@ class BankTransactionMapperTest {
         dto.setPurpose("p");
         dto.setCounterparty("c");
         dto.setAmount(50L);
+        dto.setData(new java.util.HashMap<>());
+        dto.getData().put("k", "v");
 
         BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto);
         assertEquals(dto.getBank(), entity.getBank());
         assertEquals(dto.getIban(), entity.getIban());
+        assertEquals(dto.getData(), entity.getData());
     }
 
     @Test
@@ -89,5 +98,26 @@ class BankTransactionMapperTest {
         assertNull(mapper.toEntity((BankTransactionDTO) null));
         assertNull(mapper.toEntity((IngV1TransactionDTO) null));
         assertNull(mapper.toEntity((CamtV8TransactionDTO) null));
+    }
+
+    @Test
+    void handlesNullDataFields() {
+        BankTransaction entity = new BankTransaction();
+        entity.setData(null);
+        BankTransactionDTO dto = new BankTransactionMapperImpl().toDto(entity);
+        assertNull(dto.getData());
+
+        BankTransactionDTO base = new BankTransactionDTO();
+        base.setData(null);
+        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base);
+        assertTrue(mapped.getData().isEmpty());
+
+        IngV1TransactionDTO ing = new IngV1TransactionDTO();
+        ing.setData(null);
+        assertTrue(new BankTransactionMapperImpl().toEntity(ing).getData().isEmpty());
+
+        CamtV8TransactionDTO camt = new CamtV8TransactionDTO();
+        camt.setData(null);
+        assertTrue(new BankTransactionMapperImpl().toEntity(camt).getData().isEmpty());
     }
 }
