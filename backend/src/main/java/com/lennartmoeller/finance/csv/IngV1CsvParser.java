@@ -56,12 +56,7 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
 
     private static boolean headerMapContains(String[] headers, int index) {
         String key = headers[index];
-        for (int i = 0; i < index; i++) {
-            if (headers[i].equals(key)) {
-                return true;
-            }
-        }
-        return false;
+        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
     }
 
     private Optional<IngV1TransactionDTO> parseLine(String line, String[] headers, String iban) {
