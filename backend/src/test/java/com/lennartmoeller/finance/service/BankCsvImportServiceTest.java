@@ -46,7 +46,8 @@ class BankCsvImportServiceTest {
         dto.setAmount(1L);
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn(List.of(dto));
-        when(repository.existsDuplicate(any(), any(), any(), any(), any())).thenReturn(false);
+        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+                .thenReturn(false);
         BankTransaction entity = new BankTransaction();
         when(mapper.toEntity(dto)).thenReturn(entity);
         BankTransaction saved = new BankTransaction();

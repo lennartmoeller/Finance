@@ -36,7 +36,7 @@ public class BankCsvImportService {
 
         return parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .filter(dto -> !repository.existsDuplicate(
+                .filter(dto -> !repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(
                         dto.getIban(), dto.getBookingDate(), dto.getPurpose(), dto.getCounterparty(), dto.getAmount()))
                 .map(dto -> {
                     BankTransaction entity =
