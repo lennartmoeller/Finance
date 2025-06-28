@@ -13,7 +13,9 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 ### Java
 
 - Use @Nullable and @NotNull annotations to indicate nullable and non-nullable fields
-- Use Lombok annotations like @Data, @Getter, @Setter, @Builder, and @AllArgsConstructor to reduce boilerplate code
+- Use Lombok annotations to reduce boilerplate code:
+  - Use @RequiredArgsConstructor instead of `@NoArgsConstructor` and `@AllArgsConstructor`
+  - Don't use field injection like `@Autowired` and use constructor injection instead
 - Use the Stream API in favor of traditional for-loops for better readability and performance
 - Use Optionals to handle potential null values gracefully
 
