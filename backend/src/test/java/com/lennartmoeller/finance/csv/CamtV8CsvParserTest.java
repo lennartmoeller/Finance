@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.csv;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
@@ -81,5 +82,16 @@ class CamtV8CsvParserTest {
         m.setAccessible(true);
         assertEquals("A", ((String[]) m.invoke(parser, "\"A\""))[0]);
         assertEquals("B", ((String[]) m.invoke(parser, "B"))[0]);
+    }
+
+    @Test
+    void duplicateHeaderThrows() {
+        String csv =
+                "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz (End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\";\"Info\"\n"
+                        + "\"DE\";\"01.01.25\";\"01.01.25\";\"T\";\"P\";\"\";\"\";\"\";\"\";\"\";\"\";\"C\";\"DE\";\"B\";\"1,00\";\"EUR\";\"first\";\"second\"\n";
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+        assertThrows(
+                IllegalStateException.class,
+                () -> parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8))));
     }
 }

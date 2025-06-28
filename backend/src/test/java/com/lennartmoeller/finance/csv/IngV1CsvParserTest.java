@@ -74,4 +74,17 @@ Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Wäh
         Object r2 = m.invoke(parser, "01.01.2025;01.01.2025;C;T;P;1,0;EUR;2,0;EUR", headers, "DE");
         assertTrue(((java.util.Optional<?>) r2).isPresent());
     }
+
+    @Test
+    void duplicateHeaderUsesLaterValue() throws Exception {
+        IngV1CsvParser parser = new IngV1CsvParser();
+        java.lang.reflect.Method m =
+                IngV1CsvParser.class.getDeclaredMethod("parseLine", String.class, String[].class, String.class);
+        m.setAccessible(true);
+        String[] headers = {"Buchung", "Buchung"};
+        Object result = m.invoke(parser, "01.01.2025;02.01.2025;C;T;P;1,0;EUR;2,0;EUR", headers, "DE");
+        IngV1TransactionDTO dto = (IngV1TransactionDTO) ((java.util.Optional<?>) result).orElseThrow();
+        assertEquals("01.01.2025", dto.getData().get("Buchung"));
+        assertEquals("02.01.2025", dto.getData().get("Buchung_1"));
+    }
 }
