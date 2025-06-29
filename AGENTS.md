@@ -2,6 +2,38 @@
 
 This Agents.md file provides comprehensive guidance for AI agents working with this codebase.
 
+## Project Structure
+
+- **Backend (`backend/`)**  
+  This is a Spring Boot project using Maven. The `pom.xml` defines dependencies such as Spring Boot 3.5.3, Lombok, MapStruct, MariaDB, H2 (for tests), and other plugins for formatting and code coverage.  
+  Source code resides in `src/main/java/com/lennartmoeller/finance/`, organized into layers:
+  - `controller/` – REST endpoints. Example: `AccountController` exposes CRUD routes for accounts.
+  - `service/` – business logic. `TransactionService` fetches filtered transactions and performs persistence operations.
+  - `repository/` – Spring Data repositories for JPA entities.
+  - `dto/` and `mapper/` – Data transfer objects and MapStruct mappers.
+  - `model/` – JPA entities representing accounts, transactions, categories, etc.
+
+  Tests are under `src/test/java` and use JUnit and Mockito. Example tests verify controller behavior and model defaults. The `mvnw` wrapper is included to run Maven commands.
+
+- **Frontend (`frontend/`)**  
+  A React + TypeScript application built with Webpack. Key settings appear in `package.json` (scripts for development and build) and `webpack.config.js` (entry point `src/index.tsx`, TS loader, Babel config, dev server with proxy to the backend).
+
+  The main entry point renders the React app with routing and global styling.  
+  UI structure is organized into:
+  - `components/` – reusable UI elements (buttons, forms, tables).
+  - `skeleton/` – the overall layout; `routes.tsx` defines dashboard, transactions, and stats pages.
+  - `views/` – feature pages (DashboardView, TrackingView, StatsView). For example, `TrackingView` loads data via custom hooks and shows account lists and transaction tables.
+  - `services/` – wrappers around axios and React Query for API calls. Example: `useAccounts` fetches account data from `/api/accounts`.
+  - `types/` – TypeScript models mirroring backend DTOs.
+  Styling uses styled-components with a central `theme.ts`.
+
+- **End-to-End Tests (`e2e-tests/`)**  
+  Playwright tests verify browser behavior, such as page titles and navigation. Configuration resides in `playwright.config.ts`.
+
+- **Other Files**
+  - `Makefile` contains a task to enable git hooks.
+  - `backend/src/main/resources/import.sql` seeds sample data on startup.
+
 ## Coding Guidelines
 
 To ensure consistency and maintainability in the codebase, please adhere to the following guidelines:
