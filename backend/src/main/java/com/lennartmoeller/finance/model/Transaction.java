@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode(of = "id")
 @RequiredArgsConstructor
 @Table(name = "transactions")
-public class Transaction {
+public class Transaction extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

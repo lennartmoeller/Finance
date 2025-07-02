@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
         name = "bank_transactions",
         uniqueConstraints =
                 @UniqueConstraint(columnNames = {"iban", "booking_date", "purpose", "counterparty", "amount"}))
-public class BankTransaction {
+public class BankTransaction extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
