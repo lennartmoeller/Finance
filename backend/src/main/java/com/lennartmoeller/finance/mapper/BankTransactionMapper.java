@@ -7,7 +7,7 @@ import com.lennartmoeller.finance.model.BankTransaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class BankTransactionMapper {
 
     public abstract BankTransactionDTO toDto(BankTransaction entity);

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
 @Table(name = "accounts")
 public class Account extends BaseModel {

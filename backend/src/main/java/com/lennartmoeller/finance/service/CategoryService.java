@@ -26,7 +26,7 @@ public class CategoryService {
     }
 
     public CategoryDTO save(CategoryDTO categoryDTO) {
-        Category category = categoryMapper.toEntity(categoryDTO);
+        Category category = categoryMapper.toEntity(categoryDTO, categoryRepository);
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toDto(savedCategory);
     }

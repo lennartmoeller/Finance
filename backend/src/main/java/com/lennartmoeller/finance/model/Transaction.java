@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
 @Table(name = "transactions")
 public class Transaction extends BaseModel {
