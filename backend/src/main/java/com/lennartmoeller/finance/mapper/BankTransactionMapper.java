@@ -8,15 +8,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
-public abstract class BankTransactionMapper {
+public interface BankTransactionMapper {
 
-    public abstract BankTransactionDTO toDto(BankTransaction entity);
+    BankTransactionDTO toDto(BankTransaction entity);
 
-    public abstract BankTransaction toEntity(BankTransactionDTO dto);
+    BankTransaction toEntity(BankTransactionDTO dto);
 
     @Mapping(target = "bank", constant = "ING_V1")
-    public abstract BankTransaction toEntity(IngV1TransactionDTO dto);
+    BankTransaction toEntity(IngV1TransactionDTO dto);
 
     @Mapping(target = "bank", constant = "CAMT_V8")
-    public abstract BankTransaction toEntity(CamtV8TransactionDTO dto);
+    BankTransaction toEntity(CamtV8TransactionDTO dto);
 }

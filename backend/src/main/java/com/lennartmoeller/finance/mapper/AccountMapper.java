@@ -5,9 +5,9 @@ import com.lennartmoeller.finance.model.Account;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
-public abstract class AccountMapper {
+public interface AccountMapper {
 
-    public abstract AccountDTO toDto(Account account);
+    AccountDTO toDto(Account account);
 
-    public abstract Account toEntity(AccountDTO accountDTO);
+    Account toEntity(AccountDTO accountDTO);
 }
