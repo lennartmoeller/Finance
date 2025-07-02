@@ -9,19 +9,12 @@ import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class TransactionMapperTest {
-
-    private static void inject(Object target, String fieldName, Object value) throws Exception {
-        Field f = TransactionMapper.class.getDeclaredField(fieldName);
-        f.setAccessible(true);
-        f.set(target, value);
-    }
 
     @Test
     void testToDto() {
@@ -74,8 +67,6 @@ class TransactionMapperTest {
         when(catRepo.findById(3L)).thenReturn(Optional.of(category));
 
         TransactionMapperImpl mapper = new TransactionMapperImpl();
-        inject(mapper, "accountRepository", accRepo);
-        inject(mapper, "categoryRepository", catRepo);
 
         TransactionDTO dto = new TransactionDTO();
         dto.setId(4L);
@@ -85,7 +76,7 @@ class TransactionMapperTest {
         dto.setAmount(600L);
         dto.setDescription("Desc");
 
-        Transaction entity = mapper.toEntity(dto);
+        Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
 
         assertEquals(dto.getId(), entity.getId());
         assertSame(account, entity.getAccount());
@@ -105,15 +96,13 @@ class TransactionMapperTest {
         when(catRepo.findById(2L)).thenReturn(Optional.empty());
 
         TransactionMapperImpl mapper = new TransactionMapperImpl();
-        inject(mapper, "accountRepository", accRepo);
-        inject(mapper, "categoryRepository", catRepo);
 
-        assertNull(mapper.toEntity(null));
+        assertNull(mapper.toEntity(null, accRepo, catRepo));
         TransactionDTO dto = new TransactionDTO();
         dto.setAccountId(1L);
         dto.setCategoryId(2L);
 
-        Transaction entity = mapper.toEntity(dto);
+        Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
         assertNull(entity.getAccount());
         assertNull(entity.getCategory());
         verify(accRepo).findById(1L);
@@ -125,8 +114,6 @@ class TransactionMapperTest {
         TransactionMapperImpl mapper = new TransactionMapperImpl();
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
-        inject(mapper, "accountRepository", accRepo);
-        inject(mapper, "categoryRepository", catRepo);
 
         Account account = new Account();
         account.setId(11L);
@@ -135,20 +122,22 @@ class TransactionMapperTest {
         category.setId(12L);
         when(catRepo.findById(12L)).thenReturn(Optional.of(category));
 
-        Method idToAcc = TransactionMapper.class.getDeclaredMethod("mapAccountIdToAccount", Long.class);
+        Method idToAcc =
+                TransactionMapper.class.getDeclaredMethod("mapAccountIdToAccount", Long.class, AccountRepository.class);
         idToAcc.setAccessible(true);
-        assertSame(account, idToAcc.invoke(mapper, 11L));
-        assertNull(idToAcc.invoke(mapper, (Object) null));
+        assertSame(account, idToAcc.invoke(mapper, 11L, accRepo));
+        assertNull(idToAcc.invoke(mapper, null, accRepo));
 
         Method accToId = TransactionMapper.class.getDeclaredMethod("mapAccountToAccountId", Account.class);
         accToId.setAccessible(true);
         assertEquals(11L, accToId.invoke(mapper, account));
         assertNull(accToId.invoke(mapper, (Object) null));
 
-        Method idToCat = TransactionMapper.class.getDeclaredMethod("mapCategoryIdToCategory", Long.class);
+        Method idToCat = TransactionMapper.class.getDeclaredMethod(
+                "mapCategoryIdToCategory", Long.class, CategoryRepository.class);
         idToCat.setAccessible(true);
-        assertSame(category, idToCat.invoke(mapper, 12L));
-        assertNull(idToCat.invoke(mapper, (Object) null));
+        assertSame(category, idToCat.invoke(mapper, 12L, catRepo));
+        assertNull(idToCat.invoke(mapper, null, catRepo));
 
         Method catToId = TransactionMapper.class.getDeclaredMethod("mapCategoryToCategoryId", Category.class);
         catToId.setAccessible(true);
