@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
@@ -24,10 +25,12 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("a", "b");
 
-        BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto);
+        Account acc = new Account();
 
-        assertNull(entity.getAccount());
+        BankTransactionMapper mapper = new BankTransactionMapperImpl();
+        BankTransaction entity = mapper.toEntity(dto, acc);
+
+        assertSame(acc, entity.getAccount());
         assertEquals(dto.getBookingDate(), entity.getBookingDate());
         assertEquals(dto.getPurpose(), entity.getPurpose());
         assertEquals(dto.getCounterparty(), entity.getCounterparty());
@@ -47,11 +50,13 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("x", "y");
 
+        Account acc = new Account();
+
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto);
+        BankTransaction entity = mapper.toEntity(dto, acc);
 
         assertEquals("CAMT_V8", entity.getBank().name());
-        assertNull(entity.getAccount());
+        assertSame(acc, entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
     }
 
@@ -89,19 +94,22 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("k", "v");
 
-        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto);
+        Account acc = new Account();
+
+        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, acc);
         assertEquals(dto.getBank(), entity.getBank());
-        assertNull(entity.getAccount());
+        assertSame(acc, entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
     }
 
     @Test
     void nullInputsReturnNull() {
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
+        Account acc = null;
         assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity((BankTransactionDTO) null));
-        assertNull(mapper.toEntity((IngV1TransactionDTO) null));
-        assertNull(mapper.toEntity((CamtV8TransactionDTO) null));
+        assertNull(mapper.toEntity((BankTransactionDTO) null, acc));
+        assertNull(mapper.toEntity((IngV1TransactionDTO) null, acc));
+        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, acc));
     }
 
     @Test
@@ -113,15 +121,16 @@ class BankTransactionMapperTest {
 
         BankTransactionDTO base = new BankTransactionDTO();
         base.setData(null);
-        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base);
+        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, null);
         assertTrue(mapped.getData().isEmpty());
 
         IngV1TransactionDTO ing = new IngV1TransactionDTO();
         ing.setData(null);
-        assertTrue(new BankTransactionMapperImpl().toEntity(ing).getData().isEmpty());
+        assertTrue(new BankTransactionMapperImpl().toEntity(ing, null).getData().isEmpty());
 
         CamtV8TransactionDTO camt = new CamtV8TransactionDTO();
         camt.setData(null);
-        assertTrue(new BankTransactionMapperImpl().toEntity(camt).getData().isEmpty());
+        assertTrue(
+                new BankTransactionMapperImpl().toEntity(camt, null).getData().isEmpty());
     }
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
@@ -52,20 +53,23 @@ class BankCsvImportServiceTest {
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn(List.of(dto));
         Account account = new Account();
-        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        account.setIban("DE");
+        when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
+        BankTransaction entity = new BankTransaction();
+        entity.setAccount(account);
+        when(mapper.toEntity(eq(dto), eq(account))).thenReturn(entity);
         when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
                         eq(account), any(), any(), any(), any()))
                 .thenReturn(false);
-        BankTransaction entity = new BankTransaction();
-        when(mapper.toEntity(dto)).thenReturn(entity);
         BankTransaction saved = new BankTransaction();
         when(repository.save(entity)).thenReturn(saved);
         BankTransactionDTO resultDto = new BankTransactionDTO();
         when(mapper.toDto(saved)).thenReturn(resultDto);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(resultDto), result);
+        assertEquals(List.of(resultDto), result.getSaved());
+        assertTrue(result.getUnsaved().isEmpty());
         verify(repository).save(entity);
     }
 
@@ -81,14 +85,19 @@ class BankCsvImportServiceTest {
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn(List.of(dto));
         Account account = new Account();
-        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        account.setIban("DE");
+        when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
+        BankTransaction entity = new BankTransaction();
+        entity.setAccount(account);
+        when(mapper.toEntity(eq(dto), eq(account))).thenReturn(entity);
         when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
                         eq(account), any(), any(), any(), any()))
                 .thenReturn(true);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.getSaved().isEmpty());
+        assertEquals(List.of(dto), result.getUnsaved());
         verify(repository, never()).save(any());
     }
 
@@ -98,19 +107,15 @@ class BankCsvImportServiceTest {
         CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(camtParser.parse(any())).thenReturn(List.of(dto));
-        Account account = new Account();
-        when(accountRepository.findByIban(null)).thenReturn(java.util.Optional.of(account));
-        when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                        eq(account), any(), any(), any(), any()))
-                .thenReturn(false);
-        BankTransaction entity = new BankTransaction();
-        when(mapper.toEntity(dto)).thenReturn(entity);
-        when(repository.save(entity)).thenReturn(entity);
-        when(mapper.toDto(entity)).thenReturn(dto);
+        when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
+                .thenReturn(java.util.Collections.emptyList());
+        when(mapper.toEntity(eq(dto), isNull())).thenReturn(new BankTransaction());
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.CAMT_V8, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.CAMT_V8, file);
 
-        assertEquals(List.of(dto), result);
+        assertTrue(result.getSaved().isEmpty());
+        assertEquals(List.of(dto), result.getUnsaved());
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -133,21 +138,24 @@ class BankCsvImportServiceTest {
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn((List) List.of(dto1, dto2));
         Account account = new Account();
-        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        account.setIban("DE");
+        when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
+        BankTransaction e1 = new BankTransaction();
+        e1.setAccount(account);
+        BankTransaction e2 = new BankTransaction();
+        e2.setAccount(account);
+        when(mapper.toEntity(eq(dto1), eq(account))).thenReturn(e1);
+        when(mapper.toEntity(eq(dto2), eq(account))).thenReturn(e2);
         when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
                         eq(account), any(), any(), any(), any()))
                 .thenReturn(false);
-
-        BankTransaction e1 = new BankTransaction();
-        BankTransaction e2 = new BankTransaction();
-        when(mapper.toEntity(dto1)).thenReturn(e1);
-        when(mapper.toEntity(dto2)).thenReturn(e2);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(same(e1))).thenReturn(dto1);
         when(mapper.toDto(same(e2))).thenReturn(dto2);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(dto2, dto1), result);
+        assertEquals(List.of(dto2, dto1), result.getSaved());
+        assertTrue(result.getUnsaved().isEmpty());
     }
 }

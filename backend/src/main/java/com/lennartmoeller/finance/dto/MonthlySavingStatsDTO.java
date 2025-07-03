@@ -10,7 +10,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class MonthlySavingStatsDTO {
-
     private YearMonth yearMonth;
     private StatsMetricDTO balanceChange;
     private StatsMetricDTO balanceChangeTarget;

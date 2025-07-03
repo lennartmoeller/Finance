@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 @Setter
-public class CategoryStatsDTO {
-    private CategoryDTO category;
-    private RowStatsDTO stats;
-    private List<CategoryStatsDTO> children;
+public class BankTransactionImportResultDTO {
+    private final List<BankTransactionDTO> saved;
+    private final List<BankTransactionDTO> unsaved;
 }

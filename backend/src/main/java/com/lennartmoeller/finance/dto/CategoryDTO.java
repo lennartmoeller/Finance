@@ -11,7 +11,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class CategoryDTO {
-
     private Long id;
     private Long parentId;
     private String label;

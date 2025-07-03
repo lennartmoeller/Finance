@@ -9,7 +9,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class TransactionDTO {
-
     private Long id;
     private Long accountId;
     private Long categoryId;

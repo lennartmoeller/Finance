@@ -9,7 +9,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class TargetDTO {
-
     private Long id;
     private Long categoryId;
     private LocalDate start;
