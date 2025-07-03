@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 
 class CategoryMapperTest {
 
-    private static void inject(Object target, String fieldName, Object value) throws Exception {
-        Field f = target.getClass().getDeclaredField(fieldName);
+    private static void inject(Object target, Object value) throws Exception {
+        Field f = target.getClass().getDeclaredField("targetMapper");
         f.setAccessible(true);
         f.set(target, value);
     }
@@ -45,7 +45,7 @@ class CategoryMapperTest {
 
         TargetMapperImpl targetMapper = new TargetMapperImpl();
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, "targetMapper", targetMapper);
+        inject(mapper, targetMapper);
 
         CategoryDTO dto = mapper.toDto(child);
 
@@ -111,7 +111,7 @@ class CategoryMapperTest {
 
         TargetMapperImpl targetMapper = new TargetMapperImpl();
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, "targetMapper", targetMapper);
+        inject(mapper, targetMapper);
 
         TargetDTO targetDTO = new TargetDTO();
         targetDTO.setId(5L);
@@ -146,7 +146,7 @@ class CategoryMapperTest {
     }
 
     @Test
-    void testToEntityMissingParent() throws Exception {
+    void testToEntityMissingParent() {
         CategoryRepository repo = mock(CategoryRepository.class);
         when(repo.findById(1L)).thenReturn(Optional.empty());
         CategoryMapperImpl mapper = new CategoryMapperImpl();
@@ -159,7 +159,7 @@ class CategoryMapperTest {
     }
 
     @Test
-    void testToEntityNullFields() throws Exception {
+    void testToEntityNullFields() {
         CategoryRepository repo = mock(CategoryRepository.class);
         CategoryMapperImpl mapper = new CategoryMapperImpl();
 

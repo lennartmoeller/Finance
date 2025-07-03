@@ -32,7 +32,7 @@ class TargetMapperTest {
     }
 
     @Test
-    void testNullValues() throws Exception {
+    void testNullValues() {
         TargetMapperImpl mapper = new TargetMapperImpl();
         assertNull(mapper.toDto(null));
         assertNull(mapper.toEntity(null, mock(CategoryRepository.class)));
@@ -79,7 +79,7 @@ class TargetMapperTest {
     }
 
     @Test
-    void testToEntityUsesRepository() throws Exception {
+    void testToEntityUsesRepository() {
         CategoryRepository repo = mock(CategoryRepository.class);
         Category category = new Category();
         category.setId(7L);

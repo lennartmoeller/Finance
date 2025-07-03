@@ -54,7 +54,7 @@ class TransactionMapperTest {
     }
 
     @Test
-    void testToEntityUsesRepositories() throws Exception {
+    void testToEntityUsesRepositories() {
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
 
@@ -89,7 +89,7 @@ class TransactionMapperTest {
     }
 
     @Test
-    void testToEntityNullsAndMissing() throws Exception {
+    void testToEntityNullsAndMissing() {
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
         when(accRepo.findById(1L)).thenReturn(Optional.empty());
