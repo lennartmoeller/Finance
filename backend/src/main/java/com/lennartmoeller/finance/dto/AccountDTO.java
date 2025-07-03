@@ -11,6 +11,7 @@ public class AccountDTO {
 
     private Long id;
     private String label;
+    private String iban;
     private Long startBalance;
     private Boolean active;
     private Boolean deposits;
