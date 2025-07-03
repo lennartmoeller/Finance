@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @RequiredArgsConstructor
 @SuperBuilder
 public class CamtV8TransactionDTO extends BankTransactionDTO {
+    private String iban;
     private LocalDate valueDate;
     private String bookingText;
     private String creditorId;
