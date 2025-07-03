@@ -70,13 +70,7 @@ public class BankCsvImportService {
                         unsaved.add(dto);
                         return;
                     }
-                    boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                            entity.getAccount(),
-                            entity.getBookingDate(),
-                            entity.getPurpose(),
-                            entity.getCounterparty(),
-                            entity.getAmount());
-                    if (exists) {
+                    if (repository.existsByData(entity.getData())) {
                         unsaved.add(dto);
                         return;
                     }
