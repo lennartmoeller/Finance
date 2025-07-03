@@ -56,7 +56,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity(eq(dto), eq(account))).thenReturn(entity);
+        when(mapper.toEntity(dto, account)).thenReturn(entity);
         when(repository.existsByData(any())).thenReturn(false);
         BankTransaction saved = new BankTransaction();
         when(repository.save(entity)).thenReturn(saved);
@@ -86,7 +86,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity(eq(dto), eq(account))).thenReturn(entity);
+        when(mapper.toEntity(dto, account)).thenReturn(entity);
         when(repository.existsByData(any())).thenReturn(true);
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
@@ -139,8 +139,8 @@ class BankCsvImportServiceTest {
         e1.setAccount(account);
         BankTransaction e2 = new BankTransaction();
         e2.setAccount(account);
-        when(mapper.toEntity(eq(dto1), eq(account))).thenReturn(e1);
-        when(mapper.toEntity(eq(dto2), eq(account))).thenReturn(e2);
+        when(mapper.toEntity(dto1, account)).thenReturn(e1);
+        when(mapper.toEntity(dto2, account)).thenReturn(e2);
         when(repository.existsByData(any())).thenReturn(false);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(same(e1))).thenReturn(dto1);
