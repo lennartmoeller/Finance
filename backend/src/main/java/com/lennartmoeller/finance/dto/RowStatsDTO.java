@@ -14,7 +14,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class RowStatsDTO {
-
     private final Map<YearMonth, CellStatsDTO> monthly;
 
     public static RowStatsDTO empty(@Nullable DateRange dateRange) {

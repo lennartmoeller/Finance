@@ -16,7 +16,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class TransactionTypeStatsDTO {
-
     private final List<CategoryStatsDTO> categoryStats;
 
     @JsonIgnore

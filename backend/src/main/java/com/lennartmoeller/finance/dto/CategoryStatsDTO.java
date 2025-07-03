@@ -9,7 +9,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class CategoryStatsDTO {
-
     private CategoryDTO category;
     private RowStatsDTO stats;
     private List<CategoryStatsDTO> children;

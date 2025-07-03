@@ -9,7 +9,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class StatsMetricDTO {
-
     private double raw;
     private double smoothed;
 

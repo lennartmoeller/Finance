@@ -13,11 +13,14 @@ import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,7 +38,7 @@ public class BankCsvImportService {
 
     public BankTransactionImportResultDTO importCsv(BankType type, MultipartFile file) throws IOException {
         List<? extends BankTransactionDTO> parsed;
-        try (var is = file.getInputStream()) {
+        try (InputStream is = file.getInputStream()) {
             parsed = switch (type) {
                 case ING_V1 -> ingParser.parse(is);
                 case CAMT_V8 -> camtParser.parse(is);
@@ -47,49 +50,40 @@ public class BankCsvImportService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        Map<String, Account> accountMap =
-                accountRepository.findAllByIbanIn(ibans).stream().collect(Collectors.toMap(Account::getIban, a -> a));
+        Map<String, Account> accountMap = accountRepository.findAllByIbanIn(ibans).stream()
+                .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
-        List<BankTransactionDTO> saved = new java.util.ArrayList<>();
-        List<BankTransactionDTO> unsaved = new java.util.ArrayList<>();
+        List<BankTransactionDTO> saved = new ArrayList<>();
+        List<BankTransactionDTO> unsaved = new ArrayList<>();
 
         parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .forEach(dto -> processDto(dto, accountMap, saved, unsaved));
+                .forEach(dto -> {
+                    Account account = accountMap.get(dto.getIban());
+                    BankTransaction entity =
+                            switch (dto) {
+                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, account);
+                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
+                                default -> mapper.toEntity(dto, account);
+                            };
+                    if (entity.getAccount() == null) {
+                        unsaved.add(dto);
+                        return;
+                    }
+                    boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                            entity.getAccount(),
+                            entity.getBookingDate(),
+                            entity.getPurpose(),
+                            entity.getCounterparty(),
+                            entity.getAmount());
+                    if (exists) {
+                        unsaved.add(dto);
+                        return;
+                    }
+                    BankTransaction persisted = repository.save(entity);
+                    saved.add(mapper.toDto(persisted));
+                });
 
         return new BankTransactionImportResultDTO(saved, unsaved);
-    }
-
-    private void processDto(
-            BankTransactionDTO dto,
-            Map<String, Account> accountMap,
-            List<BankTransactionDTO> saved,
-            List<BankTransactionDTO> unsaved) {
-        Account account = accountMap.get(dto.getIban());
-        BankTransaction entity =
-                switch (dto) {
-                    case IngV1TransactionDTO ing -> mapper.toEntity(ing, account);
-                    case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
-                    default -> mapper.toEntity(dto, account);
-                };
-
-        if (entity.getAccount() == null) {
-            unsaved.add(dto);
-            return;
-        }
-
-        boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                entity.getAccount(),
-                entity.getBookingDate(),
-                entity.getPurpose(),
-                entity.getCounterparty(),
-                entity.getAmount());
-        if (exists) {
-            unsaved.add(dto);
-            return;
-        }
-
-        BankTransaction persisted = repository.save(entity);
-        saved.add(mapper.toDto(persisted));
     }
 }

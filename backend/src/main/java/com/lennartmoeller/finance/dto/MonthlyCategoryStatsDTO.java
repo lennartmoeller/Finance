@@ -17,7 +17,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class MonthlyCategoryStatsDTO {
-
     private Map<TransactionType, TransactionTypeStatsDTO> stats;
     private @Nullable LocalDate startDate;
     private @Nullable LocalDate endDate;

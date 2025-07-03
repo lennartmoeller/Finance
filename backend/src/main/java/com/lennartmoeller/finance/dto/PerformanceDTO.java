@@ -14,7 +14,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 @RequiredArgsConstructor
 @Setter
 public class PerformanceDTO {
-
     private double raw;
     private double smoothed;
 

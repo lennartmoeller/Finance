@@ -9,7 +9,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class DailySavingStatsDTO {
-
     private LocalDate date;
     private StatsMetricDTO balance;
     private StatsMetricDTO target;

@@ -1,14 +1,16 @@
 package com.lennartmoeller.finance.dto;
 
 import java.time.LocalDate;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
 @RequiredArgsConstructor
+@Setter
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class CamtV8TransactionDTO extends BankTransactionDTO {
     private LocalDate valueDate;

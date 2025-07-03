@@ -2,6 +2,7 @@ package com.lennartmoeller.finance.repository;
 
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.projection.AccountBalanceProjection;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,5 +25,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 		""")
     Long getSummedStartBalance();
 
-    List<Account> findAllByIbanIn(java.util.Collection<String> ibans);
+    List<Account> findAllByIbanIn(Collection<String> ibans);
 }
