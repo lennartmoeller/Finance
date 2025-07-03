@@ -6,6 +6,7 @@ import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
+import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.repository.AccountRepository;
@@ -13,6 +14,10 @@ import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,14 +41,22 @@ public class BankCsvImportService {
             };
         }
 
+        Set<String> ibans = parsed.stream()
+                .map(BankTransactionDTO::getIban)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Map<String, Account> accountMap =
+                accountRepository.findAllByIbanIn(ibans).stream().collect(Collectors.toMap(Account::getIban, a -> a));
+
         return parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
                 .map(dto -> {
                     BankTransaction entity =
                             switch (dto) {
-                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, accountRepository);
-                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, accountRepository);
-                                default -> mapper.toEntity(dto, accountRepository);
+                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, accountMap);
+                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, accountMap);
+                                default -> mapper.toEntity(dto, accountMap);
                             };
 
                     if (entity.getAccount() == null) return null;
@@ -59,7 +72,7 @@ public class BankCsvImportService {
                     BankTransaction persisted = repository.save(entity);
                     return mapper.toDto(persisted);
                 })
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .toList();
     }
 }

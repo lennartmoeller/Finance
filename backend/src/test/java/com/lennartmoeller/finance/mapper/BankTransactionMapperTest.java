@@ -9,7 +9,6 @@ import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
-import com.lennartmoeller.finance.repository.AccountRepository;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +25,12 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("a", "b");
 
-        AccountRepository repo = mock(AccountRepository.class);
+        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        when(repo.findByIban("DE123")).thenReturn(java.util.Optional.of(acc));
+        accounts.put("DE123", acc);
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, repo);
+        BankTransaction entity = mapper.toEntity(dto, accounts);
 
         assertSame(acc, entity.getAccount());
         assertEquals(dto.getBookingDate(), entity.getBookingDate());
@@ -53,12 +52,12 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("x", "y");
 
-        AccountRepository repo = mock(AccountRepository.class);
+        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        when(repo.findByIban("DE456")).thenReturn(java.util.Optional.of(acc));
+        accounts.put("DE456", acc);
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, repo);
+        BankTransaction entity = mapper.toEntity(dto, accounts);
 
         assertEquals("CAMT_V8", entity.getBank().name());
         assertSame(acc, entity.getAccount());
@@ -99,11 +98,11 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("k", "v");
 
-        AccountRepository repo = mock(AccountRepository.class);
+        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        when(repo.findByIban("DE")).thenReturn(java.util.Optional.of(acc));
+        accounts.put("DE", acc);
 
-        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, repo);
+        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, accounts);
         assertEquals(dto.getBank(), entity.getBank());
         assertSame(acc, entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
@@ -112,11 +111,11 @@ class BankTransactionMapperTest {
     @Test
     void nullInputsReturnNull() {
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        AccountRepository repo = mock(AccountRepository.class);
+        java.util.Map<String, Account> accounts = java.util.Collections.emptyMap();
         assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity((BankTransactionDTO) null, repo));
-        assertNull(mapper.toEntity((IngV1TransactionDTO) null, repo));
-        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, repo));
+        assertNull(mapper.toEntity((BankTransactionDTO) null, accounts));
+        assertNull(mapper.toEntity((IngV1TransactionDTO) null, accounts));
+        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, accounts));
     }
 
     @Test
@@ -128,20 +127,20 @@ class BankTransactionMapperTest {
 
         BankTransactionDTO base = new BankTransactionDTO();
         base.setData(null);
-        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, mock(AccountRepository.class));
+        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, java.util.Collections.emptyMap());
         assertTrue(mapped.getData().isEmpty());
 
         IngV1TransactionDTO ing = new IngV1TransactionDTO();
         ing.setData(null);
         assertTrue(new BankTransactionMapperImpl()
-                .toEntity(ing, mock(AccountRepository.class))
+                .toEntity(ing, java.util.Collections.emptyMap())
                 .getData()
                 .isEmpty());
 
         CamtV8TransactionDTO camt = new CamtV8TransactionDTO();
         camt.setData(null);
         assertTrue(new BankTransactionMapperImpl()
-                .toEntity(camt, mock(AccountRepository.class))
+                .toEntity(camt, java.util.Collections.emptyMap())
                 .getData()
                 .isEmpty());
     }
@@ -149,17 +148,16 @@ class BankTransactionMapperTest {
     @Test
     void testMappingHelper() throws Exception {
         BankTransactionMapperImpl mapper = new BankTransactionMapperImpl();
-        AccountRepository repo = mock(AccountRepository.class);
+        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account account = new Account();
-        when(repo.findByIban("IBAN")).thenReturn(java.util.Optional.of(account));
+        accounts.put("IBAN", account);
 
-        java.lang.reflect.Method helper = BankTransactionMapper.class.getDeclaredMethod(
-                "mapIbanToAccount", String.class, AccountRepository.class);
+        java.lang.reflect.Method helper =
+                BankTransactionMapper.class.getDeclaredMethod("mapIbanToAccount", String.class, java.util.Map.class);
         helper.setAccessible(true);
 
-        assertSame(account, helper.invoke(mapper, "IBAN", repo));
-        assertNull(helper.invoke(mapper, null, repo));
-        when(repo.findByIban("MISSING")).thenReturn(java.util.Optional.empty());
-        assertNull(helper.invoke(mapper, "MISSING", repo));
+        assertSame(account, helper.invoke(mapper, "IBAN", accounts));
+        assertNull(helper.invoke(mapper, null, accounts));
+        assertNull(helper.invoke(mapper, "MISSING", accounts));
     }
 }

@@ -26,4 +26,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Long getSummedStartBalance();
 
     Optional<Account> findByIban(String iban);
+
+    List<Account> findAllByIbanIn(Iterable<String> ibans);
 }
