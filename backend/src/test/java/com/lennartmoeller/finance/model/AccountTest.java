@@ -9,6 +9,7 @@ class AccountTest {
     @Test
     void testDefaultValues() {
         Account account = new Account();
+        assertNull(account.getIban());
         assertTrue(account.getActive());
         assertFalse(account.getDeposits());
     }
@@ -17,11 +18,13 @@ class AccountTest {
     void testGettersAndSetters() {
         Account account = new Account();
         account.setLabel("Checking");
+        account.setIban("DE123");
         account.setStartBalance(1000L);
         account.setActive(false);
         account.setDeposits(true);
 
         assertEquals("Checking", account.getLabel());
+        assertEquals("DE123", account.getIban());
         assertEquals(1000L, account.getStartBalance());
         assertFalse(account.getActive());
         assertTrue(account.getDeposits());

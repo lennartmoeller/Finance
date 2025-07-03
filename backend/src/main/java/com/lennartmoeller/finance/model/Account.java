@@ -19,6 +19,9 @@ public class Account extends BaseModel {
     @Column(nullable = false, unique = true)
     private String label;
 
+    @Column(unique = true)
+    private String iban;
+
     @Column(nullable = false)
     private Long startBalance;
 

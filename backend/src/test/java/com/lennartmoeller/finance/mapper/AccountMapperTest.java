@@ -15,6 +15,7 @@ class AccountMapperTest {
         Account account = new Account();
         account.setId(1L);
         account.setLabel("Checking");
+        account.setIban("DE123");
         account.setStartBalance(500L);
         account.setActive(false);
         account.setDeposits(true);
@@ -23,6 +24,7 @@ class AccountMapperTest {
         assertNotNull(dto);
         assertEquals(account.getId(), dto.getId());
         assertEquals(account.getLabel(), dto.getLabel());
+        assertEquals(account.getIban(), dto.getIban());
         assertEquals(account.getStartBalance(), dto.getStartBalance());
         assertEquals(account.getActive(), dto.getActive());
         assertEquals(account.getDeposits(), dto.getDeposits());
@@ -31,6 +33,7 @@ class AccountMapperTest {
         assertNotNull(entity);
         assertEquals(account.getId(), entity.getId());
         assertEquals(account.getLabel(), entity.getLabel());
+        assertEquals(account.getIban(), entity.getIban());
         assertEquals(account.getStartBalance(), entity.getStartBalance());
         assertEquals(account.getActive(), entity.getActive());
         assertEquals(account.getDeposits(), entity.getDeposits());
