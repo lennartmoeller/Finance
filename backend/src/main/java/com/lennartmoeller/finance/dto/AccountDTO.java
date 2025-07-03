@@ -8,7 +8,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class AccountDTO {
-
     private Long id;
     private String label;
     private String iban;

@@ -12,7 +12,6 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 @RequiredArgsConstructor
 @Setter
 public class CellStatsDTO {
-
     private StatsMetricDTO surplus;
     private Double target;
     private @Nullable PerformanceDTO performance;

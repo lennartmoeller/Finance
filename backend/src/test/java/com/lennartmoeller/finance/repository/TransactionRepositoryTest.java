@@ -10,6 +10,7 @@ import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.projection.MonthlyDepositsProjection;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,7 +107,7 @@ class TransactionRepositoryTest {
     void testGetMonthlyDeposits() {
         List<MonthlyDepositsProjection> deposits = transactionRepository.getMonthlyDeposits();
         assertEquals(2, deposits.size());
-        var map = deposits.stream()
+        Map<String, Long> map = deposits.stream()
                 .collect(Collectors.toMap(
                         MonthlyDepositsProjection::getYearMonth, MonthlyDepositsProjection::getDeposits));
         assertEquals(150L, map.get("2021-01"));
