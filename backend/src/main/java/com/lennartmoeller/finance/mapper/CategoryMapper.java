@@ -13,7 +13,6 @@ import org.mapstruct.Named;
         uses = TargetMapper.class,
         unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface CategoryMapper {
-
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "targets", target = "targets")
     CategoryDTO toDto(Category category);

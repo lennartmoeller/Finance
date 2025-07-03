@@ -14,7 +14,6 @@ import org.mapstruct.Named;
         uses = CategoryMapper.class,
         unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface TargetMapper {
-
     @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "startDate", target = "start")
     @Mapping(source = "endDate", target = "end")

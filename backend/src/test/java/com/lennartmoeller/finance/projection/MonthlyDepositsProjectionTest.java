@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 class MonthlyDepositsProjectionTest {
-
     @Test
     void testSimpleImplementation() {
         MonthlyDepositsProjection p = new SimpleProjection("2024-05", 1500L);

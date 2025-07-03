@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class MonthlyCategoryBalanceStatsService {
-
     private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;

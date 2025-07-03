@@ -17,7 +17,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class CategoryMapperTest {
-
     private static void inject(Object target, Object value) throws Exception {
         Field f = target.getClass().getDeclaredField("targetMapper");
         f.setAccessible(true);

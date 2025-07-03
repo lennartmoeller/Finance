@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CategoryServiceTest {
-
     private CategoryRepository categoryRepository;
     private CategoryMapper categoryMapper;
     private CategoryService categoryService;

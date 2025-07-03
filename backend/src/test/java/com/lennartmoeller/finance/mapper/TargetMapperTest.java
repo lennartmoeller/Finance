@@ -12,7 +12,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class TargetMapperTest {
-
     @Test
     void testToDto() {
         Category category = new Category();

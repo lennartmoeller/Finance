@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/bank-transactions")
 @RequiredArgsConstructor
 public class BankTransactionController {
-
     private final BankCsvImportService importService;
 
     @PostMapping("/import")

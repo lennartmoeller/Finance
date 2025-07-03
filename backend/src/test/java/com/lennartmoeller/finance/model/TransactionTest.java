@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 class TransactionTest {
-
     @Test
     void testDefaultValues() {
         Transaction tx = new Transaction();

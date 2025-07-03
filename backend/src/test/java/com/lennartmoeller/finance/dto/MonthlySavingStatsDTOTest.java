@@ -6,7 +6,6 @@ import java.time.YearMonth;
 import org.junit.jupiter.api.Test;
 
 class MonthlySavingStatsDTOTest {
-
     @Test
     void testDeviationsAndImpact() {
         MonthlySavingStatsDTO dto = new MonthlySavingStatsDTO();

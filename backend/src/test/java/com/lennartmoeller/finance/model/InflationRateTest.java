@@ -7,7 +7,6 @@ import java.time.YearMonth;
 import org.junit.jupiter.api.Test;
 
 class InflationRateTest {
-
     @Test
     void testGettersAndSetters() {
         InflationRate rate = new InflationRate();

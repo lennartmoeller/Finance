@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 
 class CategoryTest {
-
     @Test
     void testDefaultSmoothType() {
         Category category = new Category();

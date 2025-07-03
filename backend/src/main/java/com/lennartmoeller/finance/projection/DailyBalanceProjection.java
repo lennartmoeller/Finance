@@ -4,7 +4,6 @@ import com.lennartmoeller.finance.model.Category;
 import java.time.LocalDate;
 
 public interface DailyBalanceProjection {
-
     LocalDate getDate();
 
     Category getCategory();

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.multipart.MultipartFile;
 
 class BankTransactionControllerTest {
-
     private BankCsvImportService service;
     private BankTransactionController controller;
 

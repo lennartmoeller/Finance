@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public class SmootherMonthly extends Smoother<YearMonth> {
-
     @Override
     public void add(YearMonth yearMonth, CategorySmoothType smoothType, Long amount) {
         addRawToData(yearMonth, amount);

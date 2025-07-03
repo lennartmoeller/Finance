@@ -7,7 +7,6 @@ import com.lennartmoeller.finance.model.Account;
 import org.junit.jupiter.api.Test;
 
 class AccountMapperTest {
-
     private final AccountMapper mapper = new AccountMapperImpl();
 
     @Test

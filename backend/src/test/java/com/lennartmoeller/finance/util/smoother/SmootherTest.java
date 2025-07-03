@@ -8,7 +8,6 @@ import com.lennartmoeller.finance.util.DateRange;
 import org.junit.jupiter.api.Test;
 
 class SmootherTest {
-
     @Test
     void testAddRawToDataAccumulates() {
         TestSmoother smoother = new TestSmoother();

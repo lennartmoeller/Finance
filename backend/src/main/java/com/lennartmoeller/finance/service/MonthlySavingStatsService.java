@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class MonthlySavingStatsService {
-
     private final DailyBalanceStatsService dailyBalanceStatsService;
     private final MonthlyCategoryBalanceStatsService monthlyCategoryBalanceStatsService;
     private final InflationRateRepository inflationRateRepository;

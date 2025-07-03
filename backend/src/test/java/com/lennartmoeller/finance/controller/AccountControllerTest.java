@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 class AccountControllerTest {
-
     private AccountService service;
     private AccountController controller;
 

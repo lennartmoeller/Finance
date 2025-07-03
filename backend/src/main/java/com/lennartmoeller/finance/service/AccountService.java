@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 

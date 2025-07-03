@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class StatsMetricDTOTest {
-
     @Test
     void testEmpty() {
         StatsMetricDTO dto = StatsMetricDTO.empty();

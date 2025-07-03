@@ -23,7 +23,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
             "spring.jpa.properties.hibernate.hbm2ddl.import_files="
         })
 class TransactionRepositoryTest {
-
     @Autowired
     private TransactionRepository transactionRepository;
 

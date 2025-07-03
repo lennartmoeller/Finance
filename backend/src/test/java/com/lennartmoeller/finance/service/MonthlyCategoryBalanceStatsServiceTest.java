@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MonthlyCategoryBalanceStatsServiceTest {
-
     private CategoryMapper categoryMapper;
     private CategoryRepository categoryRepository;
     private TransactionRepository transactionRepository;

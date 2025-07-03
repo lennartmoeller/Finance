@@ -12,7 +12,6 @@ import lombok.Getter;
 @Getter
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 public class DateRange {
-
     private final LocalDate startDate;
     private final LocalDate endDate;
 

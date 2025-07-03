@@ -10,7 +10,6 @@ import java.time.Year;
 import java.time.YearMonth;
 
 public class SmootherDaily extends Smoother<LocalDate> {
-
     @Override
     public void add(LocalDate date, CategorySmoothType smoothType, Long amount) {
         addRawToData(date, amount);

@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 class DailyBalanceProjectionTest {
-
     @Test
     void testSimpleImplementation() {
         Category category = new Category();
