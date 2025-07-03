@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
+import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ class BankTransactionMapperTest {
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
         BankTransaction entity = mapper.toEntity(dto);
 
-        assertEquals(dto.getIban(), entity.getIban());
+        assertNull(entity.getAccount());
         assertEquals(dto.getBookingDate(), entity.getBookingDate());
         assertEquals(dto.getPurpose(), entity.getPurpose());
         assertEquals(dto.getCounterparty(), entity.getCounterparty());
@@ -50,16 +51,18 @@ class BankTransactionMapperTest {
         BankTransaction entity = mapper.toEntity(dto);
 
         assertEquals("CAMT_V8", entity.getBank().name());
-        assertEquals(dto.getIban(), entity.getIban());
+        assertNull(entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
     }
 
     @Test
     void testToDto() {
         BankTransaction entity = new BankTransaction();
+        Account account = new Account();
+        account.setIban("DE123");
+        entity.setAccount(account);
         entity.setId(3L);
         entity.setBank(BankType.ING_V1);
-        entity.setIban("DE123");
         entity.setBookingDate(LocalDate.of(2024, 3, 3));
         entity.setPurpose("p");
         entity.setCounterparty("c");
@@ -69,6 +72,7 @@ class BankTransactionMapperTest {
         BankTransactionDTO dto = new BankTransactionMapperImpl().toDto(entity);
 
         assertEquals(entity.getId(), dto.getId());
+        assertEquals(account.getIban(), dto.getIban());
         assertEquals(entity.getData(), dto.getData());
     }
 
@@ -87,7 +91,7 @@ class BankTransactionMapperTest {
 
         BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto);
         assertEquals(dto.getBank(), entity.getBank());
-        assertEquals(dto.getIban(), entity.getIban());
+        assertNull(entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
     }
 

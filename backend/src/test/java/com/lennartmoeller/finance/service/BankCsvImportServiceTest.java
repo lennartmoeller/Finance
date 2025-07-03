@@ -9,8 +9,10 @@ import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
+import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
+import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +27,7 @@ class BankCsvImportServiceTest {
     private BankTransactionMapper mapper;
     private IngV1CsvParser ingParser;
     private CamtV8CsvParser camtParser;
+    private AccountRepository accountRepository;
     private BankCsvImportService service;
 
     @BeforeEach
@@ -33,7 +36,8 @@ class BankCsvImportServiceTest {
         mapper = mock(BankTransactionMapper.class);
         ingParser = mock(IngV1CsvParser.class);
         camtParser = mock(CamtV8CsvParser.class);
-        service = new BankCsvImportService(repository, mapper, ingParser, camtParser);
+        accountRepository = mock(AccountRepository.class);
+        service = new BankCsvImportService(repository, mapper, ingParser, camtParser, accountRepository);
     }
 
     @Test
@@ -47,7 +51,10 @@ class BankCsvImportServiceTest {
         dto.setAmount(1L);
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn(List.of(dto));
-        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+        Account account = new Account();
+        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                        eq(account), any(), any(), any(), any()))
                 .thenReturn(false);
         BankTransaction entity = new BankTransaction();
         when(mapper.toEntity(dto)).thenReturn(entity);
@@ -73,7 +80,10 @@ class BankCsvImportServiceTest {
         dto.setAmount(1L);
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn(List.of(dto));
-        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+        Account account = new Account();
+        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                        eq(account), any(), any(), any(), any()))
                 .thenReturn(true);
 
         List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
@@ -88,7 +98,10 @@ class BankCsvImportServiceTest {
         CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(camtParser.parse(any())).thenReturn(List.of(dto));
-        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+        Account account = new Account();
+        when(accountRepository.findByIban(null)).thenReturn(java.util.Optional.of(account));
+        when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                        eq(account), any(), any(), any(), any()))
                 .thenReturn(false);
         BankTransaction entity = new BankTransaction();
         when(mapper.toEntity(dto)).thenReturn(entity);
@@ -119,7 +132,10 @@ class BankCsvImportServiceTest {
 
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
         when(ingParser.parse(any())).thenReturn((List) List.of(dto1, dto2));
-        when(repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(any(), any(), any(), any(), any()))
+        Account account = new Account();
+        when(accountRepository.findByIban("DE")).thenReturn(java.util.Optional.of(account));
+        when(repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                        eq(account), any(), any(), any(), any()))
                 .thenReturn(false);
 
         BankTransaction e1 = new BankTransaction();
