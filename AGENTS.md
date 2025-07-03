@@ -50,6 +50,8 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
   - Don't use field injection like `@Autowired` and use constructor injection instead
 - Use the Stream API in favor of traditional for-loops for better readability and performance
 - Use Optionals to handle potential null values gracefully
+- Do not unnecessarily use fully qualified name, use import statements instead
+- Do not use the var reserved type name, use explicit types instead
 
 ### Java Tests
 
