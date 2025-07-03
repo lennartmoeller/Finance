@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
-@Table(
-        name = "bank_transactions",
-        uniqueConstraints =
-                @UniqueConstraint(columnNames = {"account", "booking_date", "purpose", "counterparty", "amount"}))
+@Table(name = "bank_transactions")
 public class BankTransaction extends BaseModel {
 
     @Id
@@ -45,5 +42,6 @@ public class BankTransaction extends BaseModel {
 
     @Lob
     @Convert(converter = MapToJsonStringConverter.class)
+    @Column(unique = true)
     private Map<String, String> data = new HashMap<>();
 }
