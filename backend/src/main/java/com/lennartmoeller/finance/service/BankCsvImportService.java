@@ -51,28 +51,35 @@ public class BankCsvImportService {
 
         return parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .map(dto -> {
-                    BankTransaction entity =
-                            switch (dto) {
-                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, accountMap);
-                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, accountMap);
-                                default -> mapper.toEntity(dto, accountMap);
-                            };
-
-                    if (entity.getAccount() == null) return null;
-
-                    boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                            entity.getAccount(),
-                            entity.getBookingDate(),
-                            entity.getPurpose(),
-                            entity.getCounterparty(),
-                            entity.getAmount());
-                    if (exists) return null;
-
-                    BankTransaction persisted = repository.save(entity);
-                    return mapper.toDto(persisted);
-                })
+                .map(dto -> processDto(dto, accountMap))
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private BankTransactionDTO processDto(BankTransactionDTO dto, Map<String, Account> accountMap) {
+        Account account = accountMap.get(dto.getIban());
+        BankTransaction entity =
+                switch (dto) {
+                    case IngV1TransactionDTO ing -> mapper.toEntity(ing, account);
+                    case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
+                    default -> mapper.toEntity(dto, account);
+                };
+
+        if (entity.getAccount() == null) {
+            return null;
+        }
+
+        boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                entity.getAccount(),
+                entity.getBookingDate(),
+                entity.getPurpose(),
+                entity.getCounterparty(),
+                entity.getAmount());
+        if (exists) {
+            return null;
+        }
+
+        BankTransaction persisted = repository.save(entity);
+        return mapper.toDto(persisted);
     }
 }

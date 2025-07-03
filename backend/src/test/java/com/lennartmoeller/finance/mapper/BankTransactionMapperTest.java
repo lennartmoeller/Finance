@@ -25,12 +25,10 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("a", "b");
 
-        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        accounts.put("DE123", acc);
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, accounts);
+        BankTransaction entity = mapper.toEntity(dto, acc);
 
         assertSame(acc, entity.getAccount());
         assertEquals(dto.getBookingDate(), entity.getBookingDate());
@@ -52,12 +50,10 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("x", "y");
 
-        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        accounts.put("DE456", acc);
 
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, accounts);
+        BankTransaction entity = mapper.toEntity(dto, acc);
 
         assertEquals("CAMT_V8", entity.getBank().name());
         assertSame(acc, entity.getAccount());
@@ -98,11 +94,9 @@ class BankTransactionMapperTest {
         dto.setData(new java.util.HashMap<>());
         dto.getData().put("k", "v");
 
-        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
         Account acc = new Account();
-        accounts.put("DE", acc);
 
-        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, accounts);
+        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, acc);
         assertEquals(dto.getBank(), entity.getBank());
         assertSame(acc, entity.getAccount());
         assertEquals(dto.getData(), entity.getData());
@@ -111,11 +105,11 @@ class BankTransactionMapperTest {
     @Test
     void nullInputsReturnNull() {
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        java.util.Map<String, Account> accounts = java.util.Collections.emptyMap();
+        Account acc = null;
         assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity((BankTransactionDTO) null, accounts));
-        assertNull(mapper.toEntity((IngV1TransactionDTO) null, accounts));
-        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, accounts));
+        assertNull(mapper.toEntity((BankTransactionDTO) null, acc));
+        assertNull(mapper.toEntity((IngV1TransactionDTO) null, acc));
+        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, acc));
     }
 
     @Test
@@ -127,37 +121,16 @@ class BankTransactionMapperTest {
 
         BankTransactionDTO base = new BankTransactionDTO();
         base.setData(null);
-        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, java.util.Collections.emptyMap());
+        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, null);
         assertTrue(mapped.getData().isEmpty());
 
         IngV1TransactionDTO ing = new IngV1TransactionDTO();
         ing.setData(null);
-        assertTrue(new BankTransactionMapperImpl()
-                .toEntity(ing, java.util.Collections.emptyMap())
-                .getData()
-                .isEmpty());
+        assertTrue(new BankTransactionMapperImpl().toEntity(ing, null).getData().isEmpty());
 
         CamtV8TransactionDTO camt = new CamtV8TransactionDTO();
         camt.setData(null);
-        assertTrue(new BankTransactionMapperImpl()
-                .toEntity(camt, java.util.Collections.emptyMap())
-                .getData()
-                .isEmpty());
-    }
-
-    @Test
-    void testMappingHelper() throws Exception {
-        BankTransactionMapperImpl mapper = new BankTransactionMapperImpl();
-        java.util.Map<String, Account> accounts = new java.util.HashMap<>();
-        Account account = new Account();
-        accounts.put("IBAN", account);
-
-        java.lang.reflect.Method helper =
-                BankTransactionMapper.class.getDeclaredMethod("mapIbanToAccount", String.class, java.util.Map.class);
-        helper.setAccessible(true);
-
-        assertSame(account, helper.invoke(mapper, "IBAN", accounts));
-        assertNull(helper.invoke(mapper, null, accounts));
-        assertNull(helper.invoke(mapper, "MISSING", accounts));
+        assertTrue(
+                new BankTransactionMapperImpl().toEntity(camt, null).getData().isEmpty());
     }
 }
