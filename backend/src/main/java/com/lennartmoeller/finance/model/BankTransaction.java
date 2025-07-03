@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Table(
         name = "bank_transactions",
         uniqueConstraints =
-                @UniqueConstraint(columnNames = {"iban", "booking_date", "purpose", "counterparty", "amount"}))
+                @UniqueConstraint(columnNames = {"account", "booking_date", "purpose", "counterparty", "amount"}))
 public class BankTransaction extends BaseModel {
 
     @Id
@@ -27,8 +27,9 @@ public class BankTransaction extends BaseModel {
     @Column(nullable = false)
     private BankType bank;
 
-    @Column(nullable = false)
-    private String iban;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account", nullable = false)
+    private Account account;
 
     @Column(name = "booking_date", nullable = false)
     private LocalDate bookingDate;
