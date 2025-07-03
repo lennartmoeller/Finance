@@ -1,10 +1,9 @@
 package com.lennartmoeller.finance.controller;
 
-import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.service.BankCsvImportService;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +19,7 @@ public class BankTransactionController {
     private final BankCsvImportService importService;
 
     @PostMapping("/import")
-    public List<BankTransactionDTO> importCsv(
+    public BankTransactionImportResultDTO importCsv(
             @RequestParam("type") BankType type, @RequestParam("file") MultipartFile file) throws IOException {
         return importService.importCsv(type, file);
     }

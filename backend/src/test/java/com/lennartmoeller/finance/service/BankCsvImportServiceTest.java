@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
@@ -65,9 +66,10 @@ class BankCsvImportServiceTest {
         BankTransactionDTO resultDto = new BankTransactionDTO();
         when(mapper.toDto(saved)).thenReturn(resultDto);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(resultDto), result);
+        assertEquals(List.of(resultDto), result.getSaved());
+        assertTrue(result.getUnsaved().isEmpty());
         verify(repository).save(entity);
     }
 
@@ -92,9 +94,10 @@ class BankCsvImportServiceTest {
                         eq(account), any(), any(), any(), any()))
                 .thenReturn(true);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.getSaved().isEmpty());
+        assertEquals(List.of(dto), result.getUnsaved());
         verify(repository, never()).save(any());
     }
 
@@ -108,9 +111,10 @@ class BankCsvImportServiceTest {
                 .thenReturn(java.util.Collections.emptyList());
         when(mapper.toEntity(eq(dto), isNull())).thenReturn(new BankTransaction());
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.CAMT_V8, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.CAMT_V8, file);
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.getSaved().isEmpty());
+        assertEquals(List.of(dto), result.getUnsaved());
         verify(repository, never()).save(any());
     }
 
@@ -149,8 +153,9 @@ class BankCsvImportServiceTest {
         when(mapper.toDto(same(e1))).thenReturn(dto1);
         when(mapper.toDto(same(e2))).thenReturn(dto2);
 
-        List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(dto2, dto1), result);
+        assertEquals(List.of(dto2, dto1), result.getSaved());
+        assertTrue(result.getUnsaved().isEmpty());
     }
 }

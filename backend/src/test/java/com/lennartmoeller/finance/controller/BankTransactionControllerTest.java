@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.service.BankCsvImportService;
 import java.io.IOException;
@@ -27,11 +28,13 @@ class BankTransactionControllerTest {
     void testImportCsv() throws IOException {
         MultipartFile file = mock(MultipartFile.class);
         BankTransactionDTO dto = new BankTransactionDTO();
-        when(service.importCsv(BankType.ING_V1, file)).thenReturn(List.of(dto));
+        BankTransactionImportResultDTO resultDto = new BankTransactionImportResultDTO(List.of(dto), List.of());
+        when(service.importCsv(BankType.ING_V1, file)).thenReturn(resultDto);
 
-        List<BankTransactionDTO> result = controller.importCsv(BankType.ING_V1, file);
+        BankTransactionImportResultDTO result = controller.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(dto), result);
+        assertEquals(List.of(dto), result.getSaved());
+        assertTrue(result.getUnsaved().isEmpty());
         verify(service).importCsv(BankType.ING_V1, file);
     }
 }

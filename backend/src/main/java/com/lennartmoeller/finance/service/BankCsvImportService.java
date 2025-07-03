@@ -3,6 +3,7 @@ package com.lennartmoeller.finance.service;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
@@ -32,7 +33,7 @@ public class BankCsvImportService {
     private final CamtV8CsvParser camtParser;
     private final AccountRepository accountRepository;
 
-    public List<BankTransactionDTO> importCsv(BankType type, MultipartFile file) throws IOException {
+    public BankTransactionImportResultDTO importCsv(BankType type, MultipartFile file) throws IOException {
         List<? extends BankTransactionDTO> parsed;
         try (var is = file.getInputStream()) {
             parsed = switch (type) {
@@ -49,14 +50,21 @@ public class BankCsvImportService {
         Map<String, Account> accountMap =
                 accountRepository.findAllByIbanIn(ibans).stream().collect(Collectors.toMap(Account::getIban, a -> a));
 
-        return parsed.stream()
+        List<BankTransactionDTO> saved = new java.util.ArrayList<>();
+        List<BankTransactionDTO> unsaved = new java.util.ArrayList<>();
+
+        parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .map(dto -> processDto(dto, accountMap))
-                .filter(Objects::nonNull)
-                .toList();
+                .forEach(dto -> processDto(dto, accountMap, saved, unsaved));
+
+        return new BankTransactionImportResultDTO(saved, unsaved);
     }
 
-    private BankTransactionDTO processDto(BankTransactionDTO dto, Map<String, Account> accountMap) {
+    private void processDto(
+            BankTransactionDTO dto,
+            Map<String, Account> accountMap,
+            List<BankTransactionDTO> saved,
+            List<BankTransactionDTO> unsaved) {
         Account account = accountMap.get(dto.getIban());
         BankTransaction entity =
                 switch (dto) {
@@ -66,7 +74,8 @@ public class BankCsvImportService {
                 };
 
         if (entity.getAccount() == null) {
-            return null;
+            unsaved.add(dto);
+            return;
         }
 
         boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
@@ -76,10 +85,11 @@ public class BankCsvImportService {
                 entity.getCounterparty(),
                 entity.getAmount());
         if (exists) {
-            return null;
+            unsaved.add(dto);
+            return;
         }
 
         BankTransaction persisted = repository.save(entity);
-        return mapper.toDto(persisted);
+        saved.add(mapper.toDto(persisted));
     }
 }
