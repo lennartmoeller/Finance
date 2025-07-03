@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
@@ -104,11 +103,10 @@ class BankTransactionMapperTest {
     @Test
     void nullInputsReturnNull() {
         BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        Account acc = null;
         assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity((BankTransactionDTO) null, acc));
-        assertNull(mapper.toEntity((IngV1TransactionDTO) null, acc));
-        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, acc));
+        assertNull(mapper.toEntity((BankTransactionDTO) null, null));
+        assertNull(mapper.toEntity((IngV1TransactionDTO) null, null));
+        assertNull(mapper.toEntity((CamtV8TransactionDTO) null, null));
     }
 
     @Test
