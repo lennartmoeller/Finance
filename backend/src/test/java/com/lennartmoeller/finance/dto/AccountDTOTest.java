@@ -12,12 +12,14 @@ class AccountDTOTest {
         AccountDTO dto = new AccountDTO();
         dto.setId(3L);
         dto.setLabel("Checking");
+        dto.setIban("DE123");
         dto.setStartBalance(200L);
         dto.setActive(true);
         dto.setDeposits(false);
 
         assertEquals(3L, dto.getId());
         assertEquals("Checking", dto.getLabel());
+        assertEquals("DE123", dto.getIban());
         assertEquals(200L, dto.getStartBalance());
         assertTrue(dto.getActive());
         assertFalse(dto.getDeposits());
