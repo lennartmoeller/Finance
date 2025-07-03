@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
+import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -20,6 +22,8 @@ class TransactionServiceTest {
     private CategoryService categoryService;
     private TransactionRepository transactionRepository;
     private TransactionMapper transactionMapper;
+    private AccountRepository accountRepository;
+    private CategoryRepository categoryRepository;
     private TransactionService service;
 
     @BeforeEach
@@ -27,7 +31,10 @@ class TransactionServiceTest {
         categoryService = mock(CategoryService.class);
         transactionRepository = mock(TransactionRepository.class);
         transactionMapper = mock(TransactionMapper.class);
-        service = new TransactionService(categoryService, transactionRepository, transactionMapper);
+        accountRepository = mock(AccountRepository.class);
+        categoryRepository = mock(CategoryRepository.class);
+        service = new TransactionService(
+                categoryService, transactionRepository, transactionMapper, accountRepository, categoryRepository);
     }
 
     @Test
@@ -104,7 +111,8 @@ class TransactionServiceTest {
         Transaction saved = new Transaction();
         TransactionDTO dtoOut = new TransactionDTO();
 
-        when(transactionMapper.toEntity(dtoIn)).thenReturn(entity);
+        when(transactionMapper.toEntity(dtoIn, accountRepository, categoryRepository))
+                .thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(saved);
         when(transactionMapper.toDto(saved)).thenReturn(dtoOut);
 

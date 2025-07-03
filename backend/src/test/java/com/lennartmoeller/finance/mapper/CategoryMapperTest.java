@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 
 class CategoryMapperTest {
 
-    private static void inject(Object target, Class<?> owner, String fieldName, Object value) throws Exception {
-        Field f = owner.getDeclaredField(fieldName);
+    private static void inject(Object target, String fieldName, Object value) throws Exception {
+        Field f = target.getClass().getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(target, value);
     }
@@ -45,7 +45,7 @@ class CategoryMapperTest {
 
         TargetMapperImpl targetMapper = new TargetMapperImpl();
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, CategoryMapperImpl.class, "targetMapper", targetMapper);
+        inject(mapper, "targetMapper", targetMapper);
 
         CategoryDTO dto = mapper.toDto(child);
 
@@ -79,7 +79,7 @@ class CategoryMapperTest {
     void testNullValues() {
         CategoryMapperImpl mapper = new CategoryMapperImpl();
         assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity(null));
+        assertNull(mapper.toEntity(null, mock(CategoryRepository.class)));
     }
 
     @Test
@@ -93,7 +93,7 @@ class CategoryMapperTest {
 
         CategoryDTO dto2 = new CategoryDTO();
         dto2.setTargets(null);
-        Category entity = mapper.toEntity(dto2);
+        Category entity = mapper.toEntity(dto2, mock(CategoryRepository.class));
         assertNull(entity.getTargets());
     }
 
@@ -110,11 +110,8 @@ class CategoryMapperTest {
         when(repo.findById(2L)).thenReturn(Optional.of(childFromRepo));
 
         TargetMapperImpl targetMapper = new TargetMapperImpl();
-        inject(targetMapper, TargetMapper.class, "categoryRepository", repo);
-
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
-        inject(mapper, CategoryMapperImpl.class, "targetMapper", targetMapper);
+        inject(mapper, "targetMapper", targetMapper);
 
         TargetDTO targetDTO = new TargetDTO();
         targetDTO.setId(5L);
@@ -130,7 +127,7 @@ class CategoryMapperTest {
         dto.setIcon("icon");
         dto.setTargets(List.of(targetDTO));
 
-        Category entity = mapper.toEntity(dto);
+        Category entity = mapper.toEntity(dto, repo);
 
         assertEquals(dto.getId(), entity.getId());
         assertEquals(dto.getLabel(), entity.getLabel());
@@ -153,11 +150,10 @@ class CategoryMapperTest {
         CategoryRepository repo = mock(CategoryRepository.class);
         when(repo.findById(1L)).thenReturn(Optional.empty());
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
         CategoryDTO dto = new CategoryDTO();
         dto.setParentId(1L);
 
-        Category entity = mapper.toEntity(dto);
+        Category entity = mapper.toEntity(dto, repo);
         assertNull(entity.getParent());
         verify(repo).findById(1L);
     }
@@ -166,12 +162,11 @@ class CategoryMapperTest {
     void testToEntityNullFields() throws Exception {
         CategoryRepository repo = mock(CategoryRepository.class);
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
 
         CategoryDTO dto = new CategoryDTO();
         dto.setTargets(List.of());
 
-        Category entity = mapper.toEntity(dto);
+        Category entity = mapper.toEntity(dto, repo);
         assertNull(entity.getParent());
         assertNotNull(entity.getTargets());
         assertTrue(entity.getTargets().isEmpty());
@@ -182,16 +177,16 @@ class CategoryMapperTest {
     void testMappingHelpers() throws Exception {
         CategoryRepository repo = mock(CategoryRepository.class);
         CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, CategoryMapper.class, "categoryRepository", repo);
 
         Category parent = new Category();
         parent.setId(5L);
         when(repo.findById(5L)).thenReturn(Optional.of(parent));
 
-        Method toParent = CategoryMapper.class.getDeclaredMethod("mapParentIdToParent", Long.class);
+        Method toParent =
+                CategoryMapper.class.getDeclaredMethod("mapParentIdToParent", Long.class, CategoryRepository.class);
         toParent.setAccessible(true);
-        assertSame(parent, toParent.invoke(mapper, 5L));
-        assertNull(toParent.invoke(mapper, (Object) null));
+        assertSame(parent, toParent.invoke(mapper, 5L, repo));
+        assertNull(toParent.invoke(mapper, null, repo));
         Method toId = CategoryMapper.class.getDeclaredMethod("mapParentToParentId", Category.class);
         toId.setAccessible(true);
         assertEquals(5L, toId.invoke(mapper, parent));

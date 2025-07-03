@@ -11,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
 @Table(
         name = "bank_transactions",
         uniqueConstraints =
                 @UniqueConstraint(columnNames = {"iban", "booking_date", "purpose", "counterparty", "amount"}))
-public class BankTransaction {
+public class BankTransaction extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
