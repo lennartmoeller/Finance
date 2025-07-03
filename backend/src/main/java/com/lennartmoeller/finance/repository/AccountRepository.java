@@ -23,4 +23,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 		FROM Account a
 		""")
     Long getSummedStartBalance();
+
+    java.util.Optional<Account> findByIban(String iban);
 }

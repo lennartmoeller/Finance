@@ -8,6 +8,7 @@ import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
+import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
 import java.util.Comparator;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BankCsvImportService {
 
     private final BankTransactionRepository repository;
+    private final AccountRepository accountRepository;
     private final BankTransactionMapper mapper;
     private final IngV1CsvParser ingParser;
     private final CamtV8CsvParser camtParser;
@@ -36,18 +38,31 @@ public class BankCsvImportService {
 
         return parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .filter(dto -> !repository.existsByIbanAndBookingDateAndPurposeAndCounterpartyAndAmount(
-                        dto.getIban(), dto.getBookingDate(), dto.getPurpose(), dto.getCounterparty(), dto.getAmount()))
                 .map(dto -> {
+                    var account = accountRepository.findByIban(dto.getIban());
+                    if (account.isEmpty()) {
+                        return null;
+                    }
+                    dto.setAccountId(account.get().getId());
+                    boolean exists = repository.existsByAccountAndBookingDateAndPurposeAndCounterpartyAndAmount(
+                            account.get(),
+                            dto.getBookingDate(),
+                            dto.getPurpose(),
+                            dto.getCounterparty(),
+                            dto.getAmount());
+                    if (exists) {
+                        return null;
+                    }
                     BankTransaction entity =
                             switch (dto) {
-                                case IngV1TransactionDTO ing -> mapper.toEntity(ing);
-                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt);
-                                default -> mapper.toEntity(dto);
+                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, accountRepository);
+                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, accountRepository);
+                                default -> mapper.toEntity(dto, accountRepository);
                             };
                     BankTransaction persisted = repository.save(entity);
                     return mapper.toDto(persisted);
                 })
+                .filter(java.util.Objects::nonNull)
                 .toList();
     }
 }

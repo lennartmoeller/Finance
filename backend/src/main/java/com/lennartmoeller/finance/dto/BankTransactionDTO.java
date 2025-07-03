@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 public class BankTransactionDTO {
     private Long id;
     private BankType bank;
+    private Long accountId;
     private String iban;
     private LocalDate bookingDate;
     private String purpose;
