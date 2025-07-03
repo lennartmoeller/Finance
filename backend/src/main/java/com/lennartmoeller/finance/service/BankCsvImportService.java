@@ -39,13 +39,7 @@ public class BankCsvImportService {
         return parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
                 .map(dto -> {
-                    String iban =
-                            switch (dto) {
-                                case IngV1TransactionDTO ing -> ing.getIban();
-                                case CamtV8TransactionDTO camt -> camt.getIban();
-                                default -> null;
-                            };
-                    var account = accountRepository.findByIban(iban);
+                    var account = accountRepository.findByIban(dto.getIban());
                     if (account.isEmpty()) {
                         return null;
                     }

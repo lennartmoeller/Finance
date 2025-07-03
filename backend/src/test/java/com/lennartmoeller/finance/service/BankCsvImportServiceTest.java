@@ -119,14 +119,14 @@ class BankCsvImportServiceTest {
     @Test
     void testImportCsvDefaultAndSorting() throws IOException {
         MultipartFile file = mock(MultipartFile.class);
-        IngV1TransactionDTO dto1 = new IngV1TransactionDTO();
+        BankTransactionDTO dto1 = new BankTransactionDTO();
         dto1.setIban("DE");
         dto1.setBookingDate(java.time.LocalDate.of(2024, 2, 2));
         dto1.setPurpose("p1");
         dto1.setCounterparty("c");
         dto1.setAmount(1L);
 
-        IngV1TransactionDTO dto2 = new IngV1TransactionDTO();
+        BankTransactionDTO dto2 = new BankTransactionDTO();
         dto2.setIban("DE");
         dto2.setBookingDate(java.time.LocalDate.of(2024, 1, 1));
         dto2.setPurpose("p2");
