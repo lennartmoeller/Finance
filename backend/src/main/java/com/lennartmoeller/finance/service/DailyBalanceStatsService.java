@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DailyBalanceStatsService {
-
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 

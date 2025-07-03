@@ -15,7 +15,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @MappedSuperclass
 public abstract class BaseModel {
-
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
 

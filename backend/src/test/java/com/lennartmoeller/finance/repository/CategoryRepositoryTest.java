@@ -21,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
             "spring.jpa.properties.hibernate.hbm2ddl.import_files="
         })
 class CategoryRepositoryTest {
-
     @Autowired
     private CategoryRepository categoryRepository;
 

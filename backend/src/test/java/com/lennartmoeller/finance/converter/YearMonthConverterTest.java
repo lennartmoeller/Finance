@@ -7,7 +7,6 @@ import java.time.YearMonth;
 import org.junit.jupiter.api.Test;
 
 class YearMonthConverterTest {
-
     private final YearMonthConverter converter = new YearMonthConverter();
 
     @Test

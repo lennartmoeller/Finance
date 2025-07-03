@@ -7,7 +7,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public interface BankCsvParser<T extends BankTransactionDTO> {
-
     @Nonnull
     List<T> parse(@Nonnull InputStream inputStream) throws IOException;
 }

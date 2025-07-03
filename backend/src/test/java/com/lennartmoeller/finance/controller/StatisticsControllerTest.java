@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class StatisticsControllerTest {
-
     private DailyBalanceStatsService dailyService;
     private MonthlyCategoryBalanceStatsService categoryService;
     private MonthlySavingStatsService savingService;

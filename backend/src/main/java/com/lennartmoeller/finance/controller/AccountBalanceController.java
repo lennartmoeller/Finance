@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/accountBalances")
 @RequiredArgsConstructor
 public class AccountBalanceController {
-
     private final AccountBalanceService accountBalanceService;
 
     @GetMapping

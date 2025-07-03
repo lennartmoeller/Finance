@@ -16,7 +16,6 @@ import org.mapstruct.Named;
         uses = {AccountMapper.class, CategoryMapper.class},
         unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface TransactionMapper {
-
     @Mapping(source = "account.id", target = "accountId")
     @Mapping(source = "category.id", target = "categoryId")
     TransactionDTO toDto(Transaction transaction);

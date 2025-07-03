@@ -10,7 +10,6 @@ import lombok.Getter;
 @Getter
 @EqualsAndHashCode
 public final class YearHalf implements Comparable<YearHalf> {
-
     private final int year;
     private final int half;
 

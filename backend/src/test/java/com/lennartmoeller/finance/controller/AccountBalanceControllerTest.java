@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AccountBalanceControllerTest {
-
     private AccountBalanceService service;
     private AccountBalanceController controller;
 

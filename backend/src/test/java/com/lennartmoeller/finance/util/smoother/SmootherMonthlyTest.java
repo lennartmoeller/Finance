@@ -8,7 +8,6 @@ import java.time.YearMonth;
 import org.junit.jupiter.api.Test;
 
 class SmootherMonthlyTest {
-
     @Test
     void testAddMonthly() {
         SmootherMonthly smoother = new SmootherMonthly();

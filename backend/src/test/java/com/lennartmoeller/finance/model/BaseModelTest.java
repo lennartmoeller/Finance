@@ -15,7 +15,6 @@ import org.springframework.test.context.TestConstructor;
         })
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class BaseModelTest {
-
     private final AccountRepository accountRepository;
 
     BaseModelTest(AccountRepository accountRepository) {

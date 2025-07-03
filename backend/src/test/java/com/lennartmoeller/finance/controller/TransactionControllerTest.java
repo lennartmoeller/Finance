@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 class TransactionControllerTest {
-
     private TransactionService service;
     private TransactionController controller;
 

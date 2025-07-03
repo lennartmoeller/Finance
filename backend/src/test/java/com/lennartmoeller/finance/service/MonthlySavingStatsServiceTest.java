@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MonthlySavingStatsServiceTest {
-
     private DailyBalanceStatsService dailyBalanceStatsService;
     private MonthlyCategoryBalanceStatsService monthlyCategoryBalanceStatsService;
     private InflationRateRepository inflationRateRepository;

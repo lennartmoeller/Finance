@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 class TargetTest {
-
     @Test
     void testGettersAndSetters() {
         Target target = new Target();

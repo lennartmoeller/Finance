@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AccountBalanceServiceTest {
-
     private AccountRepository accountRepository;
     private AccountBalanceService service;
 

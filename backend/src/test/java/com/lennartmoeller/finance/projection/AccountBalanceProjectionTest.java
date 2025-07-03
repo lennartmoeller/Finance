@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 class AccountBalanceProjectionTest {
-
     @Test
     void testSimpleImplementation() {
         AccountBalanceProjection p = new SimpleProjection(1L, 200L, 3L);

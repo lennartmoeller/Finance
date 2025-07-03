@@ -11,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class YearHalfTest {
-
     @ParameterizedTest
     @CsvSource({
         "2021, 1, 2021-01-01, 2021-06-30",

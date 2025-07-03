@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
-
     @Query(
             """
 		    SELECT a.id as accountId, COALESCE(SUM(t.amount), 0) + a.startBalance as balance, COUNT(t.id) as transactionCount

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/stats")
 public class StatisticsController {
-
     private final DailyBalanceStatsService dailyBalanceStatsService;
     private final MonthlyCategoryBalanceStatsService monthlyCategoryBalanceStatsService;
     private final MonthlySavingStatsService monthlySavingStatsService;

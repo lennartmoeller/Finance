@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface BankTransactionMapper {
-
     @Mapping(source = "account.iban", target = "iban")
     BankTransactionDTO toDto(BankTransaction entity);
 

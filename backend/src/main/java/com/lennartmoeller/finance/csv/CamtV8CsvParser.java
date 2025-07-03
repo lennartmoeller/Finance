@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
-
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yy");
 
     @Override

@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 class BankTransactionMapperTest {
-
     @Test
     void testIngV1ToEntity() {
         IngV1TransactionDTO dto = new IngV1TransactionDTO();

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AccountServiceTest {
-
     private AccountRepository accountRepository;
     private AccountMapper accountMapper;
     private AccountService accountService;

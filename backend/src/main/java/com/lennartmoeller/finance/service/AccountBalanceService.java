@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AccountBalanceService {
-
     private final AccountRepository accountRepository;
 
     public List<AccountBalanceDTO> findAll() {

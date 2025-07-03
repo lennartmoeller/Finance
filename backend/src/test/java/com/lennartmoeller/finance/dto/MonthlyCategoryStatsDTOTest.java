@@ -9,7 +9,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class MonthlyCategoryStatsDTOTest {
-
     private static CellStatsDTO cell(double raw) {
         StatsMetricDTO m = new StatsMetricDTO();
         m.setRaw(raw);

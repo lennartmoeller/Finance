@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 class CategorySmoothTypeTest {
-
     @Test
     void testEnumValues() {
         CategorySmoothType[] values = CategorySmoothType.values();

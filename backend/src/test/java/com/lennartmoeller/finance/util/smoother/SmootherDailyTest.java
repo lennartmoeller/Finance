@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 class SmootherDailyTest {
-
     @Test
     void testAddDaily() {
         SmootherDaily smoother = new SmootherDaily();

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TransactionServiceTest {
-
     private CategoryService categoryService;
     private TransactionRepository transactionRepository;
     private TransactionMapper transactionMapper;

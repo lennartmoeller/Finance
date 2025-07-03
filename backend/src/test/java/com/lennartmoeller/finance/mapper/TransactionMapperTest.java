@@ -15,7 +15,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class TransactionMapperTest {
-
     @Test
     void testToDto() {
         Account account = new Account();

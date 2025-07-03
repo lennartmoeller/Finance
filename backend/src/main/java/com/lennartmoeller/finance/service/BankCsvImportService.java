@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class BankCsvImportService {
-
     private final BankTransactionRepository repository;
     private final BankTransactionMapper mapper;
     private final IngV1CsvParser ingParser;

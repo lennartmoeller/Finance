@@ -7,7 +7,6 @@ import org.mockito.MockedStatic;
 import org.springframework.boot.SpringApplication;
 
 class FinanceApplicationTest {
-
     @Test
     void mainStartsApplication() {
         try (MockedStatic<SpringApplication> mocked = mockStatic(SpringApplication.class)) {

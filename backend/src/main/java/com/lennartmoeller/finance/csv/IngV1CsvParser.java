@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
-
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     @Override

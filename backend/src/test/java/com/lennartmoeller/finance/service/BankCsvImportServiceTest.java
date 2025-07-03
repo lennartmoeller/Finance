@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.multipart.MultipartFile;
 
 class BankCsvImportServiceTest {
-
     private BankTransactionRepository repository;
     private BankTransactionMapper mapper;
     private IngV1CsvParser ingParser;

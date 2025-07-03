@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Smoother<T> {
-
     protected final Map<T, StatsMetricDTO> data;
 
     protected Smoother() {
