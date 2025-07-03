@@ -3,6 +3,8 @@ package com.lennartmoeller.finance.service;
 import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
+import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.YearMonth;
 import java.util.Comparator;
@@ -19,6 +21,8 @@ public class TransactionService {
     private final CategoryService categoryService;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
+    private final AccountRepository accountRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<TransactionDTO> findFiltered(
             @Nullable List<Long> accountIds,
@@ -44,7 +48,7 @@ public class TransactionService {
     }
 
     public TransactionDTO save(TransactionDTO transactionDTO) {
-        Transaction transaction = transactionMapper.toEntity(transactionDTO);
+        Transaction transaction = transactionMapper.toEntity(transactionDTO, accountRepository, categoryRepository);
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(savedTransaction);
     }

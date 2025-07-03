@@ -85,7 +85,7 @@ class CategoryServiceTest {
         Category saved = new Category();
         CategoryDTO output = new CategoryDTO();
 
-        when(categoryMapper.toEntity(input)).thenReturn(entity);
+        when(categoryMapper.toEntity(input, categoryRepository)).thenReturn(entity);
         when(categoryRepository.save(entity)).thenReturn(saved);
         when(categoryMapper.toDto(saved)).thenReturn(output);
 

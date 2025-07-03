@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
 @Table(name = "targets")
-public class Target {
+public class Target extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
