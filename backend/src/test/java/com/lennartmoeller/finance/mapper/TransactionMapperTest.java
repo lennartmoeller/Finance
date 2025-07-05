@@ -5,9 +5,11 @@ import static org.mockito.Mockito.*;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.model.Account;
+import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -29,6 +31,10 @@ class TransactionMapperTest {
         tx.setDate(LocalDate.of(2024, 1, 1));
         tx.setAmount(500L);
         tx.setDescription("Desc");
+        BankTransaction btx = new BankTransaction();
+        btx.setId(7L);
+        tx.setBankTransaction(btx);
+        tx.setPinned(true);
 
         TransactionMapper mapper = new TransactionMapperImpl();
         TransactionDTO dto = mapper.toDto(tx);
@@ -39,6 +45,8 @@ class TransactionMapperTest {
         assertEquals(tx.getDate(), dto.getDate());
         assertEquals(tx.getAmount(), dto.getAmount());
         assertEquals(tx.getDescription(), dto.getDescription());
+        assertEquals(btx.getId(), dto.getBankTransactionId());
+        assertEquals(true, dto.getPinned());
     }
 
     @Test
@@ -50,12 +58,15 @@ class TransactionMapperTest {
         TransactionDTO dto = mapper.toDto(tx);
         assertNull(dto.getAccountId());
         assertNull(dto.getCategoryId());
+        assertNull(dto.getBankTransactionId());
+        assertEquals(false, dto.getPinned());
     }
 
     @Test
     void testToEntityUsesRepositories() {
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
+        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
 
         Account account = new Account();
         account.setId(2L);
@@ -71,11 +82,16 @@ class TransactionMapperTest {
         dto.setId(4L);
         dto.setAccountId(2L);
         dto.setCategoryId(3L);
+        dto.setBankTransactionId(5L);
         dto.setDate(LocalDate.of(2024, 2, 2));
         dto.setAmount(600L);
         dto.setDescription("Desc");
 
-        Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
+        BankTransaction btx = new BankTransaction();
+        btx.setId(5L);
+        when(bankRepo.findById(5L)).thenReturn(Optional.of(btx));
+
+        Transaction entity = mapper.toEntity(dto, accRepo, catRepo, bankRepo);
 
         assertEquals(dto.getId(), entity.getId());
         assertSame(account, entity.getAccount());
@@ -83,29 +99,34 @@ class TransactionMapperTest {
         assertEquals(dto.getDate(), entity.getDate());
         assertEquals(dto.getAmount(), entity.getAmount());
         assertEquals(dto.getDescription(), entity.getDescription());
+        assertSame(btx, entity.getBankTransaction());
         verify(accRepo).findById(2L);
         verify(catRepo).findById(3L);
+        verify(bankRepo).findById(5L);
     }
 
     @Test
     void testToEntityNullsAndMissing() {
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
+        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
         when(accRepo.findById(1L)).thenReturn(Optional.empty());
         when(catRepo.findById(2L)).thenReturn(Optional.empty());
 
         TransactionMapperImpl mapper = new TransactionMapperImpl();
 
-        assertNull(mapper.toEntity(null, accRepo, catRepo));
+        assertNull(mapper.toEntity(null, accRepo, catRepo, bankRepo));
         TransactionDTO dto = new TransactionDTO();
         dto.setAccountId(1L);
         dto.setCategoryId(2L);
+        dto.setBankTransactionId(9L);
 
-        Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
+        Transaction entity = mapper.toEntity(dto, accRepo, catRepo, bankRepo);
         assertNull(entity.getAccount());
         assertNull(entity.getCategory());
         verify(accRepo).findById(1L);
         verify(catRepo).findById(2L);
+        verify(bankRepo).findById(9L);
     }
 
     @Test
@@ -113,6 +134,7 @@ class TransactionMapperTest {
         TransactionMapperImpl mapper = new TransactionMapperImpl();
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
+        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
 
         Account account = new Account();
         account.setId(11L);
@@ -120,6 +142,9 @@ class TransactionMapperTest {
         Category category = new Category();
         category.setId(12L);
         when(catRepo.findById(12L)).thenReturn(Optional.of(category));
+        BankTransaction bankTx = new BankTransaction();
+        bankTx.setId(13L);
+        when(bankRepo.findById(13L)).thenReturn(Optional.of(bankTx));
 
         Method idToAcc =
                 TransactionMapper.class.getDeclaredMethod("mapAccountIdToAccount", Long.class, AccountRepository.class);
@@ -142,5 +167,17 @@ class TransactionMapperTest {
         catToId.setAccessible(true);
         assertEquals(12L, catToId.invoke(mapper, category));
         assertNull(catToId.invoke(mapper, (Object) null));
+
+        Method idToBank = TransactionMapper.class.getDeclaredMethod(
+                "mapBankTransactionIdToBankTransaction", Long.class, BankTransactionRepository.class);
+        idToBank.setAccessible(true);
+        assertSame(bankTx, idToBank.invoke(mapper, 13L, bankRepo));
+        assertNull(idToBank.invoke(mapper, null, bankRepo));
+
+        Method bankToId = TransactionMapper.class.getDeclaredMethod(
+                "mapBankTransactionToBankTransactionId", BankTransaction.class);
+        bankToId.setAccessible(true);
+        assertEquals(13L, bankToId.invoke(mapper, bankTx));
+        assertNull(bankToId.invoke(mapper, (Object) null));
     }
 }

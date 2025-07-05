@@ -2,6 +2,7 @@ package com.lennartmoeller.finance.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -35,4 +36,9 @@ public class Transaction extends BaseModel {
 
     @Column(nullable = false)
     private Boolean pinned = false;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_transaction", unique = true)
+    @Nullable
+    private BankTransaction bankTransaction;
 }

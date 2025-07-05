@@ -8,6 +8,7 @@ import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
+import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ class TransactionServiceTest {
     private TransactionMapper transactionMapper;
     private AccountRepository accountRepository;
     private CategoryRepository categoryRepository;
+    private BankTransactionRepository bankTransactionRepository;
     private TransactionService service;
 
     @BeforeEach
@@ -32,8 +34,14 @@ class TransactionServiceTest {
         transactionMapper = mock(TransactionMapper.class);
         accountRepository = mock(AccountRepository.class);
         categoryRepository = mock(CategoryRepository.class);
+        bankTransactionRepository = mock(BankTransactionRepository.class);
         service = new TransactionService(
-                categoryService, transactionRepository, transactionMapper, accountRepository, categoryRepository);
+                categoryService,
+                transactionRepository,
+                transactionMapper,
+                accountRepository,
+                categoryRepository,
+                bankTransactionRepository);
     }
 
     @Test
@@ -110,7 +118,7 @@ class TransactionServiceTest {
         Transaction saved = new Transaction();
         TransactionDTO dtoOut = new TransactionDTO();
 
-        when(transactionMapper.toEntity(dtoIn, accountRepository, categoryRepository))
+        when(transactionMapper.toEntity(dtoIn, accountRepository, categoryRepository, bankTransactionRepository))
                 .thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(saved);
         when(transactionMapper.toDto(saved)).thenReturn(dtoOut);
@@ -118,6 +126,7 @@ class TransactionServiceTest {
         TransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
+        verify(transactionMapper).toEntity(dtoIn, accountRepository, categoryRepository, bankTransactionRepository);
     }
 
     @Test
