@@ -69,7 +69,7 @@ When an AI agent helps create a PR, please ensure it:
 4. Ensures all tests pass for generated code
 6. Keeps PRs focused on a single concern
 
-## Programmatic Checks for OpenAI Codex
+## Programmatic Checks
 
 Before submitting generated changes, the following checks must pass before generated code can be merged:
 
