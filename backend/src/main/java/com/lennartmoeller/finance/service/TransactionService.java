@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final CategoryService categoryService;
-    private final TransactionRepository transactionRepository;
-    private final TransactionMapper transactionMapper;
     private final AccountRepository accountRepository;
-    private final CategoryRepository categoryRepository;
     private final BankTransactionRepository bankTransactionRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
+    private final TransactionMapper transactionMapper;
+    private final TransactionRepository transactionRepository;
 
     public List<TransactionDTO> findFiltered(
             @Nullable List<Long> accountIds,
@@ -50,7 +50,7 @@ public class TransactionService {
 
     public TransactionDTO save(TransactionDTO transactionDTO) {
         Transaction transaction = transactionMapper.toEntity(
-                transactionDTO, accountRepository, categoryRepository, bankTransactionRepository);
+                transactionDTO, accountRepository, bankTransactionRepository, categoryRepository);
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(savedTransaction);
     }
