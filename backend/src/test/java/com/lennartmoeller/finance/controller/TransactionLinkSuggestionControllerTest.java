@@ -30,4 +30,15 @@ class TransactionLinkSuggestionControllerTest {
         assertEquals(list, result);
         verify(service).findAll();
     }
+
+    @Test
+    void testGenerateTransactionLinkSuggestions() {
+        List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
+        when(service.generateSuggestions()).thenReturn(list);
+
+        List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions();
+
+        assertEquals(list, result);
+        verify(service).generateSuggestions();
+    }
 }
