@@ -4,6 +4,7 @@ import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.projection.MonthlyDepositsProjection;
+import java.time.LocalDate;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,5 +48,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<MonthlyDepositsProjection> getMonthlyDeposits();
 
     List<Transaction> findAllByAccountAndAmountAndDateBetween(
-            Account account, Long amount, java.time.LocalDate startDate, java.time.LocalDate endDate);
+            Account account, Long amount, LocalDate startDate, LocalDate endDate);
 }
