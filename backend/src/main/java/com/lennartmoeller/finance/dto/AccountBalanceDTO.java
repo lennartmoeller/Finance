@@ -1,13 +1,15 @@
 package com.lennartmoeller.finance.dto;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import javax.annotation.Nonnull;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@NoArgsConstructor
 public class AccountBalanceDTO {
+    @Nonnull
     private Long accountId;
+
+    @Nonnull
     private Long balance;
 }

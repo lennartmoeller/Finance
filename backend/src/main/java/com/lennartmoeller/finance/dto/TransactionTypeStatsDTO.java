@@ -7,15 +7,13 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class TransactionTypeStatsDTO {
+    @Nonnull
     private final List<CategoryStatsDTO> categoryStats;
 
     @JsonIgnore

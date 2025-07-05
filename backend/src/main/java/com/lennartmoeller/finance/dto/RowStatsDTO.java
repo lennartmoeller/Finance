@@ -5,15 +5,13 @@ import com.lennartmoeller.finance.util.DateRange;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class RowStatsDTO {
+    @Nonnull
     private final Map<YearMonth, CellStatsDTO> monthly;
 
     public static RowStatsDTO empty(@Nullable DateRange dateRange) {

@@ -2,18 +2,21 @@ package com.lennartmoeller.finance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@NoArgsConstructor
 public class CellStatsDTO {
+    @Nonnull
     private StatsMetricDTO surplus;
+
+    @Nonnull
     private Double target;
+
     private @Nullable PerformanceDTO performance;
 
     public static CellStatsDTO empty() {

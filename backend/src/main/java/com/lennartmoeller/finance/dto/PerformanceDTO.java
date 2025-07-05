@@ -4,15 +4,13 @@ import com.lennartmoeller.finance.model.TransactionType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@NoArgsConstructor
 public class PerformanceDTO {
     private double raw;
     private double smoothed;
