@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
-@Table(name = "transaction_link_suggestions")
+@Table(
+        name = "transaction_link_suggestions",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"bank_transaction", "transaction"}))
 public class TransactionLinkSuggestion extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
