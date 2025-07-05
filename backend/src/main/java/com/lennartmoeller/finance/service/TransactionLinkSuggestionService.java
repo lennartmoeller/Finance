@@ -11,8 +11,8 @@ import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.DateRange;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,33 +28,37 @@ public class TransactionLinkSuggestionService {
         return repository.findAll().stream().map(mapper::toDto).toList();
     }
 
-    public List<TransactionLinkSuggestionDTO> generateSuggestions() {
-        List<TransactionLinkSuggestion> savedSuggestions = new ArrayList<>();
-        List<BankTransaction> bankTransactions = bankTransactionRepository.findAll();
-        for (BankTransaction bankTransaction : bankTransactions) {
-            LocalDate date = bankTransaction.getBookingDate();
-            LocalDate start = date.minusDays(7);
-            LocalDate end = date.plusDays(7);
-            List<Transaction> matches = transactionRepository.findAllByAccountAndAmountAndDateBetween(
-                    bankTransaction.getAccount(), bankTransaction.getAmount(), start, end);
-            int candidateCount = matches.size();
-            for (Transaction transaction : matches) {
-                if (repository.existsByBankTransactionAndTransaction(bankTransaction, transaction)) {
-                    continue;
-                }
-                long daysBetween =
-                        Math.abs(new DateRange(bankTransaction.getBookingDate(), transaction.getDate()).getDays() - 1);
-                double base = 1.0 - (daysBetween / 7.0);
-                double probability = base / candidateCount;
-                TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
-                suggestion.setBankTransaction(bankTransaction);
-                suggestion.setTransaction(transaction);
-                suggestion.setProbability(probability);
-                suggestion.setLinkState(TransactionLinkState.UNDECIDED);
-                TransactionLinkSuggestion persisted = repository.save(suggestion);
-                savedSuggestions.add(persisted);
-            }
-        }
-        return savedSuggestions.stream().map(mapper::toDto).toList();
+    public List<TransactionLinkSuggestionDTO> generateSuggestions(
+            @Nullable List<Transaction> transactions, @Nullable List<BankTransaction> bankTransactions) {
+        List<Transaction> transactionList = transactions != null ? transactions : transactionRepository.findAll();
+        List<BankTransaction> bankTransactionList =
+                bankTransactions != null ? bankTransactions : bankTransactionRepository.findAll();
+
+        return bankTransactionList.stream()
+                .flatMap(bankTransaction -> {
+                    LocalDate date = bankTransaction.getBookingDate();
+                    LocalDate start = date.minusDays(7);
+                    LocalDate end = date.plusDays(7);
+
+                    return transactionList.stream()
+                            .filter(t -> t.getAccount().equals(bankTransaction.getAccount()))
+                            .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
+                            .filter(t ->
+                                    !t.getDate().isBefore(start) && !t.getDate().isAfter(end))
+                            .filter(t -> !repository.existsByBankTransactionAndTransaction(bankTransaction, t))
+                            .map(t -> {
+                                long daysBetween = Math.abs(
+                                        new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
+                                double probability = 1.0 - (daysBetween / 7.0);
+                                TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+                                suggestion.setBankTransaction(bankTransaction);
+                                suggestion.setTransaction(t);
+                                suggestion.setProbability(probability);
+                                suggestion.setLinkState(TransactionLinkState.UNDECIDED);
+                                return repository.save(suggestion);
+                            });
+                })
+                .map(mapper::toDto)
+                .toList();
     }
 }

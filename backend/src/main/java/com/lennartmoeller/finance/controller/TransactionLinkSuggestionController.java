@@ -22,6 +22,6 @@ public class TransactionLinkSuggestionController {
 
     @PostMapping("/generate")
     public List<TransactionLinkSuggestionDTO> generateTransactionLinkSuggestions() {
-        return service.generateSuggestions();
+        return service.generateSuggestions(null, null);
     }
 }
