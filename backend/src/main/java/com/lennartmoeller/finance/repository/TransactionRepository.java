@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.repository;
 
+import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.projection.MonthlyDepositsProjection;
@@ -44,4 +45,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 		    GROUP BY yearMonth
 		""")
     List<MonthlyDepositsProjection> getMonthlyDeposits();
+
+    List<Transaction> findAllByAccountAndAmountAndDateBetween(
+            Account account, Long amount, java.time.LocalDate startDate, java.time.LocalDate endDate);
 }
