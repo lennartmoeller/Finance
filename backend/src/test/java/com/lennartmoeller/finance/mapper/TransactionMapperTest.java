@@ -91,7 +91,7 @@ class TransactionMapperTest {
         btx.setId(5L);
         when(bankRepo.findById(5L)).thenReturn(Optional.of(btx));
 
-        Transaction entity = mapper.toEntity(dto, accRepo, catRepo, bankRepo);
+        Transaction entity = mapper.toEntity(dto, accRepo, bankRepo, catRepo);
 
         assertEquals(dto.getId(), entity.getId());
         assertSame(account, entity.getAccount());
@@ -115,13 +115,13 @@ class TransactionMapperTest {
 
         TransactionMapperImpl mapper = new TransactionMapperImpl();
 
-        assertNull(mapper.toEntity(null, accRepo, catRepo, bankRepo));
+        assertNull(mapper.toEntity(null, accRepo, bankRepo, catRepo));
         TransactionDTO dto = new TransactionDTO();
         dto.setAccountId(1L);
         dto.setCategoryId(2L);
         dto.setBankTransactionId(9L);
 
-        Transaction entity = mapper.toEntity(dto, accRepo, catRepo, bankRepo);
+        Transaction entity = mapper.toEntity(dto, accRepo, bankRepo, catRepo);
         assertNull(entity.getAccount());
         assertNull(entity.getCategory());
         verify(accRepo).findById(1L);

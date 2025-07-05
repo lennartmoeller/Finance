@@ -32,8 +32,8 @@ public interface TransactionMapper {
     Transaction toEntity(
             TransactionDTO dto,
             @Context AccountRepository accountRepository,
-            @Context CategoryRepository categoryRepository,
-            @Context BankTransactionRepository bankTransactionRepository);
+            @Context BankTransactionRepository bankTransactionRepository,
+            @Context CategoryRepository categoryRepository);
 
     @Named("mapAccountIdToAccount")
     default Account mapAccountIdToAccount(Long accountId, @Context AccountRepository repository) {

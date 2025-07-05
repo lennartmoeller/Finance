@@ -29,19 +29,19 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        categoryService = mock(CategoryService.class);
-        transactionRepository = mock(TransactionRepository.class);
-        transactionMapper = mock(TransactionMapper.class);
         accountRepository = mock(AccountRepository.class);
-        categoryRepository = mock(CategoryRepository.class);
         bankTransactionRepository = mock(BankTransactionRepository.class);
+        categoryRepository = mock(CategoryRepository.class);
+        categoryService = mock(CategoryService.class);
+        transactionMapper = mock(TransactionMapper.class);
+        transactionRepository = mock(TransactionRepository.class);
         service = new TransactionService(
-                categoryService,
-                transactionRepository,
-                transactionMapper,
                 accountRepository,
+                bankTransactionRepository,
                 categoryRepository,
-                bankTransactionRepository);
+                categoryService,
+                transactionMapper,
+                transactionRepository);
     }
 
     @Test
@@ -118,7 +118,7 @@ class TransactionServiceTest {
         Transaction saved = new Transaction();
         TransactionDTO dtoOut = new TransactionDTO();
 
-        when(transactionMapper.toEntity(dtoIn, accountRepository, categoryRepository, bankTransactionRepository))
+        when(transactionMapper.toEntity(dtoIn, accountRepository, bankTransactionRepository, categoryRepository))
                 .thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(saved);
         when(transactionMapper.toDto(saved)).thenReturn(dtoOut);
@@ -126,7 +126,7 @@ class TransactionServiceTest {
         TransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
-        verify(transactionMapper).toEntity(dtoIn, accountRepository, categoryRepository, bankTransactionRepository);
+        verify(transactionMapper).toEntity(dtoIn, accountRepository, bankTransactionRepository, categoryRepository);
     }
 
     @Test
