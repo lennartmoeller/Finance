@@ -16,6 +16,7 @@ class TransactionDTOTest {
         dto.setDate(d);
         dto.setAmount(100L);
         dto.setDescription("desc");
+        dto.setPinned(true);
 
         assertEquals(1L, dto.getId());
         assertEquals(2L, dto.getAccountId());
@@ -23,5 +24,6 @@ class TransactionDTOTest {
         assertEquals(d, dto.getDate());
         assertEquals(100L, dto.getAmount());
         assertEquals("desc", dto.getDescription());
+        assertEquals(true, dto.getPinned());
     }
 }

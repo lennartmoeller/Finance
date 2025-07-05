@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final CategoryService categoryService;
-    private final TransactionRepository transactionRepository;
-    private final TransactionMapper transactionMapper;
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
+    private final TransactionMapper transactionMapper;
+    private final TransactionRepository transactionRepository;
 
     public List<TransactionDTO> findFiltered(
             @Nullable List<Long> accountIds,

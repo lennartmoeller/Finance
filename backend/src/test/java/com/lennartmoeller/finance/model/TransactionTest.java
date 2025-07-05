@@ -24,12 +24,14 @@ class TransactionTest {
         tx.setDate(LocalDate.of(2024, 2, 2));
         tx.setAmount(200L);
         tx.setDescription("desc");
+        tx.setPinned(true);
 
         assertEquals(account, tx.getAccount());
         assertEquals(category, tx.getCategory());
         assertEquals(LocalDate.of(2024, 2, 2), tx.getDate());
         assertEquals(200L, tx.getAmount());
         assertEquals("desc", tx.getDescription());
+        assertTrue(tx.getPinned());
     }
 
     @Test

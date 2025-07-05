@@ -27,13 +27,13 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        categoryService = mock(CategoryService.class);
-        transactionRepository = mock(TransactionRepository.class);
-        transactionMapper = mock(TransactionMapper.class);
         accountRepository = mock(AccountRepository.class);
         categoryRepository = mock(CategoryRepository.class);
+        categoryService = mock(CategoryService.class);
+        transactionMapper = mock(TransactionMapper.class);
+        transactionRepository = mock(TransactionRepository.class);
         service = new TransactionService(
-                categoryService, transactionRepository, transactionMapper, accountRepository, categoryRepository);
+                accountRepository, categoryRepository, categoryService, transactionMapper, transactionRepository);
     }
 
     @Test
@@ -118,6 +118,7 @@ class TransactionServiceTest {
         TransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
+        verify(transactionMapper).toEntity(dtoIn, accountRepository, categoryRepository);
     }
 
     @Test

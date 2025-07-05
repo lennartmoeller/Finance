@@ -29,6 +29,7 @@ class TransactionMapperTest {
         tx.setDate(LocalDate.of(2024, 1, 1));
         tx.setAmount(500L);
         tx.setDescription("Desc");
+        tx.setPinned(true);
 
         TransactionMapper mapper = new TransactionMapperImpl();
         TransactionDTO dto = mapper.toDto(tx);
@@ -39,6 +40,7 @@ class TransactionMapperTest {
         assertEquals(tx.getDate(), dto.getDate());
         assertEquals(tx.getAmount(), dto.getAmount());
         assertEquals(tx.getDescription(), dto.getDescription());
+        assertEquals(true, dto.getPinned());
     }
 
     @Test
@@ -50,6 +52,7 @@ class TransactionMapperTest {
         TransactionDTO dto = mapper.toDto(tx);
         assertNull(dto.getAccountId());
         assertNull(dto.getCategoryId());
+        assertEquals(false, dto.getPinned());
     }
 
     @Test
