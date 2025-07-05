@@ -16,5 +16,4 @@ public class TransactionDTO {
     private Long amount;
     private String description;
     private Boolean pinned;
-    private Long bankTransactionId;
 }

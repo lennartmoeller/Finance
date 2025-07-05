@@ -4,7 +4,6 @@ import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
-import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.YearMonth;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TransactionService {
     private final AccountRepository accountRepository;
-    private final BankTransactionRepository bankTransactionRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
     private final TransactionMapper transactionMapper;
@@ -49,8 +47,7 @@ public class TransactionService {
     }
 
     public TransactionDTO save(TransactionDTO transactionDTO) {
-        Transaction transaction = transactionMapper.toEntity(
-                transactionDTO, accountRepository, bankTransactionRepository, categoryRepository);
+        Transaction transaction = transactionMapper.toEntity(transactionDTO, accountRepository, categoryRepository);
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(savedTransaction);
     }
