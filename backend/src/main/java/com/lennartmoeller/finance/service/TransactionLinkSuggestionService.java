@@ -12,8 +12,6 @@ import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.DateRange;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,11 +39,8 @@ public class TransactionLinkSuggestionService {
         List<Long> transactionIds =
                 transactionList.stream().map(Transaction::getId).toList();
 
-        Set<String> existingPairs =
-                repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds).stream()
-                        .map(s -> s.getBankTransaction().getId() + ":"
-                                + s.getTransaction().getId())
-                        .collect(Collectors.toSet());
+        List<TransactionLinkSuggestion> existing =
+                repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds);
 
         return bankTransactionList.stream()
                 .flatMap(bankTransaction -> {
@@ -56,7 +51,11 @@ public class TransactionLinkSuggestionService {
                             .filter(t -> t.getAccount().equals(bankTransaction.getAccount()))
                             .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
                             .filter(t -> new DateRange(t.getDate()).getOverlapDays(range) != 0)
-                            .filter(t -> !existingPairs.contains(bankTransaction.getId() + ":" + t.getId()))
+                            .filter(t -> existing.stream()
+                                    .noneMatch(s -> s.getBankTransaction()
+                                                    .getId()
+                                                    .equals(bankTransaction.getId())
+                                            && s.getTransaction().getId().equals(t.getId())))
                             .map(t -> {
                                 long daysBetween = Math.abs(
                                         new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
