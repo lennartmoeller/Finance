@@ -13,12 +13,12 @@ class TransactionLinkSuggestionTest {
         suggestion.setBankTransaction(btx);
         suggestion.setTransaction(tx);
         suggestion.setProbability(0.5);
-        suggestion.setLinked(true);
+        suggestion.setLinkState(TransactionLinkState.CONFIRMED);
 
         assertEquals(btx, suggestion.getBankTransaction());
         assertEquals(tx, suggestion.getTransaction());
         assertEquals(0.5, suggestion.getProbability());
-        assertTrue(suggestion.getLinked());
+        assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
     }
 
     @Test

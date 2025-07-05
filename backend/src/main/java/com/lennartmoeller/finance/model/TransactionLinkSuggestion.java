@@ -28,6 +28,7 @@ public class TransactionLinkSuggestion extends BaseModel {
     @Column(nullable = false)
     private Double probability;
 
-    @Column(nullable = false)
-    private Boolean linked = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "link_state", nullable = false)
+    private TransactionLinkState linkState = TransactionLinkState.UNDECIDED;
 }
