@@ -57,35 +57,37 @@ class TransactionLinkSuggestionServiceTest {
     @Test
     void testGenerateSuggestions() {
         Account account = new Account();
+        account.setId(10L);
         account.setIban("DE");
 
         BankTransaction bank = new BankTransaction();
+        bank.setId(1L);
         bank.setAccount(account);
         bank.setAmount(100L);
         bank.setBookingDate(LocalDate.of(2024, 1, 2));
 
         Transaction t1 = new Transaction();
+        t1.setId(2L);
         t1.setAccount(account);
         t1.setAmount(100L);
         t1.setDate(LocalDate.of(2024, 1, 2));
 
         Transaction t2 = new Transaction();
+        t2.setId(3L);
         t2.setAccount(account);
         t2.setAmount(100L);
         t2.setDate(LocalDate.of(2024, 1, 5));
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
-        when(transactionRepository.findAllByAccountAndAmountAndDateBetween(
-                        account, 100L, LocalDate.of(2023, 12, 26), LocalDate.of(2024, 1, 9)))
-                .thenReturn(List.of(t1, t2));
-        when(repository.existsByBankTransactionAndTransaction(bank, t1)).thenReturn(false);
-        when(repository.existsByBankTransactionAndTransaction(bank, t2)).thenReturn(false);
+        when(transactionRepository.findAll()).thenReturn(List.of(t1, t2));
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+                .thenReturn(List.of());
 
         ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions();
+        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 
         assertEquals(2, result.size());
         verify(repository, times(2)).save(captor.capture());
@@ -93,35 +95,38 @@ class TransactionLinkSuggestionServiceTest {
         List<TransactionLinkSuggestion> saved = captor.getAllValues();
         double p1 = saved.getFirst().getProbability();
         double p2 = saved.get(1).getProbability();
-        // one probability should be 0.5 (0 days diff / 2), the other 0.2857...
-        boolean firstMatch = Math.abs(p1 - 0.5) < 1e-6 && Math.abs(p2 - (2.0 / 7)) < 1e-6;
-        boolean secondMatch = Math.abs(p2 - 0.5) < 1e-6 && Math.abs(p1 - (2.0 / 7)) < 1e-6;
+        boolean firstMatch = Math.abs(p1 - 1.0) < 1e-6 && Math.abs(p2 - (4.0 / 7)) < 1e-6;
+        boolean secondMatch = Math.abs(p2 - 1.0) < 1e-6 && Math.abs(p1 - (4.0 / 7)) < 1e-6;
         assertEquals(true, firstMatch || secondMatch);
     }
 
     @Test
     void testGenerateSuggestionsSkipsExisting() {
         Account account = new Account();
+        account.setId(20L);
         account.setIban("DE");
 
         BankTransaction bank = new BankTransaction();
+        bank.setId(21L);
         bank.setAccount(account);
         bank.setAmount(50L);
         bank.setBookingDate(LocalDate.of(2024, 2, 2));
 
         Transaction transaction = new Transaction();
+        transaction.setId(22L);
         transaction.setAccount(account);
         transaction.setAmount(50L);
         transaction.setDate(LocalDate.of(2024, 2, 3));
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
-        when(transactionRepository.findAllByAccountAndAmountAndDateBetween(
-                        account, 50L, LocalDate.of(2024, 1, 26), LocalDate.of(2024, 2, 9)))
-                .thenReturn(List.of(transaction));
-        when(repository.existsByBankTransactionAndTransaction(bank, transaction))
-                .thenReturn(true);
+        when(transactionRepository.findAll()).thenReturn(List.of(transaction));
+        TransactionLinkSuggestion existing = new TransactionLinkSuggestion();
+        existing.setBankTransaction(bank);
+        existing.setTransaction(transaction);
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+                .thenReturn(List.of(existing));
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions();
+        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 
         assertEquals(0, result.size());
         verify(repository, never()).save(any());
