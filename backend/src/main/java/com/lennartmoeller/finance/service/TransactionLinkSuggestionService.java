@@ -4,6 +4,7 @@ import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
 import com.lennartmoeller.finance.mapper.TransactionLinkSuggestionMapper;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.Transaction;
+import com.lennartmoeller.finance.model.TransactionLinkState;
 import com.lennartmoeller.finance.model.TransactionLinkSuggestion;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository;
@@ -49,7 +50,7 @@ public class TransactionLinkSuggestionService {
                 suggestion.setBankTransaction(bankTransaction);
                 suggestion.setTransaction(transaction);
                 suggestion.setProbability(probability);
-                suggestion.setLinked(false);
+                suggestion.setLinkState(TransactionLinkState.UNDECIDED);
                 TransactionLinkSuggestion persisted = repository.save(suggestion);
                 savedSuggestions.add(persisted);
             }
