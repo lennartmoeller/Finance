@@ -51,11 +51,7 @@ public class TransactionLinkSuggestionService {
                             .filter(t -> t.getAccount().equals(bankTransaction.getAccount()))
                             .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
                             .filter(t -> new DateRange(t.getDate()).getOverlapDays(range) != 0)
-                            .filter(t -> existing.stream()
-                                    .noneMatch(s -> s.getBankTransaction()
-                                                    .getId()
-                                                    .equals(bankTransaction.getId())
-                                            && s.getTransaction().getId().equals(t.getId())))
+                            .filter(t -> isNotExistingSuggestion(existing, bankTransaction, t))
                             .map(t -> {
                                 long daysBetween = Math.abs(
                                         new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
@@ -70,5 +66,12 @@ public class TransactionLinkSuggestionService {
                 })
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    private boolean isNotExistingSuggestion(
+            List<TransactionLinkSuggestion> existing, BankTransaction bankTransaction, Transaction transaction) {
+        return existing.stream()
+                .noneMatch(s -> s.getBankTransaction().getId().equals(bankTransaction.getId())
+                        && s.getTransaction().getId().equals(transaction.getId()));
     }
 }
