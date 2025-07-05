@@ -80,7 +80,8 @@ class TransactionLinkSuggestionServiceTest {
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
         when(transactionRepository.findAll()).thenReturn(List.of(t1, t2));
-        when(repository.findAll()).thenReturn(List.of());
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+                .thenReturn(List.of());
 
         ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -122,7 +123,8 @@ class TransactionLinkSuggestionServiceTest {
         TransactionLinkSuggestion existing = new TransactionLinkSuggestion();
         existing.setBankTransaction(bank);
         existing.setTransaction(transaction);
-        when(repository.findAll()).thenReturn(List.of(existing));
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+                .thenReturn(List.of(existing));
 
         List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 

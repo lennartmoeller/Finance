@@ -36,10 +36,16 @@ public class TransactionLinkSuggestionService {
         List<BankTransaction> bankTransactionList =
                 bankTransactions != null ? bankTransactions : bankTransactionRepository.findAll();
 
-        Set<String> existingPairs = repository.findAll().stream()
-                .map(s -> s.getBankTransaction().getId() + ":"
-                        + s.getTransaction().getId())
-                .collect(Collectors.toSet());
+        List<Long> bankIds =
+                bankTransactionList.stream().map(BankTransaction::getId).toList();
+        List<Long> transactionIds =
+                transactionList.stream().map(Transaction::getId).toList();
+
+        Set<String> existingPairs =
+                repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds).stream()
+                        .map(s -> s.getBankTransaction().getId() + ":"
+                                + s.getTransaction().getId())
+                        .collect(Collectors.toSet());
 
         return bankTransactionList.stream()
                 .flatMap(bankTransaction -> {
