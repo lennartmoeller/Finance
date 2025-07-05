@@ -25,4 +25,7 @@ public class TransactionLinkSuggestion extends BaseModel {
 
     @Column(nullable = false)
     private Double probability;
+
+    @Column(nullable = false)
+    private Boolean linked = false;
 }

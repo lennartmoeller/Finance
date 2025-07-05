@@ -8,7 +8,6 @@ import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.mapper.TransactionMapper;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
-import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
@@ -24,24 +23,17 @@ class TransactionServiceTest {
     private TransactionMapper transactionMapper;
     private AccountRepository accountRepository;
     private CategoryRepository categoryRepository;
-    private BankTransactionRepository bankTransactionRepository;
     private TransactionService service;
 
     @BeforeEach
     void setUp() {
         accountRepository = mock(AccountRepository.class);
-        bankTransactionRepository = mock(BankTransactionRepository.class);
         categoryRepository = mock(CategoryRepository.class);
         categoryService = mock(CategoryService.class);
         transactionMapper = mock(TransactionMapper.class);
         transactionRepository = mock(TransactionRepository.class);
         service = new TransactionService(
-                accountRepository,
-                bankTransactionRepository,
-                categoryRepository,
-                categoryService,
-                transactionMapper,
-                transactionRepository);
+                accountRepository, categoryRepository, categoryService, transactionMapper, transactionRepository);
     }
 
     @Test
@@ -118,7 +110,7 @@ class TransactionServiceTest {
         Transaction saved = new Transaction();
         TransactionDTO dtoOut = new TransactionDTO();
 
-        when(transactionMapper.toEntity(dtoIn, accountRepository, bankTransactionRepository, categoryRepository))
+        when(transactionMapper.toEntity(dtoIn, accountRepository, categoryRepository))
                 .thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(saved);
         when(transactionMapper.toDto(saved)).thenReturn(dtoOut);
@@ -126,7 +118,7 @@ class TransactionServiceTest {
         TransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
-        verify(transactionMapper).toEntity(dtoIn, accountRepository, bankTransactionRepository, categoryRepository);
+        verify(transactionMapper).toEntity(dtoIn, accountRepository, categoryRepository);
     }
 
     @Test
