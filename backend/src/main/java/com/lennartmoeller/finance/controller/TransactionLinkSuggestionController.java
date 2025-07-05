@@ -5,6 +5,7 @@ import com.lennartmoeller.finance.service.TransactionLinkSuggestionService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,5 +18,10 @@ public class TransactionLinkSuggestionController {
     @GetMapping
     public List<TransactionLinkSuggestionDTO> getTransactionLinkSuggestions() {
         return service.findAll();
+    }
+
+    @PostMapping("/generate")
+    public List<TransactionLinkSuggestionDTO> generateTransactionLinkSuggestions() {
+        return service.generateSuggestions();
     }
 }
