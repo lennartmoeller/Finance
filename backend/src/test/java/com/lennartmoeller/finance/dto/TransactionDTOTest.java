@@ -17,7 +17,6 @@ class TransactionDTOTest {
         dto.setAmount(100L);
         dto.setDescription("desc");
         dto.setPinned(true);
-        dto.setBankTransactionId(9L);
 
         assertEquals(1L, dto.getId());
         assertEquals(2L, dto.getAccountId());
@@ -26,6 +25,5 @@ class TransactionDTOTest {
         assertEquals(100L, dto.getAmount());
         assertEquals("desc", dto.getDescription());
         assertEquals(true, dto.getPinned());
-        assertEquals(9L, dto.getBankTransactionId());
     }
 }

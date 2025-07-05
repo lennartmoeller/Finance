@@ -12,4 +12,5 @@ public class TransactionLinkSuggestionDTO {
     private Long bankTransactionId;
     private Long transactionId;
     private Double probability;
+    private Boolean linked;
 }
