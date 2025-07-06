@@ -131,4 +131,41 @@ class TransactionLinkSuggestionServiceTest {
         assertEquals(0, result.size());
         verify(repository, never()).save(any());
     }
+
+    @Test
+    void testGenerateSuggestionsHandlesLazyAccount() {
+        class LazyAccount extends Account {
+            @Override
+            public boolean equals(Object obj) {
+                throw new org.hibernate.LazyInitializationException("No session");
+            }
+        }
+
+        LazyAccount account = new LazyAccount();
+        account.setId(30L);
+        account.setIban("DE");
+
+        BankTransaction bank = new BankTransaction();
+        bank.setId(31L);
+        bank.setAccount(account);
+        bank.setAmount(100L);
+        bank.setBookingDate(LocalDate.of(2024, 3, 3));
+
+        Transaction transaction = new Transaction();
+        transaction.setId(32L);
+        transaction.setAccount(account);
+        transaction.setAmount(100L);
+        transaction.setDate(LocalDate.of(2024, 3, 3));
+
+        when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
+        when(transactionRepository.findAll()).thenReturn(List.of(transaction));
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+                .thenReturn(List.of());
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
+
+        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
+
+        assertEquals(1, result.size());
+    }
 }
