@@ -48,7 +48,9 @@ public class TransactionLinkSuggestionService {
                     DateRange range = new DateRange(date.minusDays(7), date.plusDays(7));
 
                     return transactionList.stream()
-                            .filter(t -> t.getAccount().equals(bankTransaction.getAccount()))
+                            .filter(t -> t.getAccount()
+                                    .getId()
+                                    .equals(bankTransaction.getAccount().getId()))
                             .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
                             .filter(t -> new DateRange(t.getDate()).getOverlapDays(range) != 0)
                             .filter(t -> isNotExistingSuggestion(existing, bankTransaction, t))
