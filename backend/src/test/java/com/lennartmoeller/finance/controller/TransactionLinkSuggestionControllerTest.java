@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
+import com.lennartmoeller.finance.model.BankTransaction;
+import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.service.TransactionLinkSuggestionService;
@@ -16,12 +18,14 @@ import org.junit.jupiter.api.Test;
 class TransactionLinkSuggestionControllerTest {
     private TransactionLinkSuggestionService service;
     private TransactionLinkSuggestionController controller;
+    private TransactionRepository transactionRepository;
+    private BankTransactionRepository bankTransactionRepository;
 
     @BeforeEach
     void setUp() {
         service = mock(TransactionLinkSuggestionService.class);
-        TransactionRepository transactionRepository = mock(TransactionRepository.class);
-        BankTransactionRepository bankTransactionRepository = mock(BankTransactionRepository.class);
+        transactionRepository = mock(TransactionRepository.class);
+        bankTransactionRepository = mock(BankTransactionRepository.class);
         controller = new TransactionLinkSuggestionController(service, transactionRepository, bankTransactionRepository);
     }
 
@@ -46,5 +50,24 @@ class TransactionLinkSuggestionControllerTest {
 
         assertEquals(list, result);
         verify(service).generateSuggestions(null, null);
+    }
+
+    @Test
+    void testGenerateTransactionLinkSuggestionsWithIds() {
+        List<Long> tIds = List.of(1L, 2L);
+        List<Long> bIds = List.of(3L);
+        List<Transaction> transactions = List.of(new Transaction());
+        List<BankTransaction> bankTransactions = List.of(new BankTransaction());
+        when(transactionRepository.findAllById(tIds)).thenReturn(transactions);
+        when(bankTransactionRepository.findAllById(bIds)).thenReturn(bankTransactions);
+        List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
+        when(service.generateSuggestions(transactions, bankTransactions)).thenReturn(list);
+
+        List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(tIds, bIds);
+
+        assertEquals(list, result);
+        verify(transactionRepository).findAllById(tIds);
+        verify(bankTransactionRepository).findAllById(bIds);
+        verify(service).generateSuggestions(transactions, bankTransactions);
     }
 }
