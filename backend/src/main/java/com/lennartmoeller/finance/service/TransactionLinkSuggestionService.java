@@ -75,6 +75,42 @@ public class TransactionLinkSuggestionService {
                 .toList();
     }
 
+    public void updateForTransactions(@Nullable List<Transaction> transactions) {
+        if (transactions == null || transactions.isEmpty()) {
+            return;
+        }
+        List<Long> ids = transactions.stream().map(Transaction::getId).toList();
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(null, ids);
+        List<TransactionLinkSuggestion> deletions = existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .toList();
+        repository.deleteAll(deletions);
+        generateSuggestions(transactions, null);
+    }
+
+    public void updateForBankTransactions(@Nullable List<BankTransaction> bankTransactions) {
+        if (bankTransactions == null || bankTransactions.isEmpty()) {
+            return;
+        }
+        List<Long> ids = bankTransactions.stream().map(BankTransaction::getId).toList();
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(ids, null);
+        List<TransactionLinkSuggestion> deletions = existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .toList();
+        repository.deleteAll(deletions);
+        generateSuggestions(null, bankTransactions);
+    }
+
+    public void removeForTransaction(Long id) {
+        repository.deleteAllByTransaction_Id(id);
+    }
+
+    public void removeForBankTransaction(Long id) {
+        repository.deleteAllByBankTransaction_Id(id);
+    }
+
     private boolean isNotExistingSuggestion(
             List<TransactionLinkSuggestion> existing, BankTransaction bankTransaction, Transaction transaction) {
         return existing.stream()

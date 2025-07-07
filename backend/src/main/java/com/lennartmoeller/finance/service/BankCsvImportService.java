@@ -34,6 +34,7 @@ public class BankCsvImportService {
     private final IngV1CsvParser ingParser;
     private final CamtV8CsvParser camtParser;
     private final AccountRepository accountRepository;
+    private final TransactionLinkSuggestionService suggestionService;
 
     public BankTransactionImportResultDTO importCsv(BankType type, MultipartFile file) throws IOException {
         List<? extends BankTransactionDTO> parsed;
@@ -52,8 +53,8 @@ public class BankCsvImportService {
         Map<String, Account> accountMap = accountRepository.findAllByIbanIn(ibans).stream()
                 .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
-        List<BankTransactionDTO> saved = new ArrayList<>();
-        List<BankTransactionDTO> unsaved = new ArrayList<>();
+        List<BankTransaction> savedEntities = new ArrayList<>();
+        List<BankTransactionDTO> unsavedDtos = new ArrayList<>();
 
         parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
@@ -65,18 +66,19 @@ public class BankCsvImportService {
                                 case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
                                 default -> mapper.toEntity(dto, account);
                             };
-                    if (entity.getAccount() == null) {
-                        unsaved.add(dto);
-                        return;
-                    }
-                    if (repository.existsByData(entity.getData())) {
-                        unsaved.add(dto);
+                    if (entity.getAccount() == null || repository.existsByData(entity.getData())) {
+                        unsavedDtos.add(dto);
                         return;
                     }
                     BankTransaction persisted = repository.save(entity);
-                    saved.add(mapper.toDto(persisted));
+                    savedEntities.add(persisted);
                 });
 
-        return new BankTransactionImportResultDTO(saved, unsaved);
+        suggestionService.updateForBankTransactions(savedEntities);
+
+        List<BankTransactionDTO> savedDtos =
+                savedEntities.stream().map(mapper::toDto).toList();
+
+        return new BankTransactionImportResultDTO(savedDtos, unsavedDtos);
     }
 }

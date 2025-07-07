@@ -28,6 +28,7 @@ class BankCsvImportServiceTest {
     private IngV1CsvParser ingParser;
     private CamtV8CsvParser camtParser;
     private AccountRepository accountRepository;
+    private TransactionLinkSuggestionService suggestionService;
     private BankCsvImportService service;
 
     @BeforeEach
@@ -37,7 +38,9 @@ class BankCsvImportServiceTest {
         ingParser = mock(IngV1CsvParser.class);
         camtParser = mock(CamtV8CsvParser.class);
         accountRepository = mock(AccountRepository.class);
-        service = new BankCsvImportService(repository, mapper, ingParser, camtParser, accountRepository);
+        suggestionService = mock(TransactionLinkSuggestionService.class);
+        service = new BankCsvImportService(
+                repository, mapper, ingParser, camtParser, accountRepository, suggestionService);
     }
 
     @Test
@@ -68,6 +71,7 @@ class BankCsvImportServiceTest {
         assertEquals(List.of(resultDto), result.getSaved());
         assertTrue(result.getUnsaved().isEmpty());
         verify(repository).save(entity);
+        verify(suggestionService).updateForBankTransactions(List.of(saved));
     }
 
     @Test
@@ -150,5 +154,6 @@ class BankCsvImportServiceTest {
 
         assertEquals(List.of(dto2, dto1), result.getSaved());
         assertTrue(result.getUnsaved().isEmpty());
+        verify(suggestionService).updateForBankTransactions(List.of(e2, e1));
     }
 }

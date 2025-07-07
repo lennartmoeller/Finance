@@ -176,4 +176,53 @@ class TransactionLinkSuggestionServiceTest {
 
         assertEquals(1, result.size());
     }
+
+    @Test
+    void testUpdateForTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId(40L);
+
+        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        undecided.setLinkState(TransactionLinkState.UNDECIDED);
+        TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
+        confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(null, List.of(40L)))
+                .thenReturn(List.of(undecided, confirmed));
+        when(bankTransactionRepository.findAll()).thenReturn(List.of());
+
+        service.updateForTransactions(List.of(transaction));
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
+        verify(repository).deleteAll(captor.capture());
+        assertEquals(List.of(undecided), captor.getValue());
+    }
+
+    @Test
+    void testUpdateForBankTransaction() {
+        BankTransaction bankTransaction = new BankTransaction();
+        bankTransaction.setId(50L);
+        bankTransaction.setBookingDate(LocalDate.now());
+        bankTransaction.setAmount(1L);
+        Account account = new Account();
+        account.setId(1L);
+        bankTransaction.setAccount(account);
+
+        TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
+        auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
+        TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
+        rejected.setLinkState(TransactionLinkState.REJECTED);
+
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(50L), null))
+                .thenReturn(List.of(auto, rejected));
+        when(transactionRepository.findAll()).thenReturn(List.of());
+
+        service.updateForBankTransactions(List.of(bankTransaction));
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor2 = ArgumentCaptor.forClass(List.class);
+        verify(repository).deleteAll(captor2.capture());
+        assertEquals(List.of(auto), captor2.getValue());
+    }
 }

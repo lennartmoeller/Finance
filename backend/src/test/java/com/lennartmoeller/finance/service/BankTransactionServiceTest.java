@@ -20,6 +20,7 @@ class BankTransactionServiceTest {
     private BankTransactionRepository repository;
     private BankTransactionMapper mapper;
     private AccountRepository accountRepository;
+    private TransactionLinkSuggestionService suggestionService;
     private BankTransactionService service;
 
     @BeforeEach
@@ -27,7 +28,8 @@ class BankTransactionServiceTest {
         repository = mock(BankTransactionRepository.class);
         mapper = mock(BankTransactionMapper.class);
         accountRepository = mock(AccountRepository.class);
-        service = new BankTransactionService(repository, mapper, accountRepository);
+        suggestionService = mock(TransactionLinkSuggestionService.class);
+        service = new BankTransactionService(repository, mapper, accountRepository, suggestionService);
     }
 
     @Test
@@ -81,11 +83,13 @@ class BankTransactionServiceTest {
         BankTransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
+        verify(suggestionService).updateForBankTransactions(List.of(saved));
     }
 
     @Test
     void testDeleteById() {
         service.deleteById(11L);
+        verify(suggestionService).removeForBankTransaction(11L);
         verify(repository).deleteById(11L);
     }
 }

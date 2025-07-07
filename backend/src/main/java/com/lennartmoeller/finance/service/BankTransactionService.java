@@ -18,6 +18,7 @@ public class BankTransactionService {
     private final BankTransactionRepository repository;
     private final BankTransactionMapper mapper;
     private final AccountRepository accountRepository;
+    private final TransactionLinkSuggestionService suggestionService;
 
     public List<BankTransactionDTO> findAll() {
         return repository.findAll().stream().map(mapper::toDto).toList();
@@ -36,10 +37,12 @@ public class BankTransactionService {
         }
         BankTransaction entity = mapper.toEntity(dto, account);
         BankTransaction saved = repository.save(entity);
+        suggestionService.updateForBankTransactions(List.of(saved));
         return mapper.toDto(saved);
     }
 
     public void deleteById(Long id) {
+        suggestionService.removeForBankTransaction(id);
         repository.deleteById(id);
     }
 }
