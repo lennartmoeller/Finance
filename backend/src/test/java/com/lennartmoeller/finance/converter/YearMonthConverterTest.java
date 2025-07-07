@@ -1,39 +1,36 @@
 package com.lennartmoeller.finance.converter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class YearMonthConverterTest {
+
     private final YearMonthConverter converter = new YearMonthConverter();
 
-    @Test
-    void testConvertToDatabaseColumn_withNonNullValue() {
-        YearMonth yearMonth = YearMonth.of(2023, 5);
-        String expected = "2023-05";
-        String actual = converter.convertToDatabaseColumn(yearMonth);
-        assertEquals(expected, actual, "Converter should correctly convert YearMonth to its String representation");
+    @ParameterizedTest
+    @CsvSource({"2023-01", "1999-12"})
+    void shouldConvertToDatabaseColumnAndBack(String value) {
+        YearMonth yearMonth = YearMonth.parse(value);
+        String db = converter.convertToDatabaseColumn(yearMonth);
+        assertThat(db).isEqualTo(value);
+        assertThat(converter.convertToEntityAttribute(db)).isEqualTo(yearMonth);
     }
 
     @Test
-    void testConvertToDatabaseColumn_withNullValue() {
-        assertNull(
-                converter.convertToDatabaseColumn(null), "Converter should return null when provided a null YearMonth");
+    void shouldReturnNullOnNullInput() {
+        assertThat(converter.convertToDatabaseColumn(null)).isNull();
+        assertThat(converter.convertToEntityAttribute(null)).isNull();
     }
 
     @Test
-    void testConvertToEntityAttribute_withNonNullValue() {
-        String dbData = "2023-05";
-        YearMonth expected = YearMonth.of(2023, 5);
-        YearMonth actual = converter.convertToEntityAttribute(dbData);
-        assertEquals(expected, actual, "Converter should correctly parse the String to a YearMonth");
-    }
-
-    @Test
-    void testConvertToEntityAttribute_withNullValue() {
-        assertNull(
-                converter.convertToEntityAttribute(null), "Converter should return null when provided a null String");
+    void shouldThrowExceptionForInvalidString() {
+        assertThatThrownBy(() -> converter.convertToEntityAttribute("invalid"))
+                .isInstanceOf(DateTimeParseException.class);
     }
 }
