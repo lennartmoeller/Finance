@@ -57,13 +57,13 @@ public class TransactionLinkSuggestionService {
                             .map(t -> {
                                 long daysBetween = Math.abs(
                                         new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
-                                double probability = 1.0 - (daysBetween / 7.0 / 2.0);
+                                double probability = 1.0 - daysBetween / 14.0;
                                 TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
                                 suggestion.setBankTransaction(bankTransaction);
                                 suggestion.setTransaction(t);
                                 suggestion.setProbability(probability);
                                 suggestion.setLinkState(
-                                        Math.abs(probability - 1.0) < 1e-6
+                                        daysBetween == 0
                                                 ? TransactionLinkState.CONFIRMED
                                                 : TransactionLinkState.UNDECIDED);
                                 return repository.save(suggestion);
