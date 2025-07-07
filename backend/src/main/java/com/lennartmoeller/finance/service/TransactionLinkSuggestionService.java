@@ -75,8 +75,8 @@ public class TransactionLinkSuggestionService {
                 .toList();
     }
 
-    public void updateForTransactions(List<Transaction> transactions) {
-        if (transactions.isEmpty()) {
+    public void updateForTransactions(@Nullable List<Transaction> transactions) {
+        if (transactions == null || transactions.isEmpty()) {
             return;
         }
         List<Long> ids = transactions.stream().map(Transaction::getId).toList();
@@ -89,8 +89,8 @@ public class TransactionLinkSuggestionService {
         generateSuggestions(transactions, null);
     }
 
-    public void updateForBankTransactions(List<BankTransaction> bankTransactions) {
-        if (bankTransactions.isEmpty()) {
+    public void updateForBankTransactions(@Nullable List<BankTransaction> bankTransactions) {
+        if (bankTransactions == null || bankTransactions.isEmpty()) {
             return;
         }
         List<Long> ids = bankTransactions.stream().map(BankTransaction::getId).toList();
