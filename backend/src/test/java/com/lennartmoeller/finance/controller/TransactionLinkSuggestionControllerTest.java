@@ -1,7 +1,9 @@
 package com.lennartmoeller.finance.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
@@ -13,15 +15,13 @@ import org.junit.jupiter.api.Test;
 
 class TransactionLinkSuggestionControllerTest {
     private TransactionLinkSuggestionService service;
-    private TransactionRepository transactionRepository;
-    private BankTransactionRepository bankTransactionRepository;
     private TransactionLinkSuggestionController controller;
 
     @BeforeEach
     void setUp() {
         service = mock(TransactionLinkSuggestionService.class);
-        transactionRepository = mock(TransactionRepository.class);
-        bankTransactionRepository = mock(BankTransactionRepository.class);
+        TransactionRepository transactionRepository = mock(TransactionRepository.class);
+        BankTransactionRepository bankTransactionRepository = mock(BankTransactionRepository.class);
         controller = new TransactionLinkSuggestionController(service, transactionRepository, bankTransactionRepository);
     }
 

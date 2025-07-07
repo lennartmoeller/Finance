@@ -3,7 +3,6 @@ package com.lennartmoeller.finance.csv;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.BankType;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -22,9 +21,14 @@ import org.springframework.stereotype.Component;
 public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+    private static boolean headerMapContains(String[] headers, int index) {
+        String key = headers[index];
+        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
+    }
+
     @Override
     @Nonnull
-    public List<IngV1TransactionDTO> parse(@Nonnull InputStream inputStream) throws IOException {
+    public List<IngV1TransactionDTO> parse(@Nonnull InputStream inputStream) {
         List<String> lines = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
                 .toList();
@@ -51,11 +55,6 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
                 .map(line -> parseLine(line, headers, iban))
                 .flatMap(Optional::stream)
                 .toList();
-    }
-
-    private static boolean headerMapContains(String[] headers, int index) {
-        String key = headers[index];
-        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
     }
 
     private Optional<IngV1TransactionDTO> parseLine(String line, String[] headers, String iban) {
