@@ -164,4 +164,29 @@ class BankCsvImportServiceTest {
         assertTrue(result.getUnsaved().isEmpty());
         verify(suggestionService).updateForBankTransactions(List.of(e2, e1));
     }
+
+    @Test
+    void testImportCsvHandlesNullIban() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
+        dto.setIban(null);
+        dto.setBookingDate(java.time.LocalDate.now());
+        dto.setPurpose("p");
+        dto.setCounterparty("c");
+        dto.setAmount(1L);
+
+        when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
+        when(ingParser.parse(any())).thenReturn(List.of(dto));
+        when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
+                .thenReturn(java.util.Collections.emptyList());
+        BankTransaction entity = new BankTransaction();
+        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(repository.findAllByDataIn(any())).thenReturn(List.of());
+        when(repository.saveAll(any())).thenReturn(List.of());
+
+        BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
+
+        assertTrue(result.getSaved().isEmpty());
+        assertEquals(List.of(dto), result.getUnsaved());
+    }
 }
