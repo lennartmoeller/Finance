@@ -1,37 +1,41 @@
 package com.lennartmoeller.finance.csv;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class EuroParserTest {
+
     @Test
-    void parsesAmount() {
-        Optional<Long> amount = EuroParser.parseToCents("1,23");
-        assertEquals(Optional.of(123L), amount);
+    void shouldParseAmountIntoCents() {
+        Optional<Long> result = EuroParser.parseToCents("1,23");
+        assertThat(result).contains(123L);
     }
 
     @Test
-    void ignoresWhitespace() {
-        Optional<Long> amount = EuroParser.parseToCents("1\u00A0234,50");
-        assertEquals(Optional.of(123450L), amount);
+    void shouldHandleThousandSeparatorsAndWhitespace() {
+        Optional<Long> result = EuroParser.parseToCents("1\u00A0234,50");
+        assertThat(result).contains(123450L);
     }
 
     @Test
-    void emptyReturnsEmpty() {
-        assertTrue(EuroParser.parseToCents(" ").isEmpty());
+    void shouldReturnEmptyForNullOrBlank() {
+        assertThat(EuroParser.parseToCents(null)).isEmpty();
+        assertThat(EuroParser.parseToCents("  ")).isEmpty();
     }
 
     @Test
-    void invalidThrows() {
-        assertThrows(IllegalArgumentException.class, () -> EuroParser.parseToCents("abc"));
+    void shouldParseNegativeValues() {
+        Optional<Long> result = EuroParser.parseToCents("-5,00");
+        assertThat(result).contains(-500L);
     }
 
     @Test
-    void nullReturnsEmpty() {
-        assertTrue(EuroParser.parseToCents(null).isEmpty());
+    void shouldThrowForInvalidInput() {
+        assertThatThrownBy(() -> EuroParser.parseToCents("abc"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid amount");
     }
 }
