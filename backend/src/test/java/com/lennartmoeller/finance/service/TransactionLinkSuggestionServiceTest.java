@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -175,5 +176,50 @@ class TransactionLinkSuggestionServiceTest {
         List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 
         assertEquals(1, result.size());
+    }
+
+    @Test
+    void testUpdateForTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId(40L);
+
+        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        undecided.setLinkState(TransactionLinkState.UNDECIDED);
+        TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
+        confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+
+        when(repository.findAllByTransaction_Id(40L)).thenReturn(List.of(undecided, confirmed));
+        when(bankTransactionRepository.findAll()).thenReturn(List.of());
+
+        service.updateForTransaction(transaction);
+
+        ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
+        verify(repository).delete(captor.capture());
+        assertSame(undecided, captor.getValue());
+    }
+
+    @Test
+    void testUpdateForBankTransaction() {
+        BankTransaction bankTransaction = new BankTransaction();
+        bankTransaction.setId(50L);
+        bankTransaction.setBookingDate(LocalDate.now());
+        bankTransaction.setAmount(1L);
+        Account account = new Account();
+        account.setId(1L);
+        bankTransaction.setAccount(account);
+
+        TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
+        auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
+        TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
+        rejected.setLinkState(TransactionLinkState.REJECTED);
+
+        when(repository.findAllByBankTransaction_Id(50L)).thenReturn(List.of(auto, rejected));
+        when(transactionRepository.findAll()).thenReturn(List.of());
+
+        service.updateForBankTransaction(bankTransaction);
+
+        ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
+        verify(repository).delete(captor.capture());
+        assertSame(auto, captor.getValue());
     }
 }

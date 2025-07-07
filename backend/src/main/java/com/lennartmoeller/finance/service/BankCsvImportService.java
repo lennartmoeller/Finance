@@ -34,6 +34,7 @@ public class BankCsvImportService {
     private final IngV1CsvParser ingParser;
     private final CamtV8CsvParser camtParser;
     private final AccountRepository accountRepository;
+    private final TransactionLinkSuggestionService suggestionService;
 
     public BankTransactionImportResultDTO importCsv(BankType type, MultipartFile file) throws IOException {
         List<? extends BankTransactionDTO> parsed;
@@ -74,6 +75,7 @@ public class BankCsvImportService {
                         return;
                     }
                     BankTransaction persisted = repository.save(entity);
+                    suggestionService.updateForBankTransaction(persisted);
                     saved.add(mapper.toDto(persisted));
                 });
 

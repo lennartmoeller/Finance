@@ -23,6 +23,7 @@ class TransactionServiceTest {
     private TransactionMapper transactionMapper;
     private AccountRepository accountRepository;
     private CategoryRepository categoryRepository;
+    private TransactionLinkSuggestionService suggestionService;
     private TransactionService service;
 
     @BeforeEach
@@ -32,8 +33,14 @@ class TransactionServiceTest {
         categoryService = mock(CategoryService.class);
         transactionMapper = mock(TransactionMapper.class);
         transactionRepository = mock(TransactionRepository.class);
+        suggestionService = mock(TransactionLinkSuggestionService.class);
         service = new TransactionService(
-                accountRepository, categoryRepository, categoryService, transactionMapper, transactionRepository);
+                accountRepository,
+                categoryRepository,
+                categoryService,
+                transactionMapper,
+                transactionRepository,
+                suggestionService);
     }
 
     @Test
@@ -124,6 +131,22 @@ class TransactionServiceTest {
     @Test
     void testDeleteById() {
         service.deleteById(11L);
+        verify(suggestionService).removeForTransaction(11L);
         verify(transactionRepository).deleteById(11L);
+    }
+
+    @Test
+    void testSaveInvokesSuggestionUpdate() {
+        TransactionDTO dto = new TransactionDTO();
+        Transaction entity = new Transaction();
+        Transaction saved = new Transaction();
+        when(transactionMapper.toEntity(dto, accountRepository, categoryRepository))
+                .thenReturn(entity);
+        when(transactionRepository.save(entity)).thenReturn(saved);
+        when(transactionMapper.toDto(saved)).thenReturn(dto);
+
+        service.save(dto);
+
+        verify(suggestionService).updateForTransaction(saved);
     }
 }

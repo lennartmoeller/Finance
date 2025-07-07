@@ -75,6 +75,32 @@ public class TransactionLinkSuggestionService {
                 .toList();
     }
 
+    public void updateForTransaction(Transaction transaction) {
+        List<TransactionLinkSuggestion> existing = repository.findAllByTransaction_Id(transaction.getId());
+        existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .forEach(repository::delete);
+        generateSuggestions(List.of(transaction), null);
+    }
+
+    public void updateForBankTransaction(BankTransaction bankTransaction) {
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransaction_Id(bankTransaction.getId());
+        existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .forEach(repository::delete);
+        generateSuggestions(null, List.of(bankTransaction));
+    }
+
+    public void removeForTransaction(Long id) {
+        repository.deleteAllByTransaction_Id(id);
+    }
+
+    public void removeForBankTransaction(Long id) {
+        repository.deleteAllByBankTransaction_Id(id);
+    }
+
     private boolean isNotExistingSuggestion(
             List<TransactionLinkSuggestion> existing, BankTransaction bankTransaction, Transaction transaction) {
         return existing.stream()

@@ -16,4 +16,12 @@ public interface TransactionLinkSuggestionRepository extends JpaRepository<Trans
             """)
     List<TransactionLinkSuggestion> findAllByBankTransactionIdsAndTransactionIds(
             @Nullable List<Long> bankTransactionIds, @Nullable List<Long> transactionIds);
+
+    List<TransactionLinkSuggestion> findAllByTransaction_Id(Long transactionId);
+
+    List<TransactionLinkSuggestion> findAllByBankTransaction_Id(Long bankTransactionId);
+
+    void deleteAllByTransaction_Id(Long transactionId);
+
+    void deleteAllByBankTransaction_Id(Long bankTransactionId);
 }
