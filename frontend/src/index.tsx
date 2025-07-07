@@ -2,7 +2,8 @@ import React from "react";
 
 import {PersistQueryClientProvider} from "@tanstack/react-query-persist-client";
 import ReactDOM from "react-dom/client";
-import {BrowserRouter, RouteObject, useRoutes} from "react-router-dom";
+import {BrowserRouter, useRoutes} from "react-router-dom";
+import type {RouteObject} from "react-router-dom";
 import {ThemeProvider} from "styled-components";
 
 import {persister, queryClient} from "@/config/queryClient";
