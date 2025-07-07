@@ -1,4 +1,4 @@
-import React, {RefObject, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 import {motion} from "framer-motion";
 
@@ -59,7 +59,9 @@ const Input = <T, >(
                     hasFocus: document.activeElement === input.current,
                     reset: () => {
                         setInputState(inputFormatter.valueToInputState(initial));
-                        autoFocus && input.current!.focus();
+                        if (autoFocus) {
+                            input.current!.focus();
+                        }
                     }
                 };
             }
