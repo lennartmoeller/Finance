@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,53 +11,56 @@ import com.lennartmoeller.finance.service.DailyBalanceStatsService;
 import com.lennartmoeller.finance.service.MonthlyCategoryBalanceStatsService;
 import com.lennartmoeller.finance.service.MonthlySavingStatsService;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class StatisticsControllerTest {
+    @Mock
     private DailyBalanceStatsService dailyService;
+
+    @Mock
     private MonthlyCategoryBalanceStatsService categoryService;
+
+    @Mock
     private MonthlySavingStatsService savingService;
+
+    @InjectMocks
     private StatisticsController controller;
 
-    @BeforeEach
-    void setUp() {
-        dailyService = mock(DailyBalanceStatsService.class);
-        categoryService = mock(MonthlyCategoryBalanceStatsService.class);
-        savingService = mock(MonthlySavingStatsService.class);
-        controller = new StatisticsController(dailyService, categoryService, savingService);
-    }
-
     @Test
-    void testGetDailyBalances() {
+    void shouldReturnDailyBalances() {
         List<DailySavingStatsDTO> list = List.of(new DailySavingStatsDTO());
         when(dailyService.getStats()).thenReturn(list);
 
         List<DailySavingStatsDTO> result = controller.getDailyBalances();
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(dailyService).getStats();
     }
 
     @Test
-    void testGetMonthlySavings() {
+    void shouldReturnMonthlySavings() {
         List<MonthlySavingStatsDTO> list = List.of(new MonthlySavingStatsDTO());
         when(savingService.getStats()).thenReturn(list);
 
         List<MonthlySavingStatsDTO> result = controller.getMonthlySavings();
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(savingService).getStats();
     }
 
     @Test
-    void testGetMonthlyCategoryBalances() {
+    void shouldReturnMonthlyCategoryBalances() {
         MonthlyCategoryStatsDTO dto = new MonthlyCategoryStatsDTO();
         when(categoryService.getStats()).thenReturn(dto);
 
         MonthlyCategoryStatsDTO result = controller.getMonthlyCategoryBalances();
 
-        assertEquals(dto, result);
+        assertThat(result).isEqualTo(dto);
         verify(categoryService).getStats();
     }
 }

@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,48 +11,80 @@ import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.service.TransactionLinkSuggestionService;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TransactionLinkSuggestionControllerTest {
+    @Mock
     private TransactionLinkSuggestionService service;
-    private TransactionLinkSuggestionController controller;
+
+    @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
     private BankTransactionRepository bankTransactionRepository;
 
-    @BeforeEach
-    void setUp() {
-        service = mock(TransactionLinkSuggestionService.class);
-        transactionRepository = mock(TransactionRepository.class);
-        bankTransactionRepository = mock(BankTransactionRepository.class);
-        controller = new TransactionLinkSuggestionController(service, transactionRepository, bankTransactionRepository);
-    }
+    @InjectMocks
+    private TransactionLinkSuggestionController controller;
 
     @Test
-    void testGetTransactionLinkSuggestions() {
-        List<TransactionLinkSuggestionDTO> list =
-                List.of(new TransactionLinkSuggestionDTO(), new TransactionLinkSuggestionDTO());
+    void shouldReturnSuggestions() {
+        List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
         when(service.findAll()).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.getTransactionLinkSuggestions();
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(service).findAll();
     }
 
     @Test
-    void testGenerateTransactionLinkSuggestions() {
+    void shouldGenerateSuggestionsWithoutIds() {
         List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
         when(service.generateSuggestions(null, null)).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(null, null);
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(service).generateSuggestions(null, null);
     }
 
     @Test
-    void testGenerateTransactionLinkSuggestionsWithIds() {
+    void shouldGenerateSuggestionsWithTransactionIdsOnly() {
+        List<Long> ids = List.of(1L, 2L);
+        List<Transaction> transactions = List.of(new Transaction());
+        when(transactionRepository.findAllById(ids)).thenReturn(transactions);
+        List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
+        when(service.generateSuggestions(transactions, null)).thenReturn(list);
+
+        List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(ids, null);
+
+        assertThat(result).isEqualTo(list);
+        verify(transactionRepository).findAllById(ids);
+        verify(service).generateSuggestions(transactions, null);
+    }
+
+    @Test
+    void shouldGenerateSuggestionsWithBankTransactionIdsOnly() {
+        List<Long> ids = List.of(3L);
+        List<BankTransaction> bankTransactions = List.of(new BankTransaction());
+        when(bankTransactionRepository.findAllById(ids)).thenReturn(bankTransactions);
+        List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
+        when(service.generateSuggestions(null, bankTransactions)).thenReturn(list);
+
+        List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(null, ids);
+
+        assertThat(result).isEqualTo(list);
+        verify(bankTransactionRepository).findAllById(ids);
+        verify(service).generateSuggestions(null, bankTransactions);
+    }
+
+    @Test
+    void shouldGenerateSuggestionsWithIds() {
         List<Long> tIds = List.of(1L, 2L);
         List<Long> bIds = List.of(3L);
         List<Transaction> transactions = List.of(new Transaction());
@@ -65,7 +96,7 @@ class TransactionLinkSuggestionControllerTest {
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(tIds, bIds);
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(transactionRepository).findAllById(tIds);
         verify(bankTransactionRepository).findAllById(bIds);
         verify(service).generateSuggestions(transactions, bankTransactions);
