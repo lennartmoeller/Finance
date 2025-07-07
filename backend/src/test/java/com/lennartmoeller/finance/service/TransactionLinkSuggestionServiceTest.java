@@ -8,6 +8,7 @@ import com.lennartmoeller.finance.mapper.TransactionLinkSuggestionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.Transaction;
+import com.lennartmoeller.finance.model.TransactionLinkState;
 import com.lennartmoeller.finance.model.TransactionLinkSuggestion;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository;
@@ -95,9 +96,15 @@ class TransactionLinkSuggestionServiceTest {
         List<TransactionLinkSuggestion> saved = captor.getAllValues();
         double p1 = saved.getFirst().getProbability();
         double p2 = saved.get(1).getProbability();
-        boolean firstMatch = Math.abs(p1 - 1.0) < 1e-6 && Math.abs(p2 - (4.0 / 7)) < 1e-6;
-        boolean secondMatch = Math.abs(p2 - 1.0) < 1e-6 && Math.abs(p1 - (4.0 / 7)) < 1e-6;
+        boolean firstMatch = Math.abs(p1 - 1.0) < 1e-6 && Math.abs(p2 - (11.0 / 14.0)) < 1e-6;
+        boolean secondMatch = Math.abs(p2 - 1.0) < 1e-6 && Math.abs(p1 - (11.0 / 14.0)) < 1e-6;
         assertEquals(true, firstMatch || secondMatch);
+
+        TransactionLinkSuggestion confirmed = saved.stream()
+                .filter(s -> Math.abs(s.getProbability() - 1.0) < 1e-6)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(TransactionLinkState.CONFIRMED, confirmed.getLinkState());
     }
 
     @Test
