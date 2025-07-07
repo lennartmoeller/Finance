@@ -56,4 +56,36 @@ class IngV1CsvParserTest {
         assertThat(dto.getData()).containsEntry("W\u00E4hrung", "EUR");
         assertThat(dto.getData()).containsEntry("W\u00E4hrung_9", "EUR");
     }
+
+    @Test
+    void shouldUseEmptyIbanWhenNotPresent() {
+        String csv = "Header\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;W\u00E4hrung;Betrag;W\u00E4hrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;-100,00;EUR;-5,00;EUR\n";
+        IngV1CsvParser parser = new IngV1CsvParser();
+
+        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(result).hasSize(1);
+        IngV1TransactionDTO dto = result.getFirst();
+        assertThat(dto.getIban()).isEmpty();
+        assertThat(dto.getAmount()).isEqualTo(-500L);
+        assertThat(dto.getBalance()).isEqualTo(-10000L);
+        assertThat(dto.getData()).containsEntry("IBAN", "");
+    }
+
+    @Test
+    void shouldSkipBlankAndMalformedLines() {
+        String csv = "IBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;W\u00E4hrung;Betrag;W\u00E4hrung\n"
+                + "\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR\n"
+                + "02.01.2025;02.01.2025;Counter;Text\n"; // malformed
+        IngV1CsvParser parser = new IngV1CsvParser();
+
+        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getBookingDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+    }
 }
