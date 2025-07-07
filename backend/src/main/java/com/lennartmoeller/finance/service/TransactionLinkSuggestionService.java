@@ -24,6 +24,8 @@ public class TransactionLinkSuggestionService {
     private final BankTransactionRepository bankTransactionRepository;
     private final TransactionRepository transactionRepository;
 
+    private static final int WINDOW_DAYS = 7;
+
     public List<TransactionLinkSuggestionDTO> findAll() {
         return repository.findAll().stream().map(mapper::toDto).toList();
     }
@@ -45,8 +47,7 @@ public class TransactionLinkSuggestionService {
         return bankTransactionList.stream()
                 .flatMap(bankTransaction -> {
                     LocalDate date = bankTransaction.getBookingDate();
-                    int windowDays = 7;
-                    DateRange range = new DateRange(date.minusDays(windowDays), date.plusDays(windowDays));
+                    DateRange range = new DateRange(date.minusDays(WINDOW_DAYS), date.plusDays(WINDOW_DAYS));
 
                     return transactionList.stream()
                             .filter(t -> t.getAccount()
@@ -58,7 +59,7 @@ public class TransactionLinkSuggestionService {
                             .map(t -> {
                                 long daysBetween = Math.abs(
                                         new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
-                                double probability = 1.0 - daysBetween / (2.0 * windowDays);
+                                double probability = 1.0 - daysBetween / (2.0 * WINDOW_DAYS);
                                 TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
                                 suggestion.setBankTransaction(bankTransaction);
                                 suggestion.setTransaction(t);
