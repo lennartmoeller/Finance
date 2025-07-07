@@ -53,12 +53,8 @@ public class BankCsvImportService {
         Map<String, Account> accountMap = accountRepository.findAllByIbanIn(ibans).stream()
                 .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
-        List<BankTransaction> savedEntities = new ArrayList<>();
-        List<BankTransactionDTO> unsavedDtos = new ArrayList<>();
-
-        parsed.stream()
-                .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
-                .forEach(dto -> {
+        List<Map.Entry<BankTransactionDTO, BankTransaction>> mapped = parsed.stream()
+                .map(dto -> {
                     Account account = accountMap.get(dto.getIban());
                     BankTransaction entity =
                             switch (dto) {
@@ -66,13 +62,33 @@ public class BankCsvImportService {
                                 case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
                                 default -> mapper.toEntity(dto, account);
                             };
-                    if (entity.getAccount() == null || repository.existsByData(entity.getData())) {
-                        unsavedDtos.add(dto);
-                        return;
-                    }
-                    BankTransaction persisted = repository.save(entity);
-                    savedEntities.add(persisted);
-                });
+                    return Map.entry(dto, entity);
+                })
+                .sorted(Comparator.comparing(entry -> entry.getKey().getBookingDate()))
+                .toList();
+
+        List<BankTransaction> entities =
+                mapped.stream().map(Map.Entry::getValue).toList();
+        List<Map<String, String>> data =
+                entities.stream().map(BankTransaction::getData).toList();
+        Set<Map<String, String>> existingData = repository.findAllByDataIn(data).stream()
+                .map(BankTransaction::getData)
+                .collect(Collectors.toSet());
+
+        List<BankTransaction> toSave = new ArrayList<>();
+        List<BankTransactionDTO> unsavedDtos = new ArrayList<>();
+
+        for (int i = 0; i < mapped.size(); i++) {
+            BankTransaction entity = entities.get(i);
+            BankTransactionDTO dto = mapped.get(i).getKey();
+            if (entity.getAccount() == null || existingData.contains(entity.getData())) {
+                unsavedDtos.add(dto);
+            } else {
+                toSave.add(entity);
+            }
+        }
+
+        List<BankTransaction> savedEntities = toSave.isEmpty() ? List.of() : repository.saveAll(toSave);
 
         suggestionService.updateForBankTransactions(savedEntities);
 
