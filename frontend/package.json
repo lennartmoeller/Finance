@@ -6,7 +6,8 @@
     "clean": "rimraf dist",
     "lint": "npx eslint --fix",
     "start": "npm run clean && webpack --mode development && webpack serve --mode development",
-    "build": "npm run clean && webpack --mode production"
+    "build": "npm run clean && webpack --mode production",
+    "update": "npx ncu -u"
   },
   "dependencies": {
     "@floating-ui/react": "0.27.13",
@@ -32,7 +33,6 @@
     "@babel/preset-typescript": "7.27.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.30.1",
-    "@tanstack/eslint-plugin-query": "5.81.2",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@typescript-eslint/eslint-plugin": "8.36.0",
