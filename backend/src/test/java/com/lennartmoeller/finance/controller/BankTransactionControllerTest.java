@@ -2,6 +2,7 @@ package com.lennartmoeller.finance.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -46,6 +47,15 @@ class BankTransactionControllerTest {
 
         assertEquals(List.of(dto), result.getSaved());
         assertTrue(result.getUnsaved().isEmpty());
+        verify(importService).importCsv(BankType.ING_V1, file);
+    }
+
+    @Test
+    void testImportCsvThrowsException() throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        when(importService.importCsv(BankType.ING_V1, file)).thenThrow(new IOException("fail"));
+
+        assertThrows(IOException.class, () -> controller.importCsv(BankType.ING_V1, file));
         verify(importService).importCsv(BankType.ING_V1, file);
     }
 
