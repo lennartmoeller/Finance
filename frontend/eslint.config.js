@@ -1,66 +1,86 @@
+import {FlatCompat} from '@eslint/eslintrc';
 import js from '@eslint/js';
-import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import importPlugin from 'eslint-plugin-import';
+import globals from 'globals';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const compat = new FlatCompat({
+    baseDirectory: path.dirname(fileURLToPath(import.meta.url)),
+    recommendedConfig: js.configs.recommended,
+});
 
 export default [
-  {
-    ignores: ['webpack.config.js'],
-  },
-  js.configs.recommended,
-  reactPlugin.configs.recommended,
-  reactHooksPlugin.configs.recommended,
-  tsPlugin.configs.recommended,
-  importPlugin.configs.errors,
-  importPlugin.configs.warnings,
-  {
-    languageOptions: {
-      parser: tsParser,
-      ecmaVersion: 12,
-      sourceType: 'module',
-      globals: {
-        ...js.environments.browser.globals,
-      },
+    ...compat.extends(
+        'eslint:recommended',
+        'plugin:react/recommended',
+        'plugin:react-hooks/recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:import/errors',
+        'plugin:import/warnings',
+    ),
+    {
+        ignores: [
+            '**/*',
+            '!src',
+            '!src/**/*',
+        ],
     },
-    settings: {
-      'import/resolver': {
-        alias: {
-          map: [['@', './src/main/tsx']],
-          extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    {
+        languageOptions: {
+            parser: tsParser,
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            globals: {
+                ...globals.browser,
+                ...globals.es2021,
+            },
+            parserOptions: {ecmaFeatures: {jsx: true}},
         },
-        node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        settings: {
+            react: {version: 'detect'},
+            'import/resolver': {
+                alias: {
+                    map: [['@', './src']],
+                    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+                },
+                node: {extensions: ['.js', '.jsx', '.ts', '.tsx']},
+                typescript: {},
+            },
         },
-      },
-    },
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-      '@typescript-eslint': tsPlugin,
-      import: importPlugin,
-    },
-    rules: {
-      'sort-imports': ['error', { ignoreCase: true, ignoreDeclarationSort: true }],
-      'import/order': [
-        'error',
-        {
-          groups: [
-            ['builtin', 'external'],
-            ['internal', 'sibling', 'parent', 'index'],
-          ],
-          pathGroups: [
-            { pattern: 'react', group: 'external', position: 'before' },
-            { pattern: '@src/**', group: 'internal' },
-          ],
-          pathGroupsExcludedImportTypes: ['react'],
-          newlines-between: 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true },
+        plugins: {
+            react: reactPlugin,
+            'react-hooks': reactHooksPlugin,
+            '@typescript-eslint': tsPlugin,
+            import: importPlugin,
         },
-      ],
-      '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': 'allow-with-description' }],
-      semi: ['error', 'always'],
+        rules: {
+            'sort-imports': ['error', {ignoreCase: true, ignoreDeclarationSort: true}],
+            'import/order': [
+                'error',
+                {
+                    groups: [
+                        ['builtin', 'external'],
+                        ['internal', 'sibling', 'parent', 'index'],
+                    ],
+                    pathGroups: [
+                        {pattern: 'react', group: 'external', position: 'before'},
+                        {pattern: '@/**', group: 'internal'},
+                    ],
+                    pathGroupsExcludedImportTypes: ['react'],
+                    'newlines-between': 'always',
+                    alphabetize: {order: 'asc', caseInsensitive: true},
+                },
+            ],
+            '@typescript-eslint/ban-ts-comment': [
+                'error',
+                {'ts-ignore': 'allow-with-description'},
+            ],
+            semi: ['error', 'always'],
+        },
     },
-  },
 ];
