@@ -147,6 +147,6 @@ class TransactionServiceTest {
 
         service.save(dto);
 
-        verify(suggestionService).updateForTransaction(saved);
+        verify(suggestionService).updateForTransactions(List.of(saved));
     }
 }

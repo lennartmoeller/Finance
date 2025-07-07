@@ -191,7 +191,7 @@ class TransactionLinkSuggestionServiceTest {
         when(repository.findAllByTransaction_Id(40L)).thenReturn(List.of(undecided, confirmed));
         when(bankTransactionRepository.findAll()).thenReturn(List.of());
 
-        service.updateForTransaction(transaction);
+        service.updateForTransactions(List.of(transaction));
 
         ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
         verify(repository).delete(captor.capture());
@@ -216,7 +216,7 @@ class TransactionLinkSuggestionServiceTest {
         when(repository.findAllByBankTransaction_Id(50L)).thenReturn(List.of(auto, rejected));
         when(transactionRepository.findAll()).thenReturn(List.of());
 
-        service.updateForBankTransaction(bankTransaction);
+        service.updateForBankTransactions(List.of(bankTransaction));
 
         ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
         verify(repository).delete(captor.capture());

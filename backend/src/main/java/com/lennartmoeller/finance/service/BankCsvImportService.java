@@ -75,7 +75,7 @@ public class BankCsvImportService {
                         return;
                     }
                     BankTransaction persisted = repository.save(entity);
-                    suggestionService.updateForBankTransaction(persisted);
+                    suggestionService.updateForBankTransactions(List.of(persisted));
                     saved.add(mapper.toDto(persisted));
                 });
 

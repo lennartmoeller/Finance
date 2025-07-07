@@ -83,7 +83,7 @@ class BankTransactionServiceTest {
         BankTransactionDTO result = service.save(dtoIn);
 
         assertEquals(dtoOut, result);
-        verify(suggestionService).updateForBankTransaction(saved);
+        verify(suggestionService).updateForBankTransactions(List.of(saved));
     }
 
     @Test

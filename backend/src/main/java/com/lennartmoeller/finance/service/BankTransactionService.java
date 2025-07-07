@@ -37,7 +37,7 @@ public class BankTransactionService {
         }
         BankTransaction entity = mapper.toEntity(dto, account);
         BankTransaction saved = repository.save(entity);
-        suggestionService.updateForBankTransaction(saved);
+        suggestionService.updateForBankTransactions(List.of(saved));
         return mapper.toDto(saved);
     }
 

@@ -75,22 +75,26 @@ public class TransactionLinkSuggestionService {
                 .toList();
     }
 
-    public void updateForTransaction(Transaction transaction) {
-        List<TransactionLinkSuggestion> existing = repository.findAllByTransaction_Id(transaction.getId());
-        existing.stream()
-                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
-                .forEach(repository::delete);
-        generateSuggestions(List.of(transaction), null);
+    public void updateForTransactions(List<Transaction> transactions) {
+        for (Transaction transaction : transactions) {
+            List<TransactionLinkSuggestion> existing = repository.findAllByTransaction_Id(transaction.getId());
+            existing.stream()
+                    .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                            || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                    .forEach(repository::delete);
+        }
+        generateSuggestions(transactions, null);
     }
 
-    public void updateForBankTransaction(BankTransaction bankTransaction) {
-        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransaction_Id(bankTransaction.getId());
-        existing.stream()
-                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
-                .forEach(repository::delete);
-        generateSuggestions(null, List.of(bankTransaction));
+    public void updateForBankTransactions(List<BankTransaction> bankTransactions) {
+        for (BankTransaction bankTransaction : bankTransactions) {
+            List<TransactionLinkSuggestion> existing = repository.findAllByBankTransaction_Id(bankTransaction.getId());
+            existing.stream()
+                    .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                            || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                    .forEach(repository::delete);
+        }
+        generateSuggestions(null, bankTransactions);
     }
 
     public void removeForTransaction(Long id) {
