@@ -107,6 +107,25 @@ class BankTransactionServiceTest {
     }
 
     @Test
+    void testSaveWithIbanNotFound() {
+        BankTransactionDTO dto = new BankTransactionDTO();
+        dto.setIban("DE");
+        BankTransaction entity = new BankTransaction();
+        BankTransaction saved = new BankTransaction();
+
+        when(accountRepository.findAllByIbanIn(Collections.singleton("DE"))).thenReturn(List.of());
+        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(saved);
+        when(mapper.toDto(saved)).thenReturn(dto);
+
+        BankTransactionDTO result = service.save(dto);
+
+        assertEquals(dto, result);
+        verify(accountRepository).findAllByIbanIn(Collections.singleton("DE"));
+        verify(suggestionService).updateForBankTransactions(List.of(saved));
+    }
+
+    @Test
     void testDeleteById() {
         service.deleteById(11L);
         verify(suggestionService).removeForBankTransaction(11L);
