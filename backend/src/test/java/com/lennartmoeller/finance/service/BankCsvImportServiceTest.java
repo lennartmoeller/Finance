@@ -60,9 +60,9 @@ class BankCsvImportServiceTest {
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
         when(mapper.toEntity(dto, account)).thenReturn(entity);
-        when(repository.existsByData(any())).thenReturn(false);
+        when(repository.findAllByDataIn(any())).thenReturn(List.of());
         BankTransaction saved = new BankTransaction();
-        when(repository.save(entity)).thenReturn(saved);
+        when(repository.saveAll(List.of(entity))).thenReturn(List.of(saved));
         BankTransactionDTO resultDto = new BankTransactionDTO();
         when(mapper.toDto(saved)).thenReturn(resultDto);
 
@@ -70,7 +70,7 @@ class BankCsvImportServiceTest {
 
         assertEquals(List.of(resultDto), result.getSaved());
         assertTrue(result.getUnsaved().isEmpty());
-        verify(repository).save(entity);
+        verify(repository).saveAll(List.of(entity));
         verify(suggestionService).updateForBankTransactions(List.of(saved));
     }
 
@@ -91,13 +91,13 @@ class BankCsvImportServiceTest {
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
         when(mapper.toEntity(dto, account)).thenReturn(entity);
-        when(repository.existsByData(any())).thenReturn(true);
+        when(repository.findAllByDataIn(any())).thenReturn(List.of(entity));
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
         assertTrue(result.getSaved().isEmpty());
         assertEquals(List.of(dto), result.getUnsaved());
-        verify(repository, never()).save(any());
+        verify(repository, never()).saveAll(any());
     }
 
     @Test
@@ -114,7 +114,7 @@ class BankCsvImportServiceTest {
 
         assertTrue(result.getSaved().isEmpty());
         assertEquals(List.of(dto), result.getUnsaved());
-        verify(repository, never()).save(any());
+        verify(repository, never()).saveAll(any());
     }
 
     @Test
@@ -145,8 +145,8 @@ class BankCsvImportServiceTest {
         e2.setAccount(account);
         when(mapper.toEntity(dto1, account)).thenReturn(e1);
         when(mapper.toEntity(dto2, account)).thenReturn(e2);
-        when(repository.existsByData(any())).thenReturn(false);
-        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.findAllByDataIn(any())).thenReturn(List.of());
+        when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(same(e1))).thenReturn(dto1);
         when(mapper.toDto(same(e2))).thenReturn(dto2);
 
