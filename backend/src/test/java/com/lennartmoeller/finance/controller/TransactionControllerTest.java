@@ -43,6 +43,17 @@ class TransactionControllerTest {
     }
 
     @Test
+    void testGetTransactionsWithNullParameters() {
+        List<TransactionDTO> list = List.of(new TransactionDTO());
+        when(service.findFiltered(null, null, null, null)).thenReturn(list);
+
+        List<TransactionDTO> result = controller.getTransactions(null, null, null, null);
+
+        assertEquals(list, result);
+        verify(service).findFiltered(null, null, null, null);
+    }
+
+    @Test
     void testGetTransactionByIdFound() {
         TransactionDTO dto = new TransactionDTO();
         when(service.findById(1L)).thenReturn(Optional.of(dto));
