@@ -55,6 +55,7 @@ public class BankCsvImportService {
 
         List<BankTransactionDTO> saved = new ArrayList<>();
         List<BankTransactionDTO> unsaved = new ArrayList<>();
+        List<BankTransaction> persistedEntities = new ArrayList<>();
 
         parsed.stream()
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
@@ -75,9 +76,13 @@ public class BankCsvImportService {
                         return;
                     }
                     BankTransaction persisted = repository.save(entity);
-                    suggestionService.updateForBankTransactions(List.of(persisted));
+                    persistedEntities.add(persisted);
                     saved.add(mapper.toDto(persisted));
                 });
+
+        if (!persistedEntities.isEmpty()) {
+            suggestionService.updateForBankTransactions(persistedEntities);
+        }
 
         return new BankTransactionImportResultDTO(saved, unsaved);
     }

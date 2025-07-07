@@ -156,6 +156,6 @@ class BankCsvImportServiceTest {
 
         assertEquals(List.of(dto2, dto1), result.getSaved());
         assertTrue(result.getUnsaved().isEmpty());
-        verify(suggestionService, times(2)).updateForBankTransactions(any());
+        verify(suggestionService).updateForBankTransactions(List.of(e2, e1));
     }
 }
