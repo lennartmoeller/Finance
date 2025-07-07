@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
@@ -98,13 +99,13 @@ class TransactionLinkSuggestionServiceTest {
         double p2 = saved.get(1).getProbability();
         boolean firstMatch = Math.abs(p1 - 1.0) < 1e-6 && Math.abs(p2 - (11.0 / 14.0)) < 1e-6;
         boolean secondMatch = Math.abs(p2 - 1.0) < 1e-6 && Math.abs(p1 - (11.0 / 14.0)) < 1e-6;
-        assertEquals(true, firstMatch || secondMatch);
+        assertTrue(firstMatch || secondMatch);
 
         TransactionLinkSuggestion confirmed = saved.stream()
                 .filter(s -> Math.abs(s.getProbability() - 1.0) < 1e-6)
                 .findFirst()
                 .orElseThrow();
-        assertEquals(TransactionLinkState.CONFIRMED, confirmed.getLinkState());
+        assertEquals(TransactionLinkState.AUTO_CONFIRMED, confirmed.getLinkState());
     }
 
     @Test
