@@ -1,83 +1,58 @@
 package com.lennartmoeller.finance.csv;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
+import com.lennartmoeller.finance.model.BankType;
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 class CamtV8CsvParserTest {
-    static List<String> invalidCsvInputs() {
-        return List.of(
-                """
-			"Auftragskonto";"Buchungstag"
-			invalid
-			""",
-                """
-			"Auftragskonto";"Buchungstag";"Valutadatum"
-			"DE";"01.01.25"
-			""",
-                """
-			"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
-			"DE";"01.01.25";"01.01.25";"T"
-			""",
-                """
-			"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
-			
-			""");
+
+    @Test
+    void shouldReturnEmptyListWhenInputIsEmpty() {
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+
+        List<CamtV8TransactionDTO> result = parser.parse(new ByteArrayInputStream(new byte[0]));
+
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void parsesAndSanitizesIban() {
+    void shouldParseValidCsvAndSkipInvalidLines() {
         String csv =
-                """
-			"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
-			"DE12 3456 7890 1234 5678 90";"01.01.25";"01.01.25";"TEXT";"purpose";"";"";"";"";"";"";"counter";"DE87654321";"BIC";"1,00";"EUR";"info"
-			""";
+                "\uFEFF\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz (End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
+                        + "\"DE12 3456\";\"01.01.24\";\"01.01.24\";\"Booking\";\"Purpose\";\"CID\";\"MID\";\"CR\";\"Collector\";\"Original\";\"Fee\";\"Counter\";\"DE55 6666\";\"BIC\";\"1,00\";\"EUR\";\"Info\"\n"
+                        + "\n"
+                        + "DE12;01.01.24\n"; // invalid line
+
         CamtV8CsvParser parser = new CamtV8CsvParser();
-        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-        assertEquals(1, list.size());
-        assertEquals("DE12345678901234567890", list.getFirst().getIban());
+        List<CamtV8TransactionDTO> result =
+                parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(result).hasSize(1);
+        CamtV8TransactionDTO dto = result.getFirst();
+        assertThat(dto.getBank()).isEqualTo(BankType.CAMT_V8);
+        assertThat(dto.getIban()).isEqualTo("DE123456");
+        assertThat(dto.getBookingDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(dto.getAmount()).isEqualTo(100L);
+        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
     }
 
     @Test
-    void handlesBom() {
-        String csv =
-                """
-			\uFEFF"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
-			"DE12";"01.01.25";"01.01.25";"T";"p";"";"";"";"";"";"";"c";"DE";"B";"1,00";"EUR";"i"
-			""";
+    void parseLineHandlesBomAndQuotes() throws Exception {
         CamtV8CsvParser parser = new CamtV8CsvParser();
-        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-        assertEquals(1, list.size());
-    }
+        Method method = CamtV8CsvParser.class.getDeclaredMethod("parseLine", String.class);
+        method.setAccessible(true);
 
-    @Test
-    void emptyInputReturnsEmpty() throws Exception {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(new byte[0]));
-        assertTrue(list.isEmpty());
-    }
+        String[] tokens = (String[]) method.invoke(parser, "\uFEFF\"A\";\"B\"");
+        assertThat(tokens).containsExactly("A", "B");
 
-    @ParameterizedTest
-    @MethodSource("invalidCsvInputs")
-    void skipsInvalidOrShortOrBlankLines(String csv) throws Exception {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        List<CamtV8TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-        assertTrue(list.isEmpty());
-    }
-
-    @Test
-    void parseLineDirect() throws Exception {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        java.lang.reflect.Method m = CamtV8CsvParser.class.getDeclaredMethod("parseLine", String.class);
-        m.setAccessible(true);
-        assertEquals("A", ((String[]) m.invoke(parser, "\"A\""))[0]);
-        assertEquals("B", ((String[]) m.invoke(parser, "B"))[0]);
+        String[] plain = (String[]) method.invoke(parser, "A;B");
+        assertThat(plain).containsExactly("A;B");
     }
 }
