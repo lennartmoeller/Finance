@@ -14,23 +14,26 @@ class YearMonthConverterTest {
     private final YearMonthConverter converter = new YearMonthConverter();
 
     @ParameterizedTest
-    @CsvSource({"2023-01", "1999-12"})
-    void shouldConvertToDatabaseColumnAndBack(String value) {
+    @CsvSource({"2023-01", "1999-12", "0001-01"})
+    void shouldConvertRoundTripForValidValues(String value) {
         YearMonth yearMonth = YearMonth.parse(value);
+
         String db = converter.convertToDatabaseColumn(yearMonth);
+        YearMonth result = converter.convertToEntityAttribute(db);
+
         assertThat(db).isEqualTo(value);
-        assertThat(converter.convertToEntityAttribute(db)).isEqualTo(yearMonth);
+        assertThat(result).isEqualTo(yearMonth);
     }
 
     @Test
-    void shouldReturnNullOnNullInput() {
+    void shouldReturnNullForNullInput() {
         assertThat(converter.convertToDatabaseColumn(null)).isNull();
         assertThat(converter.convertToEntityAttribute(null)).isNull();
     }
 
     @Test
-    void shouldThrowExceptionForInvalidString() {
-        assertThatThrownBy(() -> converter.convertToEntityAttribute("invalid"))
+    void shouldThrowDateTimeParseExceptionForInvalidString() {
+        assertThatThrownBy(() -> converter.convertToEntityAttribute("not-a-date"))
                 .isInstanceOf(DateTimeParseException.class);
     }
 }
