@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
@@ -229,5 +230,54 @@ class TransactionLinkSuggestionServiceTest {
         ArgumentCaptor<List<TransactionLinkSuggestion>> captor2 = ArgumentCaptor.forClass(List.class);
         verify(repository).deleteAll(captor2.capture());
         assertEquals(List.of(auto), captor2.getValue());
+    }
+
+    @Test
+    void testGenerateSuggestionsUsesProvidedLists() {
+        Account account = new Account();
+        account.setId(1L);
+
+        Transaction t = new Transaction();
+        t.setId(1L);
+        t.setAccount(account);
+        t.setAmount(5L);
+        t.setDate(LocalDate.now());
+
+        BankTransaction b = new BankTransaction();
+        b.setId(2L);
+        b.setAccount(account);
+        b.setAmount(5L);
+        b.setBookingDate(LocalDate.now());
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(2L), List.of(1L)))
+                .thenReturn(List.of());
+        when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
+
+        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(List.of(t), List.of(b));
+
+        assertEquals(1, result.size());
+        verifyNoInteractions(bankTransactionRepository, transactionRepository);
+    }
+
+    @Test
+    void testUpdateForTransactionsNoInput() {
+        service.updateForTransactions(null);
+        service.updateForTransactions(List.of());
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void testUpdateForBankTransactionsNoInput() {
+        service.updateForBankTransactions(null);
+        service.updateForBankTransactions(List.of());
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void testRemoveMethods() {
+        service.removeForTransaction(1L);
+        service.removeForBankTransaction(2L);
+        verify(repository).deleteAllByTransaction_Id(1L);
+        verify(repository).deleteAllByBankTransaction_Id(2L);
     }
 }
