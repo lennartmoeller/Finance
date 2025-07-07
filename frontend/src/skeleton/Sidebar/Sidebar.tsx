@@ -2,13 +2,13 @@ import React from "react";
 
 import {Link} from "react-router-dom";
 
+import Icon from "@/components/Icon/Icon";
 import routes from "@/skeleton/routes";
 import StyledSidebarLogo from "@/skeleton/Sidebar/Logo/StyledSidebarLogo";
 import StyledSidebar from "@/skeleton/Sidebar/styles/StyledSidebar";
-import StyledSidebarLinks from "@/skeleton/Sidebar/styles/StyledSidebarLinks";
 import StyledSidebarButton from "@/skeleton/Sidebar/styles/StyledSidebarButton";
-import Icon from "@/components/Icon/Icon";
 import StyledSidebarButtonLabel from "@/skeleton/Sidebar/styles/StyledSidebarButtonLabel";
+import StyledSidebarLinks from "@/skeleton/Sidebar/styles/StyledSidebarLinks";
 
 const Sidebar: React.FC = () => {
     return (
