@@ -90,6 +90,23 @@ class BankTransactionServiceTest {
     }
 
     @Test
+    void testSaveWithoutIban() {
+        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransaction entity = new BankTransaction();
+        BankTransaction saved = new BankTransaction();
+
+        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(saved);
+        when(mapper.toDto(saved)).thenReturn(dto);
+
+        BankTransactionDTO result = service.save(dto);
+
+        assertEquals(dto, result);
+        verifyNoInteractions(accountRepository);
+        verify(suggestionService).updateForBankTransactions(List.of(saved));
+    }
+
+    @Test
     void testDeleteById() {
         service.deleteById(11L);
         verify(suggestionService).removeForBankTransaction(11L);
