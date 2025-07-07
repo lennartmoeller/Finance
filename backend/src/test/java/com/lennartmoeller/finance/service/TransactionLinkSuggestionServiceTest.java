@@ -90,16 +90,16 @@ class TransactionLinkSuggestionServiceTest {
         when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
                 .thenReturn(List.of());
 
-        ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
-        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
+        when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
         List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 
         assertEquals(2, result.size());
-        verify(repository, times(2)).save(captor.capture());
-
-        List<TransactionLinkSuggestion> saved = captor.getAllValues();
+        verify(repository).saveAll(captor.capture());
+        List<TransactionLinkSuggestion> saved = captor.getValue();
         double p1 = saved.getFirst().getProbability();
         double p2 = saved.get(1).getProbability();
         boolean firstMatch = Math.abs(p1 - 1.0) < 1e-6 && Math.abs(p2 - (11.0 / 14.0)) < 1e-6;
@@ -142,7 +142,7 @@ class TransactionLinkSuggestionServiceTest {
         List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
 
         assertEquals(0, result.size());
-        verify(repository, never()).save(any());
+        verify(repository, never()).saveAll(any());
     }
 
     @Test
@@ -174,7 +174,7 @@ class TransactionLinkSuggestionServiceTest {
         when(transactionRepository.findAll()).thenReturn(List.of(transaction));
         when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
                 .thenReturn(List.of());
-        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
         List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);

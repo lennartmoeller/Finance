@@ -43,7 +43,7 @@ public class TransactionLinkSuggestionService {
         List<TransactionLinkSuggestion> existing =
                 repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds);
 
-        return bankTransactionList.stream()
+        List<TransactionLinkSuggestion> suggestions = bankTransactionList.stream()
                 .flatMap(bankTransaction -> {
                     LocalDate date = bankTransaction.getBookingDate();
                     DateRange range = new DateRange(date.minusDays(WINDOW_DAYS), date.plusDays(WINDOW_DAYS));
@@ -67,11 +67,14 @@ public class TransactionLinkSuggestionService {
                                         probability == 1.0
                                                 ? TransactionLinkState.AUTO_CONFIRMED
                                                 : TransactionLinkState.UNDECIDED);
-                                return repository.save(suggestion);
+                                return suggestion;
                             });
                 })
-                .map(mapper::toDto)
                 .toList();
+
+        List<TransactionLinkSuggestion> saved = suggestions.isEmpty() ? List.of() : repository.saveAll(suggestions);
+
+        return saved.stream().map(mapper::toDto).toList();
     }
 
     public void updateForTransactions(@Nullable List<Transaction> transactions) {
