@@ -1,7 +1,10 @@
 package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.DailySavingStatsDTO;
 import com.lennartmoeller.finance.dto.StatsMetricDTO;

@@ -1,6 +1,8 @@
 package com.lennartmoeller.finance.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.lennartmoeller.finance.repository.AccountRepository;
 import java.sql.Timestamp;

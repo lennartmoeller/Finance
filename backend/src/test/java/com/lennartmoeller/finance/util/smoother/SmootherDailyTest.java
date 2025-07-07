@@ -56,7 +56,7 @@ class SmootherDailyTest {
         // H1 in 2021 has 181 days.
         smoother.add(date, CategorySmoothType.HALF_YEARLY, 18100L);
 
-        // Raw value on input date is 18100.
+        // The Raw value on input date is 18,100.
         StatsMetricDTO metricRaw = smoother.get(date);
         assertEquals(18100.0, metricRaw.getRaw());
         // Check a day within H1 (e.g., Jan 1) gets 18100/181 = 100.
@@ -74,7 +74,7 @@ class SmootherDailyTest {
         // For YEARLY smoothing, the range covers the entire year (365 days for 2021).
         smoother.add(date, CategorySmoothType.YEARLY, 36500L);
 
-        // Raw value on input date is 36500.
+        // The Raw value on input date is 36,500.
         StatsMetricDTO metricRaw = smoother.get(date);
         assertEquals(36500.0, metricRaw.getRaw());
         // Check a day in the year (e.g., Jan 1) gets 36500/365 = 100.
