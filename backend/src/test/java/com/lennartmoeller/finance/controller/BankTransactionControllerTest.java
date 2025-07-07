@@ -1,11 +1,9 @@
 package com.lennartmoeller.finance.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,119 +15,132 @@ import com.lennartmoeller.finance.service.BankTransactionService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+@ExtendWith(MockitoExtension.class)
 class BankTransactionControllerTest {
+    @Mock
     private BankCsvImportService importService;
+
+    @Mock
     private BankTransactionService service;
+
+    @InjectMocks
     private BankTransactionController controller;
 
-    @BeforeEach
-    void setUp() {
-        importService = mock(BankCsvImportService.class);
-        service = mock(BankTransactionService.class);
-        controller = new BankTransactionController(importService, service);
-    }
+    @Mock
+    private MultipartFile file;
 
     @Test
-    void testImportCsv() throws IOException {
-        MultipartFile file = mock(MultipartFile.class);
+    void shouldImportCsv() throws IOException {
         BankTransactionDTO dto = new BankTransactionDTO();
         BankTransactionImportResultDTO resultDto = new BankTransactionImportResultDTO(List.of(dto), List.of());
         when(importService.importCsv(BankType.ING_V1, file)).thenReturn(resultDto);
 
         BankTransactionImportResultDTO result = controller.importCsv(BankType.ING_V1, file);
 
-        assertEquals(List.of(dto), result.getSaved());
-        assertTrue(result.getUnsaved().isEmpty());
+        assertThat(result.getSaved()).containsExactly(dto);
+        assertThat(result.getUnsaved()).isEmpty();
         verify(importService).importCsv(BankType.ING_V1, file);
     }
 
     @Test
-    void testImportCsvThrowsException() throws IOException {
-        MultipartFile file = mock(MultipartFile.class);
+    void shouldPropagateIOExceptionDuringImport() throws IOException {
         when(importService.importCsv(BankType.ING_V1, file)).thenThrow(new IOException("fail"));
 
-        assertThrows(IOException.class, () -> controller.importCsv(BankType.ING_V1, file));
+        assertThatThrownBy(() -> controller.importCsv(BankType.ING_V1, file)).isInstanceOf(IOException.class);
         verify(importService).importCsv(BankType.ING_V1, file);
     }
 
     @Test
-    void testGetBankTransactions() {
+    void shouldReturnTransactions() {
         List<BankTransactionDTO> list = List.of(new BankTransactionDTO());
         when(service.findAll()).thenReturn(list);
 
         List<BankTransactionDTO> result = controller.getBankTransactions();
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(service).findAll();
     }
 
     @Test
-    void testGetBankTransactionByIdFound() {
+    void shouldReturnTransactionWhenIdExists() {
         BankTransactionDTO dto = new BankTransactionDTO();
         when(service.findById(1L)).thenReturn(Optional.of(dto));
 
         ResponseEntity<BankTransactionDTO> response = controller.getBankTransactionById(1L);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(dto, response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(dto);
     }
 
     @Test
-    void testGetBankTransactionByIdNotFound() {
+    void shouldReturnNotFoundForUnknownId() {
         when(service.findById(2L)).thenReturn(Optional.empty());
 
         ResponseEntity<BankTransactionDTO> response = controller.getBankTransactionById(2L);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
     }
 
     @Test
-    void testCreateOrUpdateBankTransactionExisting() {
+    void shouldUpdateExistingTransaction() {
         BankTransactionDTO dto = new BankTransactionDTO();
         dto.setId(3L);
         BankTransactionDTO saved = new BankTransactionDTO();
-
         when(service.findById(3L)).thenReturn(Optional.of(new BankTransactionDTO()));
         when(service.save(dto)).thenReturn(saved);
 
         BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
 
-        assertEquals(saved, result);
-        assertEquals(3L, dto.getId());
+        assertThat(result).isSameAs(saved);
+        assertThat(dto.getId()).isEqualTo(3L);
         verify(service).save(dto);
     }
 
     @Test
-    void testCreateOrUpdateBankTransactionNew() {
+    void shouldCreateNewTransactionWhenIdUnknown() {
         BankTransactionDTO dto = new BankTransactionDTO();
         dto.setId(4L);
         BankTransactionDTO saved = new BankTransactionDTO();
-
         when(service.findById(4L)).thenReturn(Optional.empty());
         when(service.save(any())).thenReturn(saved);
 
         BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
 
-        assertEquals(saved, result);
+        assertThat(result).isSameAs(saved);
         ArgumentCaptor<BankTransactionDTO> captor = ArgumentCaptor.forClass(BankTransactionDTO.class);
         verify(service).save(captor.capture());
-        assertNull(captor.getValue().getId());
+        assertThat(captor.getValue().getId()).isNull();
     }
 
     @Test
-    void testDeleteBankTransaction() {
+    void shouldCreateTransactionWhenIdIsNull() {
+        BankTransactionDTO dto = new BankTransactionDTO();
+        when(service.save(dto)).thenReturn(dto);
+
+        BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
+
+        assertThat(result).isSameAs(dto);
+        verify(service).save(dto);
+        verify(service, never()).findById(any());
+    }
+
+    @Test
+    void shouldDeleteTransaction() {
         ResponseEntity<Void> response = controller.deleteBankTransaction(5L);
 
         verify(service).deleteById(5L);
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
     }
 }
