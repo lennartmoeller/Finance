@@ -65,8 +65,8 @@ public class TransactionLinkSuggestionService {
                                 suggestion.setTransaction(t);
                                 suggestion.setProbability(probability);
                                 suggestion.setLinkState(
-                                        probability >= 1.0
-                                                ? TransactionLinkState.CONFIRMED
+                                        probability == 1.0
+                                                ? TransactionLinkState.AUTO_CONFIRMED
                                                 : TransactionLinkState.UNDECIDED);
                                 return repository.save(suggestion);
                             });
