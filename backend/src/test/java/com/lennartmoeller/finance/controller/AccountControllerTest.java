@@ -1,9 +1,8 @@
 package com.lennartmoeller.finance.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,93 +10,104 @@ import com.lennartmoeller.finance.dto.AccountDTO;
 import com.lennartmoeller.finance.service.AccountService;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+@ExtendWith(MockitoExtension.class)
 class AccountControllerTest {
+    @Mock
     private AccountService service;
+
+    @InjectMocks
     private AccountController controller;
 
-    @BeforeEach
-    void setUp() {
-        service = mock(AccountService.class);
-        controller = new AccountController(service);
-    }
-
     @Test
-    void testGetAccounts() {
+    void shouldReturnAllAccounts() {
         List<AccountDTO> list = List.of(new AccountDTO(), new AccountDTO());
         when(service.findAll()).thenReturn(list);
 
         List<AccountDTO> result = controller.getAccounts();
 
-        assertEquals(list, result);
+        assertThat(result).isEqualTo(list);
         verify(service).findAll();
     }
 
     @Test
-    void testGetAccountByIdFound() {
+    void shouldReturnAccountWhenIdExists() {
         AccountDTO dto = new AccountDTO();
         when(service.findById(1L)).thenReturn(Optional.of(dto));
 
         ResponseEntity<AccountDTO> response = controller.getAccountById(1L);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(dto, response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(dto);
     }
 
     @Test
-    void testGetAccountByIdNotFound() {
+    void shouldReturnNotFoundWhenIdMissing() {
         when(service.findById(2L)).thenReturn(Optional.empty());
 
         ResponseEntity<AccountDTO> response = controller.getAccountById(2L);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNull(response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
     }
 
     @Test
-    void testCreateOrUpdateAccountExisting() {
+    void shouldUpdateAccountWhenExisting() {
         AccountDTO dto = new AccountDTO();
         dto.setId(5L);
         AccountDTO saved = new AccountDTO();
-
         when(service.findById(5L)).thenReturn(Optional.of(new AccountDTO()));
         when(service.save(dto)).thenReturn(saved);
 
         AccountDTO result = controller.createOrUpdateAccount(dto);
 
-        assertEquals(saved, result);
-        assertEquals(5L, dto.getId());
+        assertThat(result).isSameAs(saved);
+        assertThat(dto.getId()).isEqualTo(5L);
         verify(service).save(dto);
     }
 
     @Test
-    void testCreateOrUpdateAccountNew() {
+    void shouldCreateNewAccountWhenIdUnknown() {
         AccountDTO dto = new AccountDTO();
         dto.setId(5L);
         AccountDTO saved = new AccountDTO();
-
         when(service.findById(5L)).thenReturn(Optional.empty());
         when(service.save(any())).thenReturn(saved);
 
         AccountDTO result = controller.createOrUpdateAccount(dto);
 
-        assertEquals(saved, result);
+        assertThat(result).isSameAs(saved);
         ArgumentCaptor<AccountDTO> captor = ArgumentCaptor.forClass(AccountDTO.class);
         verify(service).save(captor.capture());
-        assertNull(captor.getValue().getId());
+        assertThat(captor.getValue().getId()).isNull();
     }
 
     @Test
-    void testDeleteAccount() {
+    void shouldCreateAccountWhenIdIsNull() {
+        AccountDTO dto = new AccountDTO();
+        when(service.save(dto)).thenReturn(dto);
+
+        AccountDTO result = controller.createOrUpdateAccount(dto);
+
+        assertThat(result).isSameAs(dto);
+        verify(service).save(dto);
+        verify(service, never()).findById(any());
+    }
+
+    @Test
+    void shouldDeleteAccount() {
         ResponseEntity<Void> response = controller.deleteAccount(9L);
 
         verify(service).deleteById(9L);
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
     }
 }
