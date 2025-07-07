@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -188,14 +187,16 @@ class TransactionLinkSuggestionServiceTest {
         TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
         confirmed.setLinkState(TransactionLinkState.CONFIRMED);
 
-        when(repository.findAllByTransaction_Id(40L)).thenReturn(List.of(undecided, confirmed));
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(null, List.of(40L)))
+                .thenReturn(List.of(undecided, confirmed));
         when(bankTransactionRepository.findAll()).thenReturn(List.of());
 
         service.updateForTransactions(List.of(transaction));
 
-        ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
-        verify(repository).delete(captor.capture());
-        assertSame(undecided, captor.getValue());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
+        verify(repository).deleteAll(captor.capture());
+        assertEquals(List.of(undecided), captor.getValue());
     }
 
     @Test
@@ -213,13 +214,15 @@ class TransactionLinkSuggestionServiceTest {
         TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
         rejected.setLinkState(TransactionLinkState.REJECTED);
 
-        when(repository.findAllByBankTransaction_Id(50L)).thenReturn(List.of(auto, rejected));
+        when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(50L), null))
+                .thenReturn(List.of(auto, rejected));
         when(transactionRepository.findAll()).thenReturn(List.of());
 
         service.updateForBankTransactions(List.of(bankTransaction));
 
-        ArgumentCaptor<TransactionLinkSuggestion> captor = ArgumentCaptor.forClass(TransactionLinkSuggestion.class);
-        verify(repository).delete(captor.capture());
-        assertSame(auto, captor.getValue());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor2 = ArgumentCaptor.forClass(List.class);
+        verify(repository).deleteAll(captor2.capture());
+        assertEquals(List.of(auto), captor2.getValue());
     }
 }

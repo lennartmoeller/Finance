@@ -76,24 +76,30 @@ public class TransactionLinkSuggestionService {
     }
 
     public void updateForTransactions(List<Transaction> transactions) {
-        for (Transaction transaction : transactions) {
-            List<TransactionLinkSuggestion> existing = repository.findAllByTransaction_Id(transaction.getId());
-            existing.stream()
-                    .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                            || s.getLinkState() == TransactionLinkState.UNDECIDED)
-                    .forEach(repository::delete);
+        if (transactions.isEmpty()) {
+            return;
         }
+        List<Long> ids = transactions.stream().map(Transaction::getId).toList();
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(null, ids);
+        List<TransactionLinkSuggestion> deletions = existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .toList();
+        repository.deleteAll(deletions);
         generateSuggestions(transactions, null);
     }
 
     public void updateForBankTransactions(List<BankTransaction> bankTransactions) {
-        for (BankTransaction bankTransaction : bankTransactions) {
-            List<TransactionLinkSuggestion> existing = repository.findAllByBankTransaction_Id(bankTransaction.getId());
-            existing.stream()
-                    .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                            || s.getLinkState() == TransactionLinkState.UNDECIDED)
-                    .forEach(repository::delete);
+        if (bankTransactions.isEmpty()) {
+            return;
         }
+        List<Long> ids = bankTransactions.stream().map(BankTransaction::getId).toList();
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(ids, null);
+        List<TransactionLinkSuggestion> deletions = existing.stream()
+                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
+                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .toList();
+        repository.deleteAll(deletions);
         generateSuggestions(null, bankTransactions);
     }
 
