@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +11,6 @@ import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
-import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -38,25 +35,25 @@ class TransactionMapperTest {
         TransactionMapper mapper = new TransactionMapperImpl();
         TransactionDTO dto = mapper.toDto(tx);
 
-        assertEquals(tx.getId(), dto.getId());
-        assertEquals(account.getId(), dto.getAccountId());
-        assertEquals(category.getId(), dto.getCategoryId());
-        assertEquals(tx.getDate(), dto.getDate());
-        assertEquals(tx.getAmount(), dto.getAmount());
-        assertEquals(tx.getDescription(), dto.getDescription());
-        assertEquals(true, dto.getPinned());
+        assertThat(dto.getId()).isEqualTo(tx.getId());
+        assertThat(dto.getAccountId()).isEqualTo(account.getId());
+        assertThat(dto.getCategoryId()).isEqualTo(category.getId());
+        assertThat(dto.getDate()).isEqualTo(tx.getDate());
+        assertThat(dto.getAmount()).isEqualTo(tx.getAmount());
+        assertThat(dto.getDescription()).isEqualTo(tx.getDescription());
+        assertThat(dto.getPinned()).isTrue();
     }
 
     @Test
     void testToDtoNulls() {
         TransactionMapper mapper = new TransactionMapperImpl();
-        assertNull(mapper.toDto(null));
+        assertThat(mapper.toDto(null)).isNull();
 
         Transaction tx = new Transaction();
         TransactionDTO dto = mapper.toDto(tx);
-        assertNull(dto.getAccountId());
-        assertNull(dto.getCategoryId());
-        assertEquals(false, dto.getPinned());
+        assertThat(dto.getAccountId()).isNull();
+        assertThat(dto.getCategoryId()).isNull();
+        assertThat(dto.getPinned()).isFalse();
     }
 
     @Test
@@ -84,12 +81,12 @@ class TransactionMapperTest {
 
         Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
 
-        assertEquals(dto.getId(), entity.getId());
-        assertSame(account, entity.getAccount());
-        assertSame(category, entity.getCategory());
-        assertEquals(dto.getDate(), entity.getDate());
-        assertEquals(dto.getAmount(), entity.getAmount());
-        assertEquals(dto.getDescription(), entity.getDescription());
+        assertThat(entity.getId()).isEqualTo(dto.getId());
+        assertThat(entity.getAccount()).isSameAs(account);
+        assertThat(entity.getCategory()).isSameAs(category);
+        assertThat(entity.getDate()).isEqualTo(dto.getDate());
+        assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
+        assertThat(entity.getDescription()).isEqualTo(dto.getDescription());
         verify(accRepo).findById(2L);
         verify(catRepo).findById(3L);
     }
@@ -103,20 +100,20 @@ class TransactionMapperTest {
 
         TransactionMapperImpl mapper = new TransactionMapperImpl();
 
-        assertNull(mapper.toEntity(null, accRepo, catRepo));
+        assertThat(mapper.toEntity(null, accRepo, catRepo)).isNull();
         TransactionDTO dto = new TransactionDTO();
         dto.setAccountId(1L);
         dto.setCategoryId(2L);
 
         Transaction entity = mapper.toEntity(dto, accRepo, catRepo);
-        assertNull(entity.getAccount());
-        assertNull(entity.getCategory());
+        assertThat(entity.getAccount()).isNull();
+        assertThat(entity.getCategory()).isNull();
         verify(accRepo).findById(1L);
         verify(catRepo).findById(2L);
     }
 
     @Test
-    void testMappingHelpers() throws Exception {
+    void testMappingHelpers() {
         TransactionMapperImpl mapper = new TransactionMapperImpl();
         AccountRepository accRepo = mock(AccountRepository.class);
         CategoryRepository catRepo = mock(CategoryRepository.class);
@@ -128,26 +125,16 @@ class TransactionMapperTest {
         category.setId(12L);
         when(catRepo.findById(12L)).thenReturn(Optional.of(category));
 
-        Method idToAcc =
-                TransactionMapper.class.getDeclaredMethod("mapAccountIdToAccount", Long.class, AccountRepository.class);
-        idToAcc.setAccessible(true);
-        assertSame(account, idToAcc.invoke(mapper, 11L, accRepo));
-        assertNull(idToAcc.invoke(mapper, null, accRepo));
+        assertThat(mapper.mapAccountIdToAccount(11L, accRepo)).isSameAs(account);
+        assertThat(mapper.mapAccountIdToAccount(null, accRepo)).isNull();
 
-        Method accToId = TransactionMapper.class.getDeclaredMethod("mapAccountToAccountId", Account.class);
-        accToId.setAccessible(true);
-        assertEquals(11L, accToId.invoke(mapper, account));
-        assertNull(accToId.invoke(mapper, (Object) null));
+        assertThat(mapper.mapAccountToAccountId(account)).isEqualTo(11L);
+        assertThat(mapper.mapAccountToAccountId(null)).isNull();
 
-        Method idToCat = TransactionMapper.class.getDeclaredMethod(
-                "mapCategoryIdToCategory", Long.class, CategoryRepository.class);
-        idToCat.setAccessible(true);
-        assertSame(category, idToCat.invoke(mapper, 12L, catRepo));
-        assertNull(idToCat.invoke(mapper, null, catRepo));
+        assertThat(mapper.mapCategoryIdToCategory(12L, catRepo)).isSameAs(category);
+        assertThat(mapper.mapCategoryIdToCategory(null, catRepo)).isNull();
 
-        Method catToId = TransactionMapper.class.getDeclaredMethod("mapCategoryToCategoryId", Category.class);
-        catToId.setAccessible(true);
-        assertEquals(12L, catToId.invoke(mapper, category));
-        assertNull(catToId.invoke(mapper, (Object) null));
+        assertThat(mapper.mapCategoryToCategoryId(category)).isEqualTo(12L);
+        assertThat(mapper.mapCategoryToCategoryId(null)).isNull();
     }
 }
