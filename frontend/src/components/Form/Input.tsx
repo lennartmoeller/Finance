@@ -32,7 +32,7 @@ const Input = <T, >(
         textAlign,
     }: InputProps<T>
 ) => {
-    const input: RefObject<HTMLInputElement> = useRef(null);
+    const input = useRef<HTMLInputElement>(null);
     const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
     const [isRegistered, setIsRegistered] = useState(false);
 
