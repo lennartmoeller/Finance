@@ -1,37 +1,42 @@
 package com.lennartmoeller.finance.converter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class MapToJsonStringConverterTest {
+
     private final MapToJsonStringConverter converter = new MapToJsonStringConverter();
 
     @Test
-    void roundTrip() {
-        Map<String, String> map = new HashMap<>();
-        map.put("a", "b");
-        String json = converter.convertToDatabaseColumn(map);
+    void shouldRoundTripMap() {
+        Map<String, String> input = new LinkedHashMap<>();
+        input.put("a", "b");
+        input.put("c", "d");
+
+        String json = converter.convertToDatabaseColumn(input);
         Map<String, String> result = converter.convertToEntityAttribute(json);
-        assertEquals(map, result);
+
+        assertThat(result).containsExactlyEntriesOf(input);
     }
 
     @Test
-    void nullHandling() {
-        String json = converter.convertToDatabaseColumn(null);
-        assertNull(json);
-
-        Map<String, String> map = converter.convertToEntityAttribute(null);
-        assertTrue(map.isEmpty());
+    void shouldReturnNullWhenMapIsNull() {
+        assertThat(converter.convertToDatabaseColumn(null)).isNull();
     }
 
     @Test
-    void invalidJsonThrows() {
-        assertThrows(IllegalArgumentException.class, () -> converter.convertToEntityAttribute("{"));
+    void shouldReturnEmptyMapWhenJsonIsNull() {
+        assertThat(converter.convertToEntityAttribute(null)).isEmpty();
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenJsonInvalid() {
+        assertThatThrownBy(() -> converter.convertToEntityAttribute("{"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cannot read JSON to map");
     }
 }
