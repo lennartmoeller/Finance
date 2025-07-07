@@ -22,6 +22,7 @@ public class TransactionService {
     private final CategoryService categoryService;
     private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
+    private final TransactionLinkSuggestionService suggestionService;
 
     public List<TransactionDTO> findFiltered(
             @Nullable List<Long> accountIds,
@@ -49,10 +50,12 @@ public class TransactionService {
     public TransactionDTO save(TransactionDTO transactionDTO) {
         Transaction transaction = transactionMapper.toEntity(transactionDTO, accountRepository, categoryRepository);
         Transaction savedTransaction = transactionRepository.save(transaction);
+        suggestionService.updateForTransactions(List.of(savedTransaction));
         return transactionMapper.toDto(savedTransaction);
     }
 
     public void deleteById(Long id) {
+        suggestionService.removeForTransaction(id);
         transactionRepository.deleteById(id);
     }
 }
