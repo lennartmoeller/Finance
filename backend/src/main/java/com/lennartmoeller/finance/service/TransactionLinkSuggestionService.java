@@ -45,7 +45,8 @@ public class TransactionLinkSuggestionService {
         return bankTransactionList.stream()
                 .flatMap(bankTransaction -> {
                     LocalDate date = bankTransaction.getBookingDate();
-                    DateRange range = new DateRange(date.minusDays(7), date.plusDays(7));
+                    int windowDays = 7;
+                    DateRange range = new DateRange(date.minusDays(windowDays), date.plusDays(windowDays));
 
                     return transactionList.stream()
                             .filter(t -> t.getAccount()
@@ -57,13 +58,13 @@ public class TransactionLinkSuggestionService {
                             .map(t -> {
                                 long daysBetween = Math.abs(
                                         new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
-                                double probability = 1.0 - daysBetween / 14.0;
+                                double probability = 1.0 - daysBetween / (2.0 * windowDays);
                                 TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
                                 suggestion.setBankTransaction(bankTransaction);
                                 suggestion.setTransaction(t);
                                 suggestion.setProbability(probability);
                                 suggestion.setLinkState(
-                                        daysBetween == 0
+                                        probability >= 1.0
                                                 ? TransactionLinkState.CONFIRMED
                                                 : TransactionLinkState.UNDECIDED);
                                 return repository.save(suggestion);
