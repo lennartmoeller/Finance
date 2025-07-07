@@ -4,7 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.lennartmoeller.finance.dto.*;
+import com.lennartmoeller.finance.dto.CategoryStatsDTO;
+import com.lennartmoeller.finance.dto.CellStatsDTO;
+import com.lennartmoeller.finance.dto.MonthlyCategoryStatsDTO;
+import com.lennartmoeller.finance.dto.MonthlySavingStatsDTO;
+import com.lennartmoeller.finance.dto.PerformanceDTO;
+import com.lennartmoeller.finance.dto.RowStatsDTO;
+import com.lennartmoeller.finance.dto.StatsMetricDTO;
+import com.lennartmoeller.finance.dto.TransactionTypeStatsDTO;
 import com.lennartmoeller.finance.model.InflationRate;
 import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.MonthlyDepositsProjection;

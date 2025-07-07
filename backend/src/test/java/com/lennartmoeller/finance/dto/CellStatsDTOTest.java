@@ -1,6 +1,8 @@
 package com.lennartmoeller.finance.dto;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutableTriple;

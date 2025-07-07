@@ -1,6 +1,12 @@
 package com.lennartmoeller.finance.service;
 
-import com.lennartmoeller.finance.dto.*;
+import com.lennartmoeller.finance.dto.CategoryStatsDTO;
+import com.lennartmoeller.finance.dto.CellStatsDTO;
+import com.lennartmoeller.finance.dto.MonthlyCategoryStatsDTO;
+import com.lennartmoeller.finance.dto.PerformanceDTO;
+import com.lennartmoeller.finance.dto.RowStatsDTO;
+import com.lennartmoeller.finance.dto.StatsMetricDTO;
+import com.lennartmoeller.finance.dto.TransactionTypeStatsDTO;
 import com.lennartmoeller.finance.mapper.CategoryMapper;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.TransactionType;

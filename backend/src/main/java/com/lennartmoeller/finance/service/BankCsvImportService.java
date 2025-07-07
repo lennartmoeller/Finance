@@ -53,7 +53,7 @@ public class BankCsvImportService {
         Map<String, Account> accountMap = accountRepository.findAllByIbanIn(ibans).stream()
                 .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
-        List<Map.Entry<BankTransactionDTO, BankTransaction>> mapped = parsed.stream()
+        List<? extends Map.Entry<? extends BankTransactionDTO, BankTransaction>> mapped = parsed.stream()
                 .map(dto -> {
                     Account account = accountMap.get(dto.getIban());
                     BankTransaction entity =
@@ -94,7 +94,6 @@ public class BankCsvImportService {
 
         List<BankTransactionDTO> savedDtos =
                 savedEntities.stream().map(mapper::toDto).toList();
-
         return new BankTransactionImportResultDTO(savedDtos, unsavedDtos);
     }
 }

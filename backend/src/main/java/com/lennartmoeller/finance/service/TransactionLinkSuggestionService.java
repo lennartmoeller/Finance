@@ -19,12 +19,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TransactionLinkSuggestionService {
+    private static final int WINDOW_DAYS = 7;
     private final TransactionLinkSuggestionRepository repository;
     private final TransactionLinkSuggestionMapper mapper;
     private final BankTransactionRepository bankTransactionRepository;
     private final TransactionRepository transactionRepository;
-
-    private static final int WINDOW_DAYS = 7;
 
     public List<TransactionLinkSuggestionDTO> findAll() {
         return repository.findAll().stream().map(mapper::toDto).toList();

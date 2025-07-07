@@ -12,37 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class IngV1CsvParserTest {
-    @Test
-    void parsesAndSanitizesIban() throws Exception {
-        String csv =
-                """
-				Umsatzanzeige;Datei erstellt am: 27.06.2025 23:40
-				
-				IBAN;DE12 3456 7890 1234 5678 90
-				Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
-				01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR
-				""";
-        IngV1CsvParser parser = new IngV1CsvParser();
-        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-        assertEquals(1, list.size());
-        assertEquals("DE12345678901234567890", list.getFirst().getIban());
-    }
-
-    @Test
-    void parsesDuplicateHeaders() throws Exception {
-        String csv =
-                """
-			IBAN;DE12
-			Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung;Währung
-			01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR;EUR
-			""";
-        IngV1CsvParser parser = new IngV1CsvParser();
-        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-        assertEquals(1, list.size());
-        assertTrue(list.getFirst().getData().containsKey("Währung"));
-        assertTrue(list.getFirst().getData().containsKey("Währung_9"));
-    }
-
     static List<String> invalidCsvInputs() {
         return List.of(
                 """
@@ -59,6 +28,37 @@ class IngV1CsvParserTest {
 			Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
 			
 			""");
+    }
+
+    @Test
+    void parsesAndSanitizesIban() {
+        String csv =
+                """
+				Umsatzanzeige;Datei erstellt am: 27.06.2025 23:40
+				
+				IBAN;DE12 3456 7890 1234 5678 90
+				Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
+				01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR
+				""";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertEquals(1, list.size());
+        assertEquals("DE12345678901234567890", list.getFirst().getIban());
+    }
+
+    @Test
+    void parsesDuplicateHeaders() {
+        String csv =
+                """
+			IBAN;DE12
+			Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung;Währung
+			01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR;EUR
+			""";
+        IngV1CsvParser parser = new IngV1CsvParser();
+        List<IngV1TransactionDTO> list = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        assertEquals(1, list.size());
+        assertTrue(list.getFirst().getData().containsKey("Währung"));
+        assertTrue(list.getFirst().getData().containsKey("Währung_9"));
     }
 
     @ParameterizedTest
