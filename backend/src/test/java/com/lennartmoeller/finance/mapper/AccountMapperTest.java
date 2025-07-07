@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.lennartmoeller.finance.dto.AccountDTO;
 import com.lennartmoeller.finance.model.Account;
@@ -22,27 +20,27 @@ class AccountMapperTest {
         account.setDeposits(true);
 
         AccountDTO dto = mapper.toDto(account);
-        assertNotNull(dto);
-        assertEquals(account.getId(), dto.getId());
-        assertEquals(account.getLabel(), dto.getLabel());
-        assertEquals(account.getIban(), dto.getIban());
-        assertEquals(account.getStartBalance(), dto.getStartBalance());
-        assertEquals(account.getActive(), dto.getActive());
-        assertEquals(account.getDeposits(), dto.getDeposits());
+        assertThat(dto).isNotNull();
+        assertThat(dto.getId()).isEqualTo(account.getId());
+        assertThat(dto.getLabel()).isEqualTo(account.getLabel());
+        assertThat(dto.getIban()).isEqualTo(account.getIban());
+        assertThat(dto.getStartBalance()).isEqualTo(account.getStartBalance());
+        assertThat(dto.getActive()).isEqualTo(account.getActive());
+        assertThat(dto.getDeposits()).isEqualTo(account.getDeposits());
 
         Account entity = mapper.toEntity(dto);
-        assertNotNull(entity);
-        assertEquals(account.getId(), entity.getId());
-        assertEquals(account.getLabel(), entity.getLabel());
-        assertEquals(account.getIban(), entity.getIban());
-        assertEquals(account.getStartBalance(), entity.getStartBalance());
-        assertEquals(account.getActive(), entity.getActive());
-        assertEquals(account.getDeposits(), entity.getDeposits());
+        assertThat(entity).isNotNull();
+        assertThat(entity.getId()).isEqualTo(account.getId());
+        assertThat(entity.getLabel()).isEqualTo(account.getLabel());
+        assertThat(entity.getIban()).isEqualTo(account.getIban());
+        assertThat(entity.getStartBalance()).isEqualTo(account.getStartBalance());
+        assertThat(entity.getActive()).isEqualTo(account.getActive());
+        assertThat(entity.getDeposits()).isEqualTo(account.getDeposits());
     }
 
     @Test
     void testNullValues() {
-        assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity(null));
+        assertThat(mapper.toDto(null)).isNull();
+        assertThat(mapper.toEntity(null)).isNull();
     }
 }

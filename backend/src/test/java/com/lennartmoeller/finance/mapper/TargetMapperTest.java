@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,7 +9,6 @@ import com.lennartmoeller.finance.dto.TargetDTO;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Target;
 import com.lennartmoeller.finance.repository.CategoryRepository;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -29,16 +26,16 @@ class TargetMapperTest {
         TargetMapper mapper = new TargetMapperImpl();
         TargetDTO dto = mapper.toDto(target);
 
-        assertEquals(target.getId(), dto.getId());
-        assertEquals(target.getCategory().getId(), dto.getCategoryId());
-        assertEquals(target.getAmount(), dto.getAmount());
+        assertThat(dto.getId()).isEqualTo(target.getId());
+        assertThat(dto.getCategoryId()).isEqualTo(target.getCategory().getId());
+        assertThat(dto.getAmount()).isEqualTo(target.getAmount());
     }
 
     @Test
     void testNullValues() {
         TargetMapperImpl mapper = new TargetMapperImpl();
-        assertNull(mapper.toDto(null));
-        assertNull(mapper.toEntity(null, mock(CategoryRepository.class)));
+        assertThat(mapper.toDto(null)).isNull();
+        assertThat(mapper.toEntity(null, mock(CategoryRepository.class))).isNull();
 
         CategoryRepository repo = mock(CategoryRepository.class);
 
@@ -47,7 +44,7 @@ class TargetMapperTest {
         when(repo.findById(1L)).thenReturn(Optional.empty());
 
         Target entity = mapper.toEntity(dto, repo);
-        assertNull(entity.getCategory());
+        assertThat(entity.getCategory()).isNull();
         verify(repo).findById(1L);
     }
 
@@ -59,26 +56,21 @@ class TargetMapperTest {
         // category null
         TargetMapper mapper = new TargetMapperImpl();
         TargetDTO dto = mapper.toDto(target);
-        assertNull(dto.getCategoryId());
+        assertThat(dto.getCategoryId()).isNull();
     }
 
     @Test
-    void testMappingHelpers() throws Exception {
+    void testMappingHelpers() {
         CategoryRepository repo = mock(CategoryRepository.class);
         Category cat = new Category();
         cat.setId(4L);
         when(repo.findById(4L)).thenReturn(Optional.of(cat));
         TargetMapperImpl mapper = new TargetMapperImpl();
 
-        Method toEntity =
-                TargetMapper.class.getDeclaredMethod("mapCategoryIdToCategory", Long.class, CategoryRepository.class);
-        toEntity.setAccessible(true);
-        assertSame(cat, toEntity.invoke(mapper, 4L, repo));
-        assertNull(toEntity.invoke(mapper, null, repo));
-        Method toId = TargetMapper.class.getDeclaredMethod("mapCategoryToCategoryId", Category.class);
-        toId.setAccessible(true);
-        assertEquals(4L, toId.invoke(mapper, cat));
-        assertNull(toId.invoke(mapper, (Object) null));
+        assertThat(mapper.mapCategoryIdToCategory(4L, repo)).isSameAs(cat);
+        assertThat(mapper.mapCategoryIdToCategory(null, repo)).isNull();
+        assertThat(mapper.mapCategoryToCategoryId(cat)).isEqualTo(4L);
+        assertThat(mapper.mapCategoryToCategoryId(null)).isNull();
     }
 
     @Test
@@ -97,9 +89,9 @@ class TargetMapperTest {
 
         Target entity = mapper.toEntity(dto, repo);
 
-        assertEquals(dto.getId(), entity.getId());
-        assertEquals(dto.getAmount(), entity.getAmount());
-        assertSame(category, entity.getCategory());
+        assertThat(entity.getId()).isEqualTo(dto.getId());
+        assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
+        assertThat(entity.getCategory()).isSameAs(category);
         verify(repo).findById(7L);
     }
 }
