@@ -55,4 +55,34 @@ class CamtV8CsvParserTest {
         String[] plain = (String[]) method.invoke(parser, "A;B");
         assertThat(plain).containsExactly("A;B");
     }
+
+    @Test
+    void parseLineRemovesBomWithoutQuotes() throws Exception {
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+        Method method = CamtV8CsvParser.class.getDeclaredMethod("parseLine", String.class);
+        method.setAccessible(true);
+
+        String[] tokens = (String[]) method.invoke(parser, "\uFEFFA;B");
+
+        assertThat(tokens).containsExactly("A;B");
+    }
+
+    @Test
+    void shouldIgnoreBlankAndShortLines() {
+        String csv =
+                "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz (End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
+                        + "\n"
+                        + "\"DE12\";\"01.01.24\";\"01.01.24\";\"Booking\";\"Purpose\";\"CID\";\"MID\";\"CR\";\"Collector\";\"Original\";\"Fee\";\"Counter\";\"DE55\";\"BIC\";\"1,00\";\"EUR\";\"Info\"\n"
+                        + "short";
+
+        CamtV8CsvParser parser = new CamtV8CsvParser();
+
+        List<CamtV8TransactionDTO> result =
+                parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(result).hasSize(1);
+        CamtV8TransactionDTO dto = result.getFirst();
+        assertThat(dto.getIban()).isEqualTo("DE12");
+        assertThat(dto.getData().get("BIC (SWIFT-Code)")).isEqualTo("BIC");
+    }
 }
