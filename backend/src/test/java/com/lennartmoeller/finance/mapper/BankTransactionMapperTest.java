@@ -9,135 +9,145 @@ import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 class BankTransactionMapperTest {
-    @Test
-    void testIngV1ToEntity() {
-        IngV1TransactionDTO dto = new IngV1TransactionDTO();
-        dto.setIban("DE123");
+
+    private final BankTransactionMapper mapper = new BankTransactionMapperImpl();
+
+    private static Account account() {
+        Account acc = new Account();
+        acc.setIban("DE000");
+        return acc;
+    }
+
+    private static BankTransactionDTO baseDto() {
+        BankTransactionDTO dto = new BankTransactionDTO();
+        dto.setId(1L);
+        dto.setBank(BankType.CAMT_V8);
+        dto.setIban("DE000");
         dto.setBookingDate(LocalDate.of(2024, 1, 1));
         dto.setPurpose("p");
         dto.setCounterparty("c");
-        dto.setAmount(100L);
-        dto.setData(new java.util.HashMap<>());
-        dto.getData().put("a", "b");
-
-        Account acc = new Account();
-
-        BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, acc);
-
-        assertThat(entity.getAccount()).isSameAs(acc);
-        assertThat(entity.getBookingDate()).isEqualTo(dto.getBookingDate());
-        assertThat(entity.getPurpose()).isEqualTo(dto.getPurpose());
-        assertThat(entity.getCounterparty()).isEqualTo(dto.getCounterparty());
-        assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
-        assertThat(entity.getBank()).isEqualTo(BankType.ING_V1);
-        assertThat(entity.getData()).isEqualTo(dto.getData());
+        dto.setAmount(10L);
+        dto.setData(Map.of("k", "v"));
+        return dto;
     }
 
-    @Test
-    void testCamtV8ToEntity() {
-        CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
-        dto.setIban("DE456");
-        dto.setBookingDate(LocalDate.of(2024, 2, 2));
-        dto.setPurpose("p2");
-        dto.setCounterparty("c2");
-        dto.setAmount(200L);
-        dto.setData(new java.util.HashMap<>());
-        dto.getData().put("x", "y");
-
-        Account acc = new Account();
-
-        BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        BankTransaction entity = mapper.toEntity(dto, acc);
-
-        assertThat(entity.getBank()).isEqualTo(BankType.CAMT_V8);
-        assertThat(entity.getAccount()).isSameAs(acc);
-        assertThat(entity.getData()).isEqualTo(dto.getData());
-    }
-
-    @Test
-    void testToDto() {
-        BankTransaction entity = new BankTransaction();
-        Account account = new Account();
-        account.setIban("DE123");
-        entity.setAccount(account);
-        entity.setId(3L);
-        entity.setBank(BankType.ING_V1);
-        entity.setBookingDate(LocalDate.of(2024, 3, 3));
-        entity.setPurpose("p");
-        entity.setCounterparty("c");
-        entity.setAmount(10L);
-        entity.getData().put("k", "v");
-
-        BankTransactionDTO dto = new BankTransactionMapperImpl().toDto(entity);
-
-        assertThat(dto.getId()).isEqualTo(entity.getId());
-        assertThat(dto.getIban()).isEqualTo(account.getIban());
-        assertThat(dto.getData()).isEqualTo(entity.getData());
-    }
-
-    @Test
-    void testBaseToEntity() {
-        BankTransactionDTO dto = new BankTransactionDTO();
-        dto.setId(5L);
-        dto.setBank(BankType.CAMT_V8);
-        dto.setIban("DE");
-        dto.setBookingDate(LocalDate.of(2024, 4, 4));
+    private static IngV1TransactionDTO ingDto() {
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
+        dto.setId(2L);
+        dto.setIban("DE000");
+        dto.setBookingDate(LocalDate.of(2024, 1, 2));
         dto.setPurpose("p");
         dto.setCounterparty("c");
-        dto.setAmount(50L);
-        dto.setData(new java.util.HashMap<>());
-        dto.getData().put("k", "v");
-
-        Account acc = new Account();
-
-        BankTransaction entity = new BankTransactionMapperImpl().toEntity(dto, acc);
-        assertThat(entity.getBank()).isEqualTo(dto.getBank());
-        assertThat(entity.getAccount()).isSameAs(acc);
-        assertThat(entity.getData()).isEqualTo(dto.getData());
+        dto.setAmount(11L);
+        dto.setData(Map.of("k", "v"));
+        return dto;
     }
 
-    @Test
-    void nullInputsReturnNull() {
-        BankTransactionMapper mapper = new BankTransactionMapperImpl();
-        assertThat(mapper.toDto(null)).isNull();
-        assertThat(mapper.toEntity((BankTransactionDTO) null, null)).isNull();
-        assertThat(mapper.toEntity((IngV1TransactionDTO) null, null)).isNull();
-        assertThat(mapper.toEntity((CamtV8TransactionDTO) null, null)).isNull();
+    private static CamtV8TransactionDTO camtDto() {
+        CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
+        dto.setId(3L);
+        dto.setIban("DE000");
+        dto.setBookingDate(LocalDate.of(2024, 1, 3));
+        dto.setPurpose("p");
+        dto.setCounterparty("c");
+        dto.setAmount(12L);
+        dto.setData(Map.of("k", "v"));
+        return dto;
     }
 
-    @Test
-    void handlesNullDataFields() {
-        BankTransaction entity = new BankTransaction();
-        entity.setData(null);
-        BankTransactionDTO dto = new BankTransactionMapperImpl().toDto(entity);
-        assertThat(dto.getData()).isNull();
-
-        BankTransactionDTO base = new BankTransactionDTO();
-        base.setData(null);
-        BankTransaction mapped = new BankTransactionMapperImpl().toEntity(base, null);
-        assertThat(mapped.getData()).isEmpty();
-
-        IngV1TransactionDTO ing = new IngV1TransactionDTO();
-        ing.setData(null);
-        assertThat(new BankTransactionMapperImpl().toEntity(ing, null).getData())
-                .isEmpty();
-
-        CamtV8TransactionDTO camt = new CamtV8TransactionDTO();
-        camt.setData(null);
-        assertThat(new BankTransactionMapperImpl().toEntity(camt, null).getData())
-                .isEmpty();
+    private static Stream<Arguments> dtoVariants() {
+        return Stream.of(
+                Arguments.of(baseDto(), BankType.CAMT_V8),
+                Arguments.of(ingDto(), BankType.ING_V1),
+                Arguments.of(camtDto(), BankType.CAMT_V8));
     }
 
-    @Test
-    void createsEntityWhenOnlyAccountProvided() {
-        Account account = new Account();
-        BankTransaction entity = new BankTransactionMapperImpl().toEntity((BankTransactionDTO) null, account);
-        assertThat(entity).isNotNull();
-        assertThat(entity.getAccount()).isSameAs(account);
-        assertThat(entity.getBank()).isNull();
+    @Nested
+    class ToEntity {
+        @ParameterizedTest
+        @MethodSource("com.lennartmoeller.finance.mapper.BankTransactionMapperTest#dtoVariants")
+        void mapsFieldsFromDifferentDtos(BankTransactionDTO dto, BankType expectedBank) {
+            Account acc = account();
+            BankTransaction entity;
+            if (dto instanceof IngV1TransactionDTO ing) {
+                entity = mapper.toEntity(ing, acc);
+            } else if (dto instanceof CamtV8TransactionDTO camt) {
+                entity = mapper.toEntity(camt, acc);
+            } else {
+                entity = mapper.toEntity(dto, acc);
+            }
+
+            assertThat(entity.getAccount()).isSameAs(acc);
+            assertThat(entity.getBookingDate()).isEqualTo(dto.getBookingDate());
+            assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
+            assertThat(entity.getBank()).isEqualTo(expectedBank);
+            assertThat(entity.getData()).isEqualTo(dto.getData());
+        }
+
+        @Test
+        void returnsNullWhenBothArgumentsAreNull() {
+            assertThat(mapper.toEntity((BankTransactionDTO) null, null)).isNull();
+            assertThat(mapper.toEntity((IngV1TransactionDTO) null, null)).isNull();
+            assertThat(mapper.toEntity((CamtV8TransactionDTO) null, null)).isNull();
+        }
+
+        @Test
+        void createsEntityWithOnlyAccount() {
+            Account acc = account();
+
+            BankTransaction entity = mapper.toEntity((BankTransactionDTO) null, acc);
+
+            assertThat(entity.getAccount()).isSameAs(acc);
+            assertThat(entity.getBank()).isNull();
+        }
+
+        @Test
+        void handlesNullData() {
+            BankTransactionDTO dto = baseDto();
+            dto.setData(null);
+            BankTransaction entity = mapper.toEntity(dto, account());
+
+            assertThat(entity.getData()).isEmpty();
+        }
+    }
+
+    @Nested
+    class ToDto {
+        @Test
+        void mapsEntityFields() {
+            BankTransaction entity = new BankTransaction();
+            entity.setId(4L);
+            entity.setBank(BankType.ING_V1);
+            entity.setAccount(account());
+            entity.setBookingDate(LocalDate.of(2024, 2, 2));
+            entity.setPurpose("p");
+            entity.setCounterparty("c");
+            entity.setAmount(13L);
+            entity.setData(new LinkedHashMap<>(Map.of("x", "y")));
+
+            BankTransactionDTO dto = mapper.toDto(entity);
+
+            assertThat(dto.getId()).isEqualTo(entity.getId());
+            assertThat(dto.getIban()).isEqualTo(entity.getAccount().getIban());
+            assertThat(dto.getBank()).isEqualTo(entity.getBank());
+            assertThat(dto.getData()).isEqualTo(entity.getData());
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullForNullInput(BankTransaction entity) {
+            assertThat(mapper.toDto(entity)).isNull();
+        }
     }
 }

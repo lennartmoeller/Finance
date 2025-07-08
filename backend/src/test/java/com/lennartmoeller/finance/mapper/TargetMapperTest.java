@@ -1,97 +1,124 @@
 package com.lennartmoeller.finance.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TargetDTO;
 import com.lennartmoeller.finance.model.Category;
 import com.lennartmoeller.finance.model.Target;
 import com.lennartmoeller.finance.repository.CategoryRepository;
+import java.time.LocalDate;
 import java.util.Optional;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TargetMapperTest {
-    @Test
-    void testToDto() {
-        Category category = new Category();
-        category.setId(3L);
 
-        Target target = new Target();
-        target.setId(5L);
-        target.setCategory(category);
-        target.setAmount(100L);
+    private final TargetMapperImpl mapper = new TargetMapperImpl();
 
-        TargetMapper mapper = new TargetMapperImpl();
-        TargetDTO dto = mapper.toDto(target);
+    @Mock
+    private CategoryRepository repository;
 
-        assertThat(dto.getId()).isEqualTo(target.getId());
-        assertThat(dto.getCategoryId()).isEqualTo(target.getCategory().getId());
-        assertThat(dto.getAmount()).isEqualTo(target.getAmount());
+    private static Category category() {
+        Category c = new Category();
+        c.setId(7L);
+        return c;
     }
 
-    @Test
-    void testNullValues() {
-        TargetMapperImpl mapper = new TargetMapperImpl();
-        assertThat(mapper.toDto(null)).isNull();
-        assertThat(mapper.toEntity(null, mock(CategoryRepository.class))).isNull();
-
-        CategoryRepository repo = mock(CategoryRepository.class);
-
-        TargetDTO dto = new TargetDTO();
-        dto.setCategoryId(1L);
-        when(repo.findById(1L)).thenReturn(Optional.empty());
-
-        Target entity = mapper.toEntity(dto, repo);
-        assertThat(entity.getCategory()).isNull();
-        verify(repo).findById(1L);
+    private static Target target() {
+        Target t = new Target();
+        t.setId(5L);
+        t.setCategory(category());
+        t.setStartDate(LocalDate.of(2024, 1, 1));
+        t.setAmount(100L);
+        return t;
     }
 
-    @Test
-    void testToDtoWithNullCategory() {
-        Target target = new Target();
-        target.setId(9L);
-        target.setAmount(5L);
-        // category null
-        TargetMapper mapper = new TargetMapperImpl();
-        TargetDTO dto = mapper.toDto(target);
-        assertThat(dto.getCategoryId()).isNull();
+    @Nested
+    class ToDto {
+        @Test
+        void mapsFields() {
+            Target target = target();
+
+            TargetDTO dto = mapper.toDto(target);
+
+            assertThat(dto.getId()).isEqualTo(target.getId());
+            assertThat(dto.getCategoryId()).isEqualTo(target.getCategory().getId());
+            assertThat(dto.getStart()).isEqualTo(target.getStartDate());
+            assertThat(dto.getAmount()).isEqualTo(target.getAmount());
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullOnNullInput(Target t) {
+            assertThat(mapper.toDto(t)).isNull();
+        }
     }
 
-    @Test
-    void testMappingHelpers() {
-        CategoryRepository repo = mock(CategoryRepository.class);
-        Category cat = new Category();
-        cat.setId(4L);
-        when(repo.findById(4L)).thenReturn(Optional.of(cat));
-        TargetMapperImpl mapper = new TargetMapperImpl();
+    @Nested
+    class ToEntity {
+        @Test
+        void resolvesCategoryUsingRepository() {
+            Category cat = category();
+            when(repository.findById(7L)).thenReturn(Optional.of(cat));
 
-        assertThat(mapper.mapCategoryIdToCategory(4L, repo)).isSameAs(cat);
-        assertThat(mapper.mapCategoryIdToCategory(null, repo)).isNull();
-        assertThat(mapper.mapCategoryToCategoryId(cat)).isEqualTo(4L);
-        assertThat(mapper.mapCategoryToCategoryId(null)).isNull();
+            TargetDTO dto = new TargetDTO();
+            dto.setId(5L);
+            dto.setCategoryId(7L);
+            dto.setStart(LocalDate.of(2024, 1, 1));
+            dto.setAmount(50L);
+
+            Target entity = mapper.toEntity(dto, repository);
+
+            assertThat(entity.getCategory()).isSameAs(cat);
+            assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
+            verify(repository).findById(7L);
+        }
+
+        @Test
+        void missingCategoryResultsInNull() {
+            when(repository.findById(9L)).thenReturn(Optional.empty());
+            TargetDTO dto = new TargetDTO();
+            dto.setCategoryId(9L);
+
+            Target entity = mapper.toEntity(dto, repository);
+
+            assertThat(entity.getCategory()).isNull();
+            verify(repository).findById(9L);
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullWhenDtoIsNull(TargetDTO dto) {
+            assertThat(mapper.toEntity(dto, repository)).isNull();
+            verifyNoInteractions(repository);
+        }
     }
 
-    @Test
-    void testToEntityUsesRepository() {
-        CategoryRepository repo = mock(CategoryRepository.class);
-        Category category = new Category();
-        category.setId(7L);
-        when(repo.findById(7L)).thenReturn(Optional.of(category));
+    @Nested
+    class MappingHelpers {
+        @Test
+        void mapCategoryIdToCategoryFetchesFromRepo() {
+            Category cat = category();
+            when(repository.findById(7L)).thenReturn(Optional.of(cat));
 
-        TargetMapperImpl mapper = new TargetMapperImpl();
+            assertThat(mapper.mapCategoryIdToCategory(7L, repository)).isSameAs(cat);
+            assertThat(mapper.mapCategoryIdToCategory(null, repository)).isNull();
+        }
 
-        TargetDTO dto = new TargetDTO();
-        dto.setId(8L);
-        dto.setCategoryId(7L);
-        dto.setAmount(200L);
-
-        Target entity = mapper.toEntity(dto, repo);
-
-        assertThat(entity.getId()).isEqualTo(dto.getId());
-        assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
-        assertThat(entity.getCategory()).isSameAs(category);
-        verify(repo).findById(7L);
+        @Test
+        void mapCategoryToCategoryIdReturnsIdOrNull() {
+            Category cat = category();
+            assertThat(mapper.mapCategoryToCategoryId(cat)).isEqualTo(7L);
+            assertThat(mapper.mapCategoryToCategoryId(null)).isNull();
+        }
     }
 }

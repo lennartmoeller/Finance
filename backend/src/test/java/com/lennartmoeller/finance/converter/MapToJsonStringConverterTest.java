@@ -42,7 +42,7 @@ class MapToJsonStringConverterTest {
         void parsesJsonIntoMap() {
             Map<String, String> result = converter.convertToEntityAttribute("{\"one\":\"1\",\"two\":\"2\"}");
 
-            assertThat(result).containsExactlyEntriesOf(Map.of("one", "1", "two", "2"));
+            assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of("one", "1", "two", "2"));
         }
 
         @Test
