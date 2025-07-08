@@ -2,13 +2,9 @@ package com.lennartmoeller.finance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.YearMonth;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class MonthlySavingStatsDTO {
     private YearMonth yearMonth;
     private StatsMetricDTO balanceChange;

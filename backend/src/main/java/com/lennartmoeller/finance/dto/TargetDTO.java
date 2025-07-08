@@ -2,13 +2,9 @@ package com.lennartmoeller.finance.dto;
 
 import java.time.LocalDate;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class TargetDTO {
     private @Nullable Long id;
     private Long categoryId;

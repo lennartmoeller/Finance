@@ -4,13 +4,9 @@ import com.lennartmoeller.finance.model.CategorySmoothType;
 import com.lennartmoeller.finance.model.TransactionType;
 import java.util.List;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class CategoryDTO {
     private @Nullable Long id;
     private @Nullable Long parentId;

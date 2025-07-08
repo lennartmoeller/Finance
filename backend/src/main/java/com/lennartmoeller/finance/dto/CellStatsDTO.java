@@ -3,14 +3,10 @@ package com.lennartmoeller.finance.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class CellStatsDTO {
     private StatsMetricDTO surplus;
     private Double target;

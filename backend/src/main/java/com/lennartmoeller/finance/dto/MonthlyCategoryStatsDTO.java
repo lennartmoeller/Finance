@@ -9,13 +9,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class MonthlyCategoryStatsDTO {
     private Map<TransactionType, TransactionTypeStatsDTO> stats;
     private @Nullable LocalDate startDate;
