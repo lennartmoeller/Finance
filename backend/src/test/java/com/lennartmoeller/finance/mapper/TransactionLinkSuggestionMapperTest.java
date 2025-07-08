@@ -69,6 +69,16 @@ class TransactionLinkSuggestionMapperTest {
         void returnsNullOnNullInput(TransactionLinkSuggestion entity) {
             assertThat(mapper.toDto(entity)).isNull();
         }
+
+        @Test
+        void handlesMissingReferences() {
+            TransactionLinkSuggestion entity = new TransactionLinkSuggestion();
+
+            TransactionLinkSuggestionDTO dto = mapper.toDto(entity);
+
+            assertThat(dto.getBankTransactionId()).isNull();
+            assertThat(dto.getTransactionId()).isNull();
+        }
     }
 
     @Nested
@@ -131,6 +141,10 @@ class TransactionLinkSuggestionMapperTest {
                     .isNull();
             assertThat(mapper.mapTransactionIdToTransaction(2L, txRepo)).isSameAs(t);
             assertThat(mapper.mapTransactionIdToTransaction(null, txRepo)).isNull();
+            when(bankRepo.findById(3L)).thenReturn(Optional.empty());
+            when(txRepo.findById(4L)).thenReturn(Optional.empty());
+            assertThat(mapper.mapBankTransactionIdToBankTransaction(3L, bankRepo)).isNull();
+            assertThat(mapper.mapTransactionIdToTransaction(4L, txRepo)).isNull();
         }
     }
 }

@@ -83,6 +83,15 @@ class CategoryMapperTest {
         void returnsNullOnNullInput(Category input) {
             assertThat(mapper.toDto(input)).isNull();
         }
+
+        @Test
+        void handlesNullTargets() {
+            Category cat = category(3L);
+
+            CategoryDTO dto = mapper.toDto(cat);
+
+            assertThat(dto.getTargets()).isNull();
+        }
     }
 
     @Nested
@@ -130,6 +139,16 @@ class CategoryMapperTest {
             verify(repository).findById(5L);
         }
 
+        @Test
+        void handlesNullTargets() {
+            CategoryDTO dto = new CategoryDTO();
+            dto.setTargets(null);
+
+            Category entity = mapper.toEntity(dto, repository);
+
+            assertThat(entity.getTargets()).isNull();
+        }
+
         @ParameterizedTest
         @NullSource
         void returnsNullWhenDtoIsNull(CategoryDTO dto) {
@@ -147,6 +166,8 @@ class CategoryMapperTest {
 
             assertThat(mapper.mapParentIdToParent(8L, repository)).isSameAs(parent);
             assertThat(mapper.mapParentIdToParent(null, repository)).isNull();
+            when(repository.findById(9L)).thenReturn(Optional.empty());
+            assertThat(mapper.mapParentIdToParent(9L, repository)).isNull();
         }
 
         @Test
