@@ -3,6 +3,7 @@ package com.lennartmoeller.finance.converter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
@@ -17,6 +18,23 @@ class MapToJsonStringConverterTest {
         @Test
         void returnsNullForNullInput() {
             assertThat(converter.convertToDatabaseColumn(null)).isNull();
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        void wrapsJsonProcessingException() {
+            class SelfRef {
+                @SuppressWarnings("unused")
+                SelfRef self = this;
+            }
+
+            Map<String, String> map = new HashMap<>();
+            Map raw = map; // intentionally bypass generic type check
+            raw.put("ref", new SelfRef());
+
+            assertThatThrownBy(() -> converter.convertToDatabaseColumn(map))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Cannot write map to JSON");
         }
 
         @Test
