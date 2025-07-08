@@ -1,4 +1,4 @@
-package com.lennartmoeller.finance.csv;
+package com.lennartmoeller.finance.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
