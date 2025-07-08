@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.dto;
 
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -8,9 +9,9 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Setter
 public class AccountDTO {
-    private Long id;
+    private @Nullable Long id;
     private String label;
-    private String iban;
+    private @Nullable String iban;
     private Long startBalance;
     private Boolean active;
     private Boolean deposits;
