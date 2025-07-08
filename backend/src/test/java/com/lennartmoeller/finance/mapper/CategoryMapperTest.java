@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -14,175 +13,147 @@ import com.lennartmoeller.finance.model.Target;
 import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class CategoryMapperTest {
-    private static void inject(Object target, Object value) throws Exception {
-        Field f = target.getClass().getDeclaredField("targetMapper");
+
+    private final CategoryMapperImpl mapper = new CategoryMapperImpl();
+
+    @Mock
+    private CategoryRepository repository;
+
+    @BeforeEach
+    void injectTargetMapper() throws Exception {
+        Field f = CategoryMapperImpl.class.getDeclaredField("targetMapper");
         f.setAccessible(true);
-        f.set(target, value);
+        f.set(mapper, new TargetMapperImpl());
     }
 
-    @Test
-    void testToDto() throws Exception {
-        Category parent = new Category();
-        parent.setId(1L);
-
-        Category child = new Category();
-        child.setId(2L);
-        child.setParent(parent);
-        child.setLabel("Food");
-        child.setTransactionType(TransactionType.EXPENSE);
-        child.setSmoothType(CategorySmoothType.MONTHLY);
-        child.setIcon("icon");
-
-        Target target = new Target();
-        target.setId(3L);
-        target.setCategory(child);
-        target.setAmount(50L);
-        child.setTargets(List.of(target));
-
-        TargetMapperImpl targetMapper = new TargetMapperImpl();
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, targetMapper);
-
-        CategoryDTO dto = mapper.toDto(child);
-
-        assertThat(dto.getId()).isEqualTo(child.getId());
-        assertThat(dto.getLabel()).isEqualTo(child.getLabel());
-        assertThat(dto.getTransactionType()).isEqualTo(child.getTransactionType());
-        assertThat(dto.getSmoothType()).isEqualTo(child.getSmoothType());
-        assertThat(dto.getIcon()).isEqualTo(child.getIcon());
-        assertThat(dto.getParentId()).isEqualTo(parent.getId());
-        assertThat(dto.getTargets()).hasSize(1);
-        TargetDTO t = dto.getTargets().getFirst();
-        assertThat(t.getId()).isEqualTo(target.getId());
-        assertThat(t.getCategoryId()).isEqualTo(child.getId());
-        assertThat(t.getAmount()).isEqualTo(target.getAmount());
-    }
-
-    @Test
-    void testToDtoNoParent() {
-        Category child = new Category();
-        child.setId(2L);
-        child.setTargets(List.of());
-
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
-        CategoryDTO dto = mapper.toDto(child);
-        assertThat(dto.getParentId()).isNull();
-        assertThat(dto.getTargets()).isEmpty();
-    }
-
-    @Test
-    void testNullValues() {
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
-        assertThat(mapper.toDto(null)).isNull();
-        assertThat(mapper.toEntity(null, mock(CategoryRepository.class))).isNull();
-    }
-
-    @Test
-    void testNullTargetLists() {
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
+    private static Category category(Long id) {
         Category c = new Category();
-        c.setId(1L);
-        c.setTargets(null);
-        CategoryDTO dto = mapper.toDto(c);
-        assertThat(dto.getTargets()).isNull();
-
-        CategoryDTO dto2 = new CategoryDTO();
-        dto2.setTargets(null);
-        Category entity = mapper.toEntity(dto2, mock(CategoryRepository.class));
-        assertThat(entity.getTargets()).isNull();
+        c.setId(id);
+        c.setLabel("cat" + id);
+        c.setTransactionType(TransactionType.EXPENSE);
+        c.setSmoothType(CategorySmoothType.MONTHLY);
+        c.setIcon("icon");
+        return c;
     }
 
-    @Test
-    void testToEntityUsesRepository() throws Exception {
-        CategoryRepository repo = mock(CategoryRepository.class);
-
-        Category parent = new Category();
-        parent.setId(1L);
-        when(repo.findById(1L)).thenReturn(Optional.of(parent));
-
-        Category childFromRepo = new Category();
-        childFromRepo.setId(2L);
-        when(repo.findById(2L)).thenReturn(Optional.of(childFromRepo));
-
-        TargetMapperImpl targetMapper = new TargetMapperImpl();
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
-        inject(mapper, targetMapper);
-
-        TargetDTO targetDTO = new TargetDTO();
-        targetDTO.setId(5L);
-        targetDTO.setCategoryId(2L);
-        targetDTO.setAmount(100L);
-
-        CategoryDTO dto = new CategoryDTO();
-        dto.setId(2L);
-        dto.setParentId(1L);
-        dto.setLabel("Food");
-        dto.setTransactionType(TransactionType.EXPENSE);
-        dto.setSmoothType(CategorySmoothType.MONTHLY);
-        dto.setIcon("icon");
-        dto.setTargets(List.of(targetDTO));
-
-        Category entity = mapper.toEntity(dto, repo);
-
-        assertThat(entity.getId()).isEqualTo(dto.getId());
-        assertThat(entity.getLabel()).isEqualTo(dto.getLabel());
-        assertThat(entity.getTransactionType()).isEqualTo(dto.getTransactionType());
-        assertThat(entity.getSmoothType()).isEqualTo(dto.getSmoothType());
-        assertThat(entity.getIcon()).isEqualTo(dto.getIcon());
-        assertThat(entity.getParent()).isSameAs(parent);
-        assertThat(entity.getTargets()).hasSize(1);
-        Target mappedTarget = entity.getTargets().getFirst();
-        assertThat(mappedTarget.getId()).isEqualTo(targetDTO.getId());
-        assertThat(mappedTarget.getAmount()).isEqualTo(targetDTO.getAmount());
-        assertThat(mappedTarget.getCategory()).isSameAs(childFromRepo);
-        verify(repo).findById(1L);
-        verify(repo).findById(2L);
+    private static Target target(Category cat) {
+        Target t = new Target();
+        t.setId(9L);
+        t.setCategory(cat);
+        t.setStartDate(LocalDate.now());
+        t.setAmount(50L);
+        return t;
     }
 
-    @Test
-    void testToEntityMissingParent() {
-        CategoryRepository repo = mock(CategoryRepository.class);
-        when(repo.findById(1L)).thenReturn(Optional.empty());
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
-        CategoryDTO dto = new CategoryDTO();
-        dto.setParentId(1L);
+    @Nested
+    class ToDto {
+        @Test
+        void mapsParentAndTargets() {
+            Category parent = category(1L);
+            Category child = category(2L);
+            child.setParent(parent);
+            Target target = target(child);
+            child.setTargets(List.of(target));
 
-        Category entity = mapper.toEntity(dto, repo);
-        assertThat(entity.getParent()).isNull();
-        verify(repo).findById(1L);
+            CategoryDTO dto = mapper.toDto(child);
+
+            assertThat(dto.getParentId()).isEqualTo(parent.getId());
+            assertThat(dto.getTargets()).hasSize(1);
+            TargetDTO td = dto.getTargets().getFirst();
+            assertThat(td.getCategoryId()).isEqualTo(child.getId());
+            assertThat(td.getAmount()).isEqualTo(target.getAmount());
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullOnNullInput(Category input) {
+            assertThat(mapper.toDto(input)).isNull();
+        }
     }
 
-    @Test
-    void testToEntityNullFields() {
-        CategoryRepository repo = mock(CategoryRepository.class);
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
+    @Nested
+    class ToEntity {
+        @Test
+        void resolvesParentAndTargetsUsingRepository() {
+            Category parent = category(1L);
+            when(repository.findById(1L)).thenReturn(Optional.of(parent));
 
-        CategoryDTO dto = new CategoryDTO();
-        dto.setTargets(List.of());
+            Category childEntity = category(2L);
+            when(repository.findById(2L)).thenReturn(Optional.of(childEntity));
 
-        Category entity = mapper.toEntity(dto, repo);
-        assertThat(entity.getParent()).isNull();
-        assertThat(entity.getTargets()).isEmpty();
-        verifyNoInteractions(repo);
+            TargetDTO targetDto = new TargetDTO();
+            targetDto.setId(5L);
+            targetDto.setCategoryId(2L);
+            targetDto.setStart(LocalDate.now());
+            targetDto.setAmount(100L);
+
+            CategoryDTO dto = new CategoryDTO();
+            dto.setId(3L);
+            dto.setParentId(1L);
+            dto.setLabel("child");
+            dto.setTransactionType(TransactionType.EXPENSE);
+            dto.setSmoothType(CategorySmoothType.MONTHLY);
+            dto.setTargets(List.of(targetDto));
+
+            Category entity = mapper.toEntity(dto, repository);
+
+            assertThat(entity.getParent()).isSameAs(parent);
+            assertThat(entity.getTargets()).hasSize(1);
+            assertThat(entity.getTargets().getFirst().getCategory()).isSameAs(childEntity);
+            verify(repository).findById(1L);
+            verify(repository).findById(2L);
+        }
+
+        @Test
+        void missingParentResultsInNull() {
+            when(repository.findById(5L)).thenReturn(Optional.empty());
+            CategoryDTO dto = new CategoryDTO();
+            dto.setParentId(5L);
+
+            Category entity = mapper.toEntity(dto, repository);
+
+            assertThat(entity.getParent()).isNull();
+            verify(repository).findById(5L);
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullWhenDtoIsNull(CategoryDTO dto) {
+            assertThat(mapper.toEntity(dto, repository)).isNull();
+            verifyNoInteractions(repository);
+        }
     }
 
-    @Test
-    void testMappingHelpers() {
-        CategoryRepository repo = mock(CategoryRepository.class);
-        CategoryMapperImpl mapper = new CategoryMapperImpl();
+    @Nested
+    class MappingHelpers {
+        @Test
+        void mapParentIdToParentFetchesFromRepo() {
+            Category parent = category(8L);
+            when(repository.findById(8L)).thenReturn(Optional.of(parent));
 
-        Category parent = new Category();
-        parent.setId(5L);
-        when(repo.findById(5L)).thenReturn(Optional.of(parent));
+            assertThat(mapper.mapParentIdToParent(8L, repository)).isSameAs(parent);
+            assertThat(mapper.mapParentIdToParent(null, repository)).isNull();
+        }
 
-        assertThat(mapper.mapParentIdToParent(5L, repo)).isSameAs(parent);
-        assertThat(mapper.mapParentIdToParent(null, repo)).isNull();
-        assertThat(mapper.mapParentToParentId(parent)).isEqualTo(5L);
-        assertThat(mapper.mapParentToParentId(null)).isNull();
+        @Test
+        void mapParentToParentIdReturnsIdOrNull() {
+            Category parent = category(10L);
+            assertThat(mapper.mapParentToParentId(parent)).isEqualTo(10L);
+            assertThat(mapper.mapParentToParentId(null)).isNull();
+        }
     }
 }

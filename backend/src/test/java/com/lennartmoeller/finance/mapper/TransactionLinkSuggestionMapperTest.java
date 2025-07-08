@@ -1,7 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -14,113 +13,124 @@ import com.lennartmoeller.finance.model.TransactionLinkSuggestion;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.util.Optional;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TransactionLinkSuggestionMapperTest {
 
     private final TransactionLinkSuggestionMapper mapper = new TransactionLinkSuggestionMapperImpl();
 
-    @Test
-    void shouldMapEntityToDto() {
-        BankTransaction bankTx = new BankTransaction();
-        bankTx.setId(1L);
-        Transaction tx = new Transaction();
-        tx.setId(2L);
+    @Mock
+    private BankTransactionRepository bankRepo;
 
-        TransactionLinkSuggestion entity = new TransactionLinkSuggestion();
-        entity.setId(3L);
-        entity.setBankTransaction(bankTx);
-        entity.setTransaction(tx);
-        entity.setProbability(0.5);
-        entity.setLinkState(TransactionLinkState.CONFIRMED);
+    @Mock
+    private TransactionRepository txRepo;
 
-        TransactionLinkSuggestionDTO dto = mapper.toDto(entity);
-
-        assertThat(dto.getId()).isEqualTo(3L);
-        assertThat(dto.getBankTransactionId()).isEqualTo(1L);
-        assertThat(dto.getTransactionId()).isEqualTo(2L);
-        assertThat(dto.getProbability()).isEqualTo(0.5);
-        assertThat(dto.getLinkState()).isEqualTo(TransactionLinkState.CONFIRMED);
+    private static BankTransaction bankTx() {
+        BankTransaction b = new BankTransaction();
+        b.setId(1L);
+        return b;
     }
 
-    @Test
-    void shouldHandleNullNestedEntitiesWhenMappingToDto() {
-        TransactionLinkSuggestion entity = new TransactionLinkSuggestion();
-        entity.setId(4L);
-
-        TransactionLinkSuggestionDTO dto = mapper.toDto(entity);
-
-        assertThat(dto.getId()).isEqualTo(4L);
-        assertThat(dto.getBankTransactionId()).isNull();
-        assertThat(dto.getTransactionId()).isNull();
+    private static Transaction tx() {
+        Transaction t = new Transaction();
+        t.setId(2L);
+        return t;
     }
 
-    @Test
-    void shouldMapDtoToEntityUsingRepositories() {
-        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
-        TransactionRepository txRepo = mock(TransactionRepository.class);
+    @Nested
+    class ToDto {
+        @Test
+        void mapsFields() {
+            TransactionLinkSuggestion entity = new TransactionLinkSuggestion();
+            entity.setId(3L);
+            entity.setBankTransaction(bankTx());
+            entity.setTransaction(tx());
+            entity.setProbability(0.5);
+            entity.setLinkState(TransactionLinkState.CONFIRMED);
 
-        BankTransaction bankTx = new BankTransaction();
-        bankTx.setId(10L);
-        when(bankRepo.findById(10L)).thenReturn(Optional.of(bankTx));
-        Transaction tx = new Transaction();
-        tx.setId(20L);
-        when(txRepo.findById(20L)).thenReturn(Optional.of(tx));
+            TransactionLinkSuggestionDTO dto = mapper.toDto(entity);
 
-        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
-        dto.setId(5L);
-        dto.setBankTransactionId(10L);
-        dto.setTransactionId(20L);
-        dto.setProbability(0.8);
-        dto.setLinkState(TransactionLinkState.UNDECIDED);
+            assertThat(dto.getId()).isEqualTo(3L);
+            assertThat(dto.getBankTransactionId()).isEqualTo(1L);
+            assertThat(dto.getTransactionId()).isEqualTo(2L);
+            assertThat(dto.getProbability()).isEqualTo(0.5);
+            assertThat(dto.getLinkState()).isEqualTo(TransactionLinkState.CONFIRMED);
+        }
 
-        TransactionLinkSuggestion entity = mapper.toEntity(dto, bankRepo, txRepo);
-
-        assertThat(entity.getId()).isEqualTo(5L);
-        assertThat(entity.getProbability()).isEqualTo(0.8);
-        assertThat(entity.getLinkState()).isEqualTo(TransactionLinkState.UNDECIDED);
-        assertThat(entity.getBankTransaction()).isSameAs(bankTx);
-        assertThat(entity.getTransaction()).isSameAs(tx);
-
-        verify(bankRepo).findById(10L);
-        verify(txRepo).findById(20L);
+        @ParameterizedTest
+        @NullSource
+        void returnsNullOnNullInput(TransactionLinkSuggestion entity) {
+            assertThat(mapper.toDto(entity)).isNull();
+        }
     }
 
-    @Test
-    void shouldIgnoreNullIdsWhenMappingToEntity() {
-        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
-        TransactionRepository txRepo = mock(TransactionRepository.class);
+    @Nested
+    class ToEntity {
+        @Test
+        void resolvesReferencesUsingRepositories() {
+            BankTransaction b = bankTx();
+            when(bankRepo.findById(1L)).thenReturn(Optional.of(b));
+            Transaction t = tx();
+            when(txRepo.findById(2L)).thenReturn(Optional.of(t));
 
-        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
-        dto.setProbability(1.0);
+            TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+            dto.setId(3L);
+            dto.setBankTransactionId(1L);
+            dto.setTransactionId(2L);
+            dto.setProbability(0.7);
+            dto.setLinkState(TransactionLinkState.UNDECIDED);
 
-        TransactionLinkSuggestion entity = mapper.toEntity(dto, bankRepo, txRepo);
+            TransactionLinkSuggestion entity = mapper.toEntity(dto, bankRepo, txRepo);
 
-        assertThat(entity.getBankTransaction()).isNull();
-        assertThat(entity.getTransaction()).isNull();
-        verifyNoInteractions(bankRepo, txRepo);
+            assertThat(entity.getBankTransaction()).isSameAs(b);
+            assertThat(entity.getTransaction()).isSameAs(t);
+            assertThat(entity.getLinkState()).isEqualTo(TransactionLinkState.UNDECIDED);
+            verify(bankRepo).findById(1L);
+            verify(txRepo).findById(2L);
+        }
+
+        @Test
+        void missingIdsAreIgnored() {
+            TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+            dto.setProbability(1.0);
+
+            TransactionLinkSuggestion entity = mapper.toEntity(dto, bankRepo, txRepo);
+
+            assertThat(entity.getBankTransaction()).isNull();
+            assertThat(entity.getTransaction()).isNull();
+            verifyNoInteractions(bankRepo, txRepo);
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void returnsNullWhenDtoIsNull(TransactionLinkSuggestionDTO dto) {
+            assertThat(mapper.toEntity(dto, bankRepo, txRepo)).isNull();
+            verifyNoInteractions(bankRepo, txRepo);
+        }
     }
 
-    @Test
-    void nullInputsReturnNull() {
-        assertThat(mapper.toDto(null)).isNull();
-        assertThat(mapper.toEntity(null, null, null)).isNull();
-    }
+    @Nested
+    class MappingHelpers {
+        @Test
+        void helperMethodsFetchFromRepositories() {
+            BankTransaction b = bankTx();
+            when(bankRepo.findById(1L)).thenReturn(Optional.of(b));
+            Transaction t = tx();
+            when(txRepo.findById(2L)).thenReturn(Optional.of(t));
 
-    @Test
-    void mappingHelpersReturnValuesFromRepositories() {
-        BankTransactionRepository bankRepo = mock(BankTransactionRepository.class);
-        TransactionRepository txRepo = mock(TransactionRepository.class);
-        BankTransaction bankTx = new BankTransaction();
-        bankTx.setId(7L);
-        when(bankRepo.findById(7L)).thenReturn(Optional.of(bankTx));
-        Transaction tx = new Transaction();
-        tx.setId(8L);
-        when(txRepo.findById(8L)).thenReturn(Optional.of(tx));
-
-        assertThat(mapper.mapBankTransactionIdToBankTransaction(7L, bankRepo)).isSameAs(bankTx);
-        assertThat(mapper.mapBankTransactionIdToBankTransaction(null, bankRepo)).isNull();
-        assertThat(mapper.mapTransactionIdToTransaction(8L, txRepo)).isSameAs(tx);
-        assertThat(mapper.mapTransactionIdToTransaction(null, txRepo)).isNull();
+            assertThat(mapper.mapBankTransactionIdToBankTransaction(1L, bankRepo))
+                    .isSameAs(b);
+            assertThat(mapper.mapBankTransactionIdToBankTransaction(null, bankRepo))
+                    .isNull();
+            assertThat(mapper.mapTransactionIdToTransaction(2L, txRepo)).isSameAs(t);
+            assertThat(mapper.mapTransactionIdToTransaction(null, txRepo)).isNull();
+        }
     }
 }
