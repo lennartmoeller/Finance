@@ -2,6 +2,7 @@ package com.lennartmoeller.finance.csv;
 
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.BankType;
+import com.lennartmoeller.finance.util.EuroParser;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
