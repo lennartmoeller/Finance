@@ -53,6 +53,6 @@ public class BankTransaction extends BaseModel {
 
     @Lob
     @Convert(converter = MapToJsonStringConverter.class)
-    @Column(unique = true, columnDefinition = "LONGTEXT")
+    @Column(nullable = false, unique = true, columnDefinition = "LONGTEXT")
     private Map<String, String> data = new HashMap<>();
 }
