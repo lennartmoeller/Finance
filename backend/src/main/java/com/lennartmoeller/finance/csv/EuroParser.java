@@ -4,13 +4,12 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+// TODO: Move EuroParser to utils package
 public final class EuroParser {
     private EuroParser() {}
 
-    @Nonnull
     public static Optional<Long> parseToCents(@Nullable String text) {
         if (text == null || text.isBlank()) {
             return Optional.empty();

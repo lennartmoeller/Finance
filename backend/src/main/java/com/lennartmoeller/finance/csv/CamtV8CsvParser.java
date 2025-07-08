@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,8 +21,7 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yy");
 
     @Override
-    @Nonnull
-    public List<CamtV8TransactionDTO> parse(@Nonnull InputStream inputStream) {
+    public List<CamtV8TransactionDTO> parse(InputStream inputStream) {
         List<String> lines = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
                 .toList();

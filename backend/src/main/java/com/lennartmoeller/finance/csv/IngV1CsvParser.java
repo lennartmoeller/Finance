@@ -14,21 +14,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
 import org.springframework.stereotype.Component;
 
 @Component
 public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-    private static boolean headerMapContains(String[] headers, int index) {
-        String key = headers[index];
-        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
-    }
-
     @Override
-    @Nonnull
-    public List<IngV1TransactionDTO> parse(@Nonnull InputStream inputStream) {
+    public List<IngV1TransactionDTO> parse(InputStream inputStream) {
         List<String> lines = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
                 .toList();
@@ -93,5 +86,10 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
                 .amountCurrency(values[8])
                 .data(data)
                 .build());
+    }
+
+    private static boolean headerMapContains(String[] headers, int index) {
+        String key = headers[index];
+        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
     }
 }

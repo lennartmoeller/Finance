@@ -8,13 +8,14 @@ import jakarta.persistence.Converter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 @Converter
 public class MapToJsonStringConverter implements AttributeConverter<Map<String, String>, String> {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(Map<String, String> attribute) {
+    public @Nullable String convertToDatabaseColumn(@Nullable Map<String, String> attribute) {
         if (attribute == null) {
             return null;
         }
@@ -26,7 +27,7 @@ public class MapToJsonStringConverter implements AttributeConverter<Map<String, 
     }
 
     @Override
-    public Map<String, String> convertToEntityAttribute(String dbData) {
+    public Map<String, String> convertToEntityAttribute(@Nullable String dbData) {
         if (dbData == null) {
             return new HashMap<>();
         }

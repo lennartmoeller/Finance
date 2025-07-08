@@ -3,16 +3,17 @@ package com.lennartmoeller.finance.converter;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.time.YearMonth;
+import javax.annotation.Nullable;
 
 @Converter(autoApply = true)
 public class YearMonthConverter implements AttributeConverter<YearMonth, String> {
     @Override
-    public String convertToDatabaseColumn(YearMonth yearMonth) {
+    public @Nullable String convertToDatabaseColumn(@Nullable YearMonth yearMonth) {
         return yearMonth != null ? yearMonth.toString() : null;
     }
 
     @Override
-    public YearMonth convertToEntityAttribute(String dbData) {
+    public @Nullable YearMonth convertToEntityAttribute(@Nullable String dbData) {
         return dbData != null ? YearMonth.parse(dbData) : null;
     }
 }

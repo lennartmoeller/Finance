@@ -44,7 +44,7 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 
 ### Java
 
-- Use @Nullable and @NotNull annotations to indicate nullable and non-nullable fields
+- Use @Nullable annotations to indicate nullable fields. Avoid @NonNull annotations.
 - Use Lombok annotations to reduce boilerplate code:
   - Use @RequiredArgsConstructor instead of `@NoArgsConstructor` and `@AllArgsConstructor`
   - Don't use field injection like `@Autowired` and use constructor injection instead
