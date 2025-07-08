@@ -18,5 +18,5 @@ public class CategoryDTO {
     private TransactionType transactionType;
     private CategorySmoothType smoothType;
     private @Nullable String icon;
-    private @Nullable List<TargetDTO> targets;
+    private List<TargetDTO> targets;
 }
