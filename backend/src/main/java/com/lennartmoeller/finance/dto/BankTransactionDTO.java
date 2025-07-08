@@ -3,6 +3,7 @@ package com.lennartmoeller.finance.dto;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
 import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,12 +14,12 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public class BankTransactionDTO {
-    private Long id;
+    private @Nullable Long id;
     private BankType bank;
-    private String iban;
+    private @Nullable String iban;
     private LocalDate bookingDate;
     private String purpose;
     private String counterparty;
-    private Long amount;
-    private Map<String, String> data;
+    private @Nullable Long amount;
+    private @Nullable Map<String, String> data;
 }
