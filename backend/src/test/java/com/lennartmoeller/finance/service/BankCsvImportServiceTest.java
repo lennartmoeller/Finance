@@ -106,6 +106,7 @@ class BankCsvImportServiceTest {
         assertTrue(result.getSaved().isEmpty());
         assertEquals(List.of(dto), result.getUnsaved());
         verify(repository, never()).saveAll(any());
+        verify(suggestionService).updateForBankTransactions(List.of());
     }
 
     @Test
@@ -123,6 +124,7 @@ class BankCsvImportServiceTest {
         assertTrue(result.getSaved().isEmpty());
         assertEquals(List.of(dto), result.getUnsaved());
         verify(repository, never()).saveAll(any());
+        verify(suggestionService).updateForBankTransactions(List.of());
     }
 
     @Test
@@ -188,5 +190,6 @@ class BankCsvImportServiceTest {
 
         assertTrue(result.getSaved().isEmpty());
         assertEquals(List.of(dto), result.getUnsaved());
+        verify(suggestionService).updateForBankTransactions(List.of());
     }
 }

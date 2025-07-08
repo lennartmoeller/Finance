@@ -143,7 +143,8 @@ class TransactionLinkSuggestionMapperTest {
             assertThat(mapper.mapTransactionIdToTransaction(null, txRepo)).isNull();
             when(bankRepo.findById(3L)).thenReturn(Optional.empty());
             when(txRepo.findById(4L)).thenReturn(Optional.empty());
-            assertThat(mapper.mapBankTransactionIdToBankTransaction(3L, bankRepo)).isNull();
+            assertThat(mapper.mapBankTransactionIdToBankTransaction(3L, bankRepo))
+                    .isNull();
             assertThat(mapper.mapTransactionIdToTransaction(4L, txRepo)).isNull();
         }
     }
