@@ -5,28 +5,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@DisplayNameGeneration(ReplaceUnderscores.class)
-@ExtendWith(MockitoExtension.class)
 class MapToJsonStringConverterTest {
 
     private final MapToJsonStringConverter converter = new MapToJsonStringConverter();
 
     @Nested
-    class Convert_to_database_column {
+    class ConvertToDatabaseColumn {
         @Test
-        void returns_null_for_null_input() {
+        void returnsNullForNullInput() {
             assertThat(converter.convertToDatabaseColumn(null)).isNull();
         }
 
         @Test
-        void serializes_map_to_json_string() {
+        void serializesMapToJsonString() {
             Map<String, String> map = new LinkedHashMap<>();
             map.put("a", "b");
             map.put("c", "d");
@@ -38,21 +32,21 @@ class MapToJsonStringConverterTest {
     }
 
     @Nested
-    class Convert_to_entity_attribute {
+    class ConvertToEntityAttribute {
         @Test
-        void returns_empty_map_for_null_input() {
+        void returnsEmptyMapForNullInput() {
             assertThat(converter.convertToEntityAttribute(null)).isEmpty();
         }
 
         @Test
-        void parses_json_into_map() {
+        void parsesJsonIntoMap() {
             Map<String, String> result = converter.convertToEntityAttribute("{\"one\":\"1\",\"two\":\"2\"}");
 
             assertThat(result).containsExactlyEntriesOf(Map.of("one", "1", "two", "2"));
         }
 
         @Test
-        void throws_IllegalArgumentException_for_invalid_json() {
+        void throwsIllegalArgumentExceptionForInvalidJson() {
             assertThatThrownBy(() -> converter.convertToEntityAttribute("{"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Cannot read JSON to map");
