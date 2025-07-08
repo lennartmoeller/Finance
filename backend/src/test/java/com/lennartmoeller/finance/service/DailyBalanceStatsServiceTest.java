@@ -14,11 +14,8 @@ import com.lennartmoeller.finance.model.TransactionType;
 import com.lennartmoeller.finance.projection.DailyBalanceProjection;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
-import com.lennartmoeller.finance.util.DateRange;
-import com.lennartmoeller.finance.util.smoother.SmootherDaily;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,44 +57,17 @@ class DailyBalanceStatsServiceTest {
 
         List<DailySavingStatsDTO> result = service.getStats();
 
-        // compute expected using same algorithm
-        Map<TransactionType, SmootherDaily> smoothers = Map.of(
-                TransactionType.INCOME, new SmootherDaily(),
-                TransactionType.EXPENSE, new SmootherDaily(),
-                TransactionType.INVESTMENT, new SmootherDaily());
-        projections.forEach(p -> smoothers
-                .get(p.getCategory().getTransactionType())
-                .add(p.getDate(), p.getCategory().getSmoothType(), p.getBalance()));
+        int expectedDays = (int) java.time.temporal.ChronoUnit.DAYS.between(first, now) + 1;
+        assertEquals(expectedDays, result.size());
 
-        DateRange range = new DateRange(first, now);
-        List<DailySavingStatsDTO> expected = new ArrayList<>();
-        StatsMetricDTO balance = new StatsMetricDTO();
-        balance.setRaw(1000);
-        balance.setSmoothed(1000);
-        StatsMetricDTO target = new StatsMetricDTO();
-        target.setRaw(1000);
-        target.setSmoothed(1000);
-        for (LocalDate d : range.createDateStream().toList()) {
-            StatsMetricDTO inc = smoothers.get(TransactionType.INCOME).get(d);
-            StatsMetricDTO exp = smoothers.get(TransactionType.EXPENSE).get(d);
-            StatsMetricDTO inv = smoothers.get(TransactionType.INVESTMENT).get(d);
-            balance = StatsMetricDTO.add(List.of(balance, inc, inv, exp));
-            target = StatsMetricDTO.add(List.of(target, StatsMetricDTO.multiply(inc, 0.2), inv));
-            DailySavingStatsDTO dto = new DailySavingStatsDTO();
-            dto.setDate(d);
-            dto.setBalance(balance);
-            dto.setTarget(target);
-            expected.add(dto);
-        }
+        DailySavingStatsDTO dayOne = result.getFirst();
+        assertEquals(first, dayOne.getDate());
+        assertEquals(1030.0, dayOne.getBalance().getRaw(), 0.0001); // 1000 + 50 - 20
+        assertEquals(1010.0, dayOne.getTarget().getRaw(), 0.0001); // 1000 + 10
 
-        assertEquals(expected.size(), result.size());
-        for (int i = 0; i < expected.size(); i++) {
-            DailySavingStatsDTO expDto = expected.get(i);
-            DailySavingStatsDTO actDto = result.get(i);
-            assertEquals(expDto.getDate(), actDto.getDate());
-            assertEquals(expDto.getBalance().getRaw(), actDto.getBalance().getRaw(), 0.0001);
-            assertEquals(expDto.getTarget().getRaw(), actDto.getTarget().getRaw(), 0.0001);
-        }
+        DailySavingStatsDTO lastDay = result.get(result.size() - 1);
+        assertEquals(1060.0, lastDay.getBalance().getRaw(), 0.0001); // +30 investment on day two
+        assertEquals(1040.0, lastDay.getTarget().getRaw(), 0.0001); // +30 investment to target
     }
 
     @Test
