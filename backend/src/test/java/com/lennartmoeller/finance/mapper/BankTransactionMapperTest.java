@@ -113,6 +113,16 @@ class BankTransactionMapperTest {
         }
 
         @Test
+        void createsEntityWithoutAccount() {
+            BankTransactionDTO dto = baseDto();
+
+            BankTransaction entity = mapper.toEntity(dto, null);
+
+            assertThat(entity.getAccount()).isNull();
+            assertThat(entity.getBank()).isEqualTo(dto.getBank());
+        }
+
+        @Test
         void handlesNullData() {
             BankTransactionDTO dto = baseDto();
             dto.setData(null);
@@ -148,6 +158,17 @@ class BankTransactionMapperTest {
         @NullSource
         void returnsNullForNullInput(BankTransaction entity) {
             assertThat(mapper.toDto(entity)).isNull();
+        }
+
+        @Test
+        void handlesMissingAccountAndData() {
+            BankTransaction entity = new BankTransaction();
+            entity.setData(null);
+
+            BankTransactionDTO dto = mapper.toDto(entity);
+
+            assertThat(dto.getIban()).isNull();
+            assertThat(dto.getData()).isNull();
         }
     }
 }

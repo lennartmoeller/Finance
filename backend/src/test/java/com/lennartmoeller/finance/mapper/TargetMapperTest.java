@@ -61,6 +61,16 @@ class TargetMapperTest {
         void returnsNullOnNullInput(Target t) {
             assertThat(mapper.toDto(t)).isNull();
         }
+
+        @Test
+        void handlesMissingCategory() {
+            Target target = target();
+            target.setCategory(null);
+
+            TargetDTO dto = mapper.toDto(target);
+
+            assertThat(dto.getCategoryId()).isNull();
+        }
     }
 
     @Nested
@@ -112,6 +122,8 @@ class TargetMapperTest {
 
             assertThat(mapper.mapCategoryIdToCategory(7L, repository)).isSameAs(cat);
             assertThat(mapper.mapCategoryIdToCategory(null, repository)).isNull();
+            when(repository.findById(8L)).thenReturn(Optional.empty());
+            assertThat(mapper.mapCategoryIdToCategory(8L, repository)).isNull();
         }
 
         @Test

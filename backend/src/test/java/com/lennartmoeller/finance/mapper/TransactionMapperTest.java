@@ -75,6 +75,16 @@ class TransactionMapperTest {
         void returnsNullOnNullInput(Transaction tx) {
             assertThat(mapper.toDto(tx)).isNull();
         }
+
+        @Test
+        void handlesMissingReferences() {
+            Transaction tx = new Transaction();
+
+            TransactionDTO dto = mapper.toDto(tx);
+
+            assertThat(dto.getAccountId()).isNull();
+            assertThat(dto.getCategoryId()).isNull();
+        }
     }
 
     @Nested
@@ -147,6 +157,11 @@ class TransactionMapperTest {
             assertThat(mapper.mapCategoryIdToCategory(null, catRepo)).isNull();
             assertThat(mapper.mapCategoryToCategoryId(cat)).isEqualTo(2L);
             assertThat(mapper.mapCategoryToCategoryId(null)).isNull();
+
+            when(accRepo.findById(9L)).thenReturn(Optional.empty());
+            when(catRepo.findById(10L)).thenReturn(Optional.empty());
+            assertThat(mapper.mapAccountIdToAccount(9L, accRepo)).isNull();
+            assertThat(mapper.mapCategoryIdToCategory(10L, catRepo)).isNull();
         }
     }
 }
