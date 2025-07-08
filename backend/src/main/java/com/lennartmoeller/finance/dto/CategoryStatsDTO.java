@@ -1,13 +1,9 @@
 package com.lennartmoeller.finance.dto;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class CategoryStatsDTO {
     private CategoryDTO category;
     private RowStatsDTO stats;

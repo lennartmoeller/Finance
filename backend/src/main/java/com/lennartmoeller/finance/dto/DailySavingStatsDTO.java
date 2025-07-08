@@ -1,13 +1,9 @@
 package com.lennartmoeller.finance.dto;
 
 import java.time.LocalDate;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class DailySavingStatsDTO {
     private LocalDate date;
     private StatsMetricDTO balance;
