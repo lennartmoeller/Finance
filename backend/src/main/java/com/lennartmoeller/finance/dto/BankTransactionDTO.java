@@ -16,10 +16,10 @@ import lombok.experimental.SuperBuilder;
 public class BankTransactionDTO {
     private @Nullable Long id;
     private BankType bank;
-    private @Nullable String iban;
+    private String iban;
     private LocalDate bookingDate;
     private String purpose;
     private String counterparty;
-    private @Nullable Long amount;
-    private @Nullable Map<String, String> data;
+    private Long amount;
+    private Map<String, String> data;
 }
