@@ -9,11 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 public interface TransactionLinkSuggestionRepository extends JpaRepository<TransactionLinkSuggestion, Long> {
     @Query(
             """
-                SELECT s
-                FROM TransactionLinkSuggestion s
-                WHERE (:bankTransactionIds IS NULL OR s.bankTransaction.id IN :bankTransactionIds)
-                  AND (:transactionIds IS NULL OR s.transaction.id IN :transactionIds)
-            """)
+        SELECT s
+        FROM TransactionLinkSuggestion s
+        WHERE (:bankTransactionIds IS NULL OR s.bankTransaction.id IN :bankTransactionIds)
+          AND (:transactionIds IS NULL OR s.transaction.id IN :transactionIds)
+        """)
     List<TransactionLinkSuggestion> findAllByBankTransactionIdsAndTransactionIds(
             @Nullable List<Long> bankTransactionIds, @Nullable List<Long> transactionIds);
 

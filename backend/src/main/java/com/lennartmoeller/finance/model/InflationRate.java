@@ -21,7 +21,7 @@ public class InflationRate extends BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "`year_month`", nullable = false, unique = true)
+    @Column(name = "year_month", nullable = false, unique = true)
     private YearMonth yearMonth;
 
     @Column(nullable = false)
