@@ -1,113 +1,131 @@
 package com.lennartmoeller.finance.controller;
 
+import static com.lennartmoeller.finance.testbuilder.AccountDTOBuilder.anAccount;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lennartmoeller.finance.dto.AccountDTO;
 import com.lennartmoeller.finance.service.AccountService;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(AccountController.class)
 class AccountControllerTest {
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
     private AccountService service;
 
-    @InjectMocks
-    private AccountController controller;
+    @Nested
+    class GetRequests {
+        @Test
+        void returnsAllAccounts() throws Exception {
+            List<AccountDTO> accounts =
+                    List.of(anAccount().withId(1L).withLabel("a").build());
+            when(service.findAll()).thenReturn(accounts);
 
-    @Test
-    void shouldReturnAllAccounts() {
-        List<AccountDTO> list = List.of(new AccountDTO(), new AccountDTO());
-        when(service.findAll()).thenReturn(list);
+            mockMvc.perform(get("/api/accounts"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(accounts)));
+        }
 
-        List<AccountDTO> result = controller.getAccounts();
+        @Test
+        void returnsAccountByIdWhenFound() throws Exception {
+            AccountDTO dto = anAccount().withId(2L).withLabel("acc").build();
+            when(service.findById(2L)).thenReturn(Optional.of(dto));
 
-        assertThat(result).isEqualTo(list);
-        verify(service).findAll();
+            mockMvc.perform(get("/api/accounts/2"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(dto)));
+        }
+
+        @Test
+        void returnsNotFoundWhenMissing() throws Exception {
+            when(service.findById(3L)).thenReturn(Optional.empty());
+
+            mockMvc.perform(get("/api/accounts/3")).andExpect(status().isNotFound());
+        }
     }
 
-    @Test
-    void shouldReturnAccountWhenIdExists() {
-        AccountDTO dto = new AccountDTO();
-        when(service.findById(1L)).thenReturn(Optional.of(dto));
+    @Nested
+    class PostRequests {
+        @Test
+        void createsAccountWhenIdIsNull() throws Exception {
+            AccountDTO dto = anAccount().withLabel("new").build();
+            when(service.save(any(AccountDTO.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ResponseEntity<AccountDTO> response = controller.getAccountById(1L);
+            mockMvc.perform(post("/api/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(dto)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(dto)));
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isSameAs(dto);
+            ArgumentCaptor<AccountDTO> captor = ArgumentCaptor.forClass(AccountDTO.class);
+            verify(service).save(captor.capture());
+            assertThat(captor.getValue().getLabel()).isEqualTo("new");
+            verify(service, never()).findById(any());
+        }
+
+        @Test
+        void updatesExistingAccount() throws Exception {
+            AccountDTO dto = anAccount().withId(5L).withLabel("lbl").build();
+            AccountDTO saved = anAccount().withId(5L).withLabel("lbl").build();
+            when(service.findById(5L)).thenReturn(Optional.of(new AccountDTO()));
+            when(service.save(any(AccountDTO.class))).thenReturn(saved);
+
+            mockMvc.perform(post("/api/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(dto)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(saved)));
+        }
+
+        @Test
+        void createsNewWhenIdUnknown() throws Exception {
+            AccountDTO dto = anAccount().withId(7L).build();
+            AccountDTO saved = anAccount().withId(8L).build();
+            when(service.findById(7L)).thenReturn(Optional.empty());
+            when(service.save(any(AccountDTO.class))).thenReturn(saved);
+
+            mockMvc.perform(post("/api/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(dto)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(saved)));
+
+            ArgumentCaptor<AccountDTO> captor = ArgumentCaptor.forClass(AccountDTO.class);
+            verify(service).save(captor.capture());
+            assertThat(captor.getValue().getId()).isNull();
+        }
     }
 
-    @Test
-    void shouldReturnNotFoundWhenIdMissing() {
-        when(service.findById(2L)).thenReturn(Optional.empty());
-
-        ResponseEntity<AccountDTO> response = controller.getAccountById(2L);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).isNull();
-    }
-
-    @Test
-    void shouldUpdateAccountWhenExisting() {
-        AccountDTO dto = new AccountDTO();
-        dto.setId(5L);
-        AccountDTO saved = new AccountDTO();
-        when(service.findById(5L)).thenReturn(Optional.of(new AccountDTO()));
-        when(service.save(dto)).thenReturn(saved);
-
-        AccountDTO result = controller.createOrUpdateAccount(dto);
-
-        assertThat(result).isSameAs(saved);
-        assertThat(dto.getId()).isEqualTo(5L);
-        verify(service).save(dto);
-    }
-
-    @Test
-    void shouldCreateNewAccountWhenIdUnknown() {
-        AccountDTO dto = new AccountDTO();
-        dto.setId(5L);
-        AccountDTO saved = new AccountDTO();
-        when(service.findById(5L)).thenReturn(Optional.empty());
-        when(service.save(any())).thenReturn(saved);
-
-        AccountDTO result = controller.createOrUpdateAccount(dto);
-
-        assertThat(result).isSameAs(saved);
-        ArgumentCaptor<AccountDTO> captor = ArgumentCaptor.forClass(AccountDTO.class);
-        verify(service).save(captor.capture());
-        assertThat(captor.getValue().getId()).isNull();
-    }
-
-    @Test
-    void shouldCreateAccountWhenIdIsNull() {
-        AccountDTO dto = new AccountDTO();
-        when(service.save(dto)).thenReturn(dto);
-
-        AccountDTO result = controller.createOrUpdateAccount(dto);
-
-        assertThat(result).isSameAs(dto);
-        verify(service).save(dto);
-        verify(service, never()).findById(any());
-    }
-
-    @Test
-    void shouldDeleteAccount() {
-        ResponseEntity<Void> response = controller.deleteAccount(9L);
-
-        verify(service).deleteById(9L);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(response.getBody()).isNull();
+    @Nested
+    class DeleteRequests {
+        @Test
+        void deletesAccount() throws Exception {
+            mockMvc.perform(delete("/api/accounts/9")).andExpect(status().isNoContent());
+            verify(service).deleteById(9L);
+        }
     }
 }
