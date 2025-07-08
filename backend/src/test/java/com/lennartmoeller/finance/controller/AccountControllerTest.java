@@ -17,16 +17,20 @@ import com.lennartmoeller.finance.dto.AccountDTO;
 import com.lennartmoeller.finance.service.AccountService;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AccountController.class)
+@Import(AccountControllerTest.TestConfig.class)
 class AccountControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -34,8 +38,13 @@ class AccountControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private AccountService service;
+
+    @BeforeEach
+    void resetMocks() {
+        org.mockito.Mockito.reset(service);
+    }
 
     @Nested
     class GetRequests {
@@ -126,6 +135,14 @@ class AccountControllerTest {
         void deletesAccount() throws Exception {
             mockMvc.perform(delete("/api/accounts/9")).andExpect(status().isNoContent());
             verify(service).deleteById(9L);
+        }
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        AccountService accountService() {
+            return org.mockito.Mockito.mock(AccountService.class);
         }
     }
 }
