@@ -1,13 +1,9 @@
 package com.lennartmoeller.finance.dto;
 
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class AccountDTO {
     private @Nullable Long id;
     private String label;

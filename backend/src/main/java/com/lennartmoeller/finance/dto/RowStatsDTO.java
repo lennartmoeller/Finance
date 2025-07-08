@@ -6,13 +6,9 @@ import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
 public class RowStatsDTO {
     private final Map<YearMonth, CellStatsDTO> monthly;
 

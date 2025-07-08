@@ -4,14 +4,12 @@ import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
 import java.util.Map;
 import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@RequiredArgsConstructor
-@Setter
+@Data
+@NoArgsConstructor
 @SuperBuilder
 public class BankTransactionDTO {
     private @Nullable Long id;
