@@ -6,3 +6,5 @@ INSERT INTO categories (label, transaction_type, smooth_type)
 VALUES ('Salary', 'INCOME', 'MONTHLY');
 INSERT INTO categories (label, transaction_type, smooth_type)
 VALUES ('Food', 'EXPENSE', 'MONTHLY');
+
+INSERT INTO users (username, password, role) VALUES ('admin', '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiBq9VS0Cbvcp1xsHsSOwJWEIDWe5Hi', 'ADMIN');
