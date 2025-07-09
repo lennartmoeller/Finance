@@ -40,9 +40,9 @@ class TransactionServiceTest {
                 accountRepository,
                 categoryRepository,
                 categoryService,
+                suggestionService,
                 transactionMapper,
-                transactionRepository,
-                suggestionService);
+                transactionRepository);
     }
 
     @Test
