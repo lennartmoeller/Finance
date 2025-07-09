@@ -1,6 +1,8 @@
 package com.lennartmoeller.finance.service;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
+import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -15,9 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class BankTransactionService {
-    private final BankTransactionRepository repository;
-    private final BankTransactionMapper mapper;
     private final AccountRepository accountRepository;
+    private final BankTransactionMapper mapper;
+    private final BankTransactionRepository repository;
     private final TransactionLinkSuggestionService suggestionService;
 
     public List<BankTransactionDTO> findAll() {
@@ -35,7 +37,12 @@ public class BankTransactionService {
                     .findFirst()
                     .orElse(null);
         }
-        BankTransaction entity = mapper.toEntity(dto, account);
+        BankTransaction entity;
+        entity = switch (dto) {
+            case IngV1TransactionDTO ingV1Dto -> mapper.toEntity(ingV1Dto, account);
+            case CamtV8TransactionDTO camtV8Dto -> mapper.toEntity(camtV8Dto, account);
+            default -> throw new IllegalArgumentException("Unsupported BankTransactionDTO type: " + dto.getClass());
+        };
         BankTransaction saved = repository.save(entity);
         suggestionService.updateForBankTransactions(List.of(saved));
         return mapper.toDto(saved);

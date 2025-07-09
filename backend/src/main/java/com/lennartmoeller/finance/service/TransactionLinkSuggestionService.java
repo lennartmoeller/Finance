@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TransactionLinkSuggestionService {
     private static final int WINDOW_DAYS = 7;
-    private final TransactionLinkSuggestionRepository repository;
-    private final TransactionLinkSuggestionMapper mapper;
     private final BankTransactionRepository bankTransactionRepository;
+    private final TransactionLinkSuggestionMapper mapper;
+    private final TransactionLinkSuggestionRepository repository;
     private final TransactionRepository transactionRepository;
 
     public List<TransactionLinkSuggestionDTO> findAll() {
@@ -39,7 +39,6 @@ public class TransactionLinkSuggestionService {
                 bankTransactionList.stream().map(BankTransaction::getId).toList();
         List<Long> transactionIds =
                 transactionList.stream().map(Transaction::getId).toList();
-
         List<TransactionLinkSuggestion> existing =
                 repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds);
 
@@ -47,34 +46,36 @@ public class TransactionLinkSuggestionService {
                 .flatMap(bankTransaction -> {
                     LocalDate date = bankTransaction.getBookingDate();
                     DateRange range = new DateRange(date.minusDays(WINDOW_DAYS), date.plusDays(WINDOW_DAYS));
-
                     return transactionList.stream()
                             .filter(t -> t.getAccount()
                                     .getId()
                                     .equals(bankTransaction.getAccount().getId()))
                             .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
                             .filter(t -> new DateRange(t.getDate()).getOverlapDays(range) != 0)
-                            .filter(t -> isNotExistingSuggestion(existing, bankTransaction, t))
-                            .map(t -> {
-                                long daysBetween = Math.abs(
-                                        new DateRange(bankTransaction.getBookingDate(), t.getDate()).getDays() - 1);
-                                double probability = 1.0 - daysBetween / (2.0 * WINDOW_DAYS);
-                                TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
-                                suggestion.setBankTransaction(bankTransaction);
-                                suggestion.setTransaction(t);
-                                suggestion.setProbability(probability);
-                                suggestion.setLinkState(
-                                        probability == 1.0
-                                                ? TransactionLinkState.AUTO_CONFIRMED
-                                                : TransactionLinkState.UNDECIDED);
-                                return suggestion;
-                            });
+                            .filter(t -> existing.stream()
+                                    .noneMatch(s -> s.getBankTransaction()
+                                                    .getId()
+                                                    .equals(bankTransaction.getId())
+                                            && s.getTransaction().getId().equals(t.getId())))
+                            .map(t -> buildSuggestion(bankTransaction, t));
                 })
                 .toList();
 
         List<TransactionLinkSuggestion> saved = suggestions.isEmpty() ? List.of() : repository.saveAll(suggestions);
-
         return saved.stream().map(mapper::toDto).toList();
+    }
+
+    private static TransactionLinkSuggestion buildSuggestion(BankTransaction bankTransaction, Transaction transaction) {
+        long daysBetween =
+                Math.abs(new DateRange(bankTransaction.getBookingDate(), transaction.getDate()).getDays() - 1);
+        double probability = 1.0 - daysBetween / (2.0 * WINDOW_DAYS);
+        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        suggestion.setBankTransaction(bankTransaction);
+        suggestion.setTransaction(transaction);
+        suggestion.setProbability(probability);
+        suggestion.setLinkState(
+                probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED);
+        return suggestion;
     }
 
     public void updateForTransactions(@Nullable List<Transaction> transactions) {
@@ -111,12 +112,5 @@ public class TransactionLinkSuggestionService {
 
     public void removeForBankTransaction(Long id) {
         repository.deleteAllByBankTransaction_Id(id);
-    }
-
-    private boolean isNotExistingSuggestion(
-            List<TransactionLinkSuggestion> existing, BankTransaction bankTransaction, Transaction transaction) {
-        return existing.stream()
-                .noneMatch(s -> s.getBankTransaction().getId().equals(bankTransaction.getId())
-                        && s.getTransaction().getId().equals(transaction.getId()));
     }
 }

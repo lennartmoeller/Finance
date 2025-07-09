@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final CategoryRepository categoryRepository;
 
     public List<CategoryDTO> findAll() {
         return categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();

@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MonthlySavingStatsService {
     private final DailyBalanceStatsService dailyBalanceStatsService;
-    private final MonthlyCategoryBalanceStatsService monthlyCategoryBalanceStatsService;
     private final InflationRateRepository inflationRateRepository;
+    private final MonthlyCategoryBalanceStatsService monthlyCategoryBalanceStatsService;
     private final TransactionRepository transactionRepository;
 
     public List<MonthlySavingStatsDTO> getStats() {

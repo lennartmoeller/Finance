@@ -14,10 +14,6 @@ public interface BankTransactionMapper {
     BankTransactionDTO toDto(BankTransaction entity);
 
     @Mapping(target = "id", source = "dto.id")
-    @Mapping(target = "account", source = "account")
-    BankTransaction toEntity(BankTransactionDTO dto, Account account);
-
-    @Mapping(target = "id", source = "dto.id")
     @Mapping(target = "bank", constant = "ING_V1")
     @Mapping(target = "account", source = "account")
     BankTransaction toEntity(IngV1TransactionDTO dto, Account account);
