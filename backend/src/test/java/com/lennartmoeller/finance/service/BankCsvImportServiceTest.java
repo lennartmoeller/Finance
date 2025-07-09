@@ -11,6 +11,7 @@ import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.lennartmoeller.finance.converter.MapToJsonStringConverter;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
@@ -35,6 +36,7 @@ class BankCsvImportServiceTest {
     private BankTransactionMapper mapper;
     private IngV1CsvParser ingParser;
     private CamtV8CsvParser camtParser;
+    private MapToJsonStringConverter converter;
     private AccountRepository accountRepository;
     private TransactionLinkSuggestionService suggestionService;
     private BankCsvImportService service;
@@ -45,10 +47,11 @@ class BankCsvImportServiceTest {
         mapper = mock(BankTransactionMapper.class);
         ingParser = mock(IngV1CsvParser.class);
         camtParser = mock(CamtV8CsvParser.class);
+        converter = new MapToJsonStringConverter();
         accountRepository = mock(AccountRepository.class);
         suggestionService = mock(TransactionLinkSuggestionService.class);
         service = new BankCsvImportService(
-                accountRepository, mapper, repository, camtParser, ingParser, suggestionService);
+                accountRepository, mapper, repository, camtParser, ingParser, converter, suggestionService);
     }
 
     @Test
@@ -68,7 +71,7 @@ class BankCsvImportServiceTest {
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
         when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
-        when(repository.findAllByDataIn(any())).thenReturn(List.of());
+        when(repository.findAllDatas()).thenReturn(List.of());
         BankTransaction saved = new BankTransaction();
         when(repository.saveAll(List.of(entity))).thenReturn(List.of(saved));
         BankTransactionDTO resultDto = new IngV1TransactionDTO();
@@ -99,7 +102,7 @@ class BankCsvImportServiceTest {
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
         when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
-        when(repository.findAllByDataIn(any())).thenReturn(List.of(entity));
+        when(repository.findAllDatas()).thenReturn(List.of(entity.getData()));
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
 
@@ -155,7 +158,7 @@ class BankCsvImportServiceTest {
         e2.setAccount(account);
         when(mapper.toEntity((BankTransactionDTO) dto1, account)).thenReturn(e1);
         when(mapper.toEntity((BankTransactionDTO) dto2, account)).thenReturn(e2);
-        when(repository.findAllByDataIn(any())).thenReturn(List.of());
+        when(repository.findAllDatas()).thenReturn(List.of());
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(same(e1))).thenReturn(dto1);
         when(mapper.toDto(same(e2))).thenReturn(dto2);
@@ -183,7 +186,7 @@ class BankCsvImportServiceTest {
                 .thenReturn(java.util.Collections.emptyList());
         BankTransaction entity = new BankTransaction();
         when(mapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
-        when(repository.findAllByDataIn(any())).thenReturn(List.of());
+        when(repository.findAllDatas()).thenReturn(List.of());
         when(repository.saveAll(any())).thenReturn(List.of());
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
