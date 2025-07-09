@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.service;
 
+import com.lennartmoeller.finance.converter.MapToJsonStringConverter;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
@@ -31,6 +32,7 @@ public class BankCsvImportService {
     private final BankTransactionRepository transactionRepository;
     private final CamtV8CsvParser camtParser;
     private final IngV1CsvParser ingParser;
+    private final MapToJsonStringConverter converter;
     private final TransactionLinkSuggestionService suggestionService;
 
     public BankTransactionImportResultDTO importCsv(BankType bankType, MultipartFile file) throws IOException {
@@ -51,24 +53,18 @@ public class BankCsvImportService {
                 .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
         List<? extends Map.Entry<? extends BankTransactionDTO, BankTransaction>> entries = dtos.stream()
+                .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
                 .map(dto -> {
                     Account account = accountsByIban.get(dto.getIban());
                     BankTransaction entity = mapper.toEntity(dto, account);
                     return Map.entry(dto, entity);
                 })
-                .sorted(Comparator.comparing(e -> e.getKey().getBookingDate()))
                 .toList();
 
-        Set<Map<String, String>> allIncomingData =
-                entries.stream().map(e -> e.getValue().getData()).collect(Collectors.toSet());
-
-        Set<Map<String, String>> existingData = transactionRepository.findAllByDataIn(allIncomingData).stream()
-                .map(BankTransaction::getData)
-                .collect(Collectors.toSet());
-
-        var partition = entries.stream()
-                .collect(Collectors.partitioningBy(e -> e.getValue().getAccount() != null
-                        && !existingData.contains(e.getValue().getData())));
+        List<String> datas = transactionRepository.findAllDatas().stream()
+                .map(converter::convertToDatabaseColumn)
+                .toList();
+        var partition = entries.stream().collect(Collectors.partitioningBy(e -> shouldGetSaved(e.getValue(), datas)));
 
         List<BankTransaction> toSave =
                 partition.get(true).stream().map(Map.Entry::getValue).toList();
@@ -81,5 +77,13 @@ public class BankCsvImportService {
                 partition.get(false).stream().map(Map.Entry::getKey).collect(Collectors.toList());
 
         return new BankTransactionImportResultDTO(savedDtos, skippedDtos);
+    }
+
+    private boolean shouldGetSaved(BankTransaction entity, List<String> datas) {
+        if (entity.getAccount() == null) {
+            return false;
+        }
+        String data = converter.convertToDatabaseColumn(entity.getData());
+        return !datas.contains(data);
     }
 }
