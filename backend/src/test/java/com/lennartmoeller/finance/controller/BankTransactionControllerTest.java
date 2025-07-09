@@ -2,8 +2,6 @@ package com.lennartmoeller.finance.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -90,58 +87,6 @@ class BankTransactionControllerTest {
         ResponseEntity<BankTransactionDTO> response = controller.getBankTransactionById(2L);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).isNull();
-    }
-
-    @Test
-    void shouldUpdateExistingTransaction() {
-        BankTransactionDTO dto = new IngV1TransactionDTO();
-        dto.setId(3L);
-        BankTransactionDTO saved = new IngV1TransactionDTO();
-        when(service.findById(3L)).thenReturn(Optional.of(new IngV1TransactionDTO()));
-        when(service.save(dto)).thenReturn(saved);
-
-        BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
-
-        assertThat(result).isSameAs(saved);
-        assertThat(dto.getId()).isEqualTo(3L);
-        verify(service).save(dto);
-    }
-
-    @Test
-    void shouldCreateNewTransactionWhenIdUnknown() {
-        BankTransactionDTO dto = new IngV1TransactionDTO();
-        dto.setId(4L);
-        BankTransactionDTO saved = new IngV1TransactionDTO();
-        when(service.findById(4L)).thenReturn(Optional.empty());
-        when(service.save(any())).thenReturn(saved);
-
-        BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
-
-        assertThat(result).isSameAs(saved);
-        ArgumentCaptor<BankTransactionDTO> captor = ArgumentCaptor.forClass(BankTransactionDTO.class);
-        verify(service).save(captor.capture());
-        assertThat(captor.getValue().getId()).isNull();
-    }
-
-    @Test
-    void shouldCreateTransactionWhenIdIsNull() {
-        BankTransactionDTO dto = new IngV1TransactionDTO();
-        when(service.save(dto)).thenReturn(dto);
-
-        BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
-
-        assertThat(result).isSameAs(dto);
-        verify(service).save(dto);
-        verify(service, never()).findById(any());
-    }
-
-    @Test
-    void shouldDeleteTransaction() {
-        ResponseEntity<Void> response = controller.deleteBankTransaction(5L);
-
-        verify(service).deleteById(5L);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(response.getBody()).isNull();
     }
 }

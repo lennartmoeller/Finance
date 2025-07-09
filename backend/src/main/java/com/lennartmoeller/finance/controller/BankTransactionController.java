@@ -7,14 +7,11 @@ import com.lennartmoeller.finance.service.BankCsvImportService;
 import com.lennartmoeller.finance.service.BankTransactionService;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,21 +39,5 @@ public class BankTransactionController {
     public ResponseEntity<BankTransactionDTO> getBankTransactionById(@PathVariable Long id) {
         return service.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
                 .build());
-    }
-
-    @PostMapping
-    public BankTransactionDTO createOrUpdateBankTransaction(@RequestBody BankTransactionDTO bankTransactionDTO) {
-        Optional<BankTransactionDTO> optional =
-                Optional.ofNullable(bankTransactionDTO.getId()).flatMap(service::findById);
-        if (optional.isEmpty()) {
-            bankTransactionDTO.setId(null);
-        }
-        return service.save(bankTransactionDTO);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBankTransaction(@PathVariable Long id) {
-        service.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
