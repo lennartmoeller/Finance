@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class BankTransactionService {
-    private final BankTransactionRepository repository;
-    private final BankTransactionMapper mapper;
     private final AccountRepository accountRepository;
+    private final BankTransactionMapper mapper;
+    private final BankTransactionRepository repository;
     private final TransactionLinkSuggestionService suggestionService;
 
     public List<BankTransactionDTO> findAll() {
