@@ -117,6 +117,7 @@ class BankTransactionMapperTest {
         @Test
         void handlesMissingAccountAndData() {
             BankTransaction entity = new BankTransaction();
+            entity.setBank(BankType.ING_V1);
             entity.setData(null);
 
             BankTransactionDTO dto = mapper.toDto(entity);
