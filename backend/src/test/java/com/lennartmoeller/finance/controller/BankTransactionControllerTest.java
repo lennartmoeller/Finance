@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
+import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.service.BankCsvImportService;
 import com.lennartmoeller.finance.service.BankTransactionService;
@@ -41,7 +42,7 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldImportCsv() throws IOException {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransactionDTO dto = new IngV1TransactionDTO();
         BankTransactionImportResultDTO resultDto = new BankTransactionImportResultDTO(List.of(dto), List.of());
         when(importService.importCsv(BankType.ING_V1, file)).thenReturn(resultDto);
 
@@ -62,7 +63,7 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldReturnTransactions() {
-        List<BankTransactionDTO> list = List.of(new BankTransactionDTO());
+        List<BankTransactionDTO> list = List.of(new IngV1TransactionDTO());
         when(service.findAll()).thenReturn(list);
 
         List<BankTransactionDTO> result = controller.getBankTransactions();
@@ -73,7 +74,7 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldReturnTransactionWhenIdExists() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransactionDTO dto = new IngV1TransactionDTO();
         when(service.findById(1L)).thenReturn(Optional.of(dto));
 
         ResponseEntity<BankTransactionDTO> response = controller.getBankTransactionById(1L);
@@ -94,10 +95,10 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldUpdateExistingTransaction() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransactionDTO dto = new IngV1TransactionDTO();
         dto.setId(3L);
-        BankTransactionDTO saved = new BankTransactionDTO();
-        when(service.findById(3L)).thenReturn(Optional.of(new BankTransactionDTO()));
+        BankTransactionDTO saved = new IngV1TransactionDTO();
+        when(service.findById(3L)).thenReturn(Optional.of(new IngV1TransactionDTO()));
         when(service.save(dto)).thenReturn(saved);
 
         BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);
@@ -109,9 +110,9 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldCreateNewTransactionWhenIdUnknown() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransactionDTO dto = new IngV1TransactionDTO();
         dto.setId(4L);
-        BankTransactionDTO saved = new BankTransactionDTO();
+        BankTransactionDTO saved = new IngV1TransactionDTO();
         when(service.findById(4L)).thenReturn(Optional.empty());
         when(service.save(any())).thenReturn(saved);
 
@@ -125,7 +126,7 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldCreateTransactionWhenIdIsNull() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        BankTransactionDTO dto = new IngV1TransactionDTO();
         when(service.save(dto)).thenReturn(dto);
 
         BankTransactionDTO result = controller.createOrUpdateBankTransaction(dto);

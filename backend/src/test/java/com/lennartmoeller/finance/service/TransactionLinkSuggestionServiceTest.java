@@ -40,7 +40,7 @@ class TransactionLinkSuggestionServiceTest {
         bankTransactionRepository = mock(BankTransactionRepository.class);
         transactionRepository = mock(TransactionRepository.class);
         service = new TransactionLinkSuggestionService(
-                repository, mapper, bankTransactionRepository, transactionRepository);
+                bankTransactionRepository, mapper, repository, transactionRepository);
     }
 
     @Test
