@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.service;
 
+import com.lennartmoeller.finance.converter.MapToJsonStringConverter;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
@@ -59,16 +60,20 @@ public class BankCsvImportService {
                 .sorted(Comparator.comparing(e -> e.getKey().getBookingDate()))
                 .toList();
 
-        Set<Map<String, String>> allIncomingData =
-                entries.stream().map(e -> e.getValue().getData()).collect(Collectors.toSet());
+        MapToJsonStringConverter converter = new MapToJsonStringConverter();
 
-        Set<Map<String, String>> existingData = transactionRepository.findAllByDataIn(allIncomingData).stream()
-                .map(BankTransaction::getData)
+        Set<String> allIncomingData = entries.stream()
+                .map(e -> converter.convertToDatabaseColumn(e.getValue().getData()))
+                .collect(Collectors.toSet());
+
+        Set<String> existingData = transactionRepository.findAllByDataIn(allIncomingData).stream()
+                .map(t -> converter.convertToDatabaseColumn(t.getData()))
                 .collect(Collectors.toSet());
 
         var partition = entries.stream()
                 .collect(Collectors.partitioningBy(e -> e.getValue().getAccount() != null
-                        && !existingData.contains(e.getValue().getData())));
+                        && !existingData.contains(
+                                converter.convertToDatabaseColumn(e.getValue().getData()))));
 
         List<BankTransaction> toSave =
                 partition.get(true).stream().map(Map.Entry::getValue).toList();

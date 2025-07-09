@@ -22,6 +22,9 @@ public interface BankTransactionMapper {
         if (entity == null) {
             return null;
         }
+        if (entity.getBank() == null) {
+            return toIngDto(entity);
+        }
         return switch (entity.getBank()) {
             case ING_V1 -> toIngDto(entity);
             case CAMT_V8 -> toCamtDto(entity);
