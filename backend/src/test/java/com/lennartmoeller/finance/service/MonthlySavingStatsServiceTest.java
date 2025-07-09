@@ -55,8 +55,8 @@ class MonthlySavingStatsServiceTest {
         transactionRepository = mock(TransactionRepository.class);
         service = new MonthlySavingStatsService(
                 dailyBalanceStatsService,
-                monthlyCategoryBalanceStatsService,
                 inflationRateRepository,
+                monthlyCategoryBalanceStatsService,
                 transactionRepository);
     }
 

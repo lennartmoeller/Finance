@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
+import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -32,13 +33,13 @@ class BankTransactionServiceTest {
         mapper = mock(BankTransactionMapper.class);
         accountRepository = mock(AccountRepository.class);
         suggestionService = mock(TransactionLinkSuggestionService.class);
-        service = new BankTransactionService(repository, mapper, accountRepository, suggestionService);
+        service = new BankTransactionService(accountRepository, mapper, repository, suggestionService);
     }
 
     @Test
     void testFindAll() {
         BankTransaction t = new BankTransaction();
-        BankTransactionDTO dto = new BankTransactionDTO();
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
         when(repository.findAll()).thenReturn(List.of(t));
         when(mapper.toDto(t)).thenReturn(dto);
 
@@ -50,7 +51,7 @@ class BankTransactionServiceTest {
     @Test
     void testFindByIdFound() {
         BankTransaction t = new BankTransaction();
-        BankTransactionDTO dto = new BankTransactionDTO();
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
         when(repository.findById(7L)).thenReturn(Optional.of(t));
         when(mapper.toDto(t)).thenReturn(dto);
 
@@ -72,11 +73,11 @@ class BankTransactionServiceTest {
 
     @Test
     void testSave() {
-        BankTransactionDTO dtoIn = new BankTransactionDTO();
+        IngV1TransactionDTO dtoIn = new IngV1TransactionDTO();
         dtoIn.setIban("DE");
         BankTransaction entity = new BankTransaction();
         BankTransaction saved = new BankTransaction();
-        BankTransactionDTO dtoOut = new BankTransactionDTO();
+        IngV1TransactionDTO dtoOut = new IngV1TransactionDTO();
         Account account = new Account();
         when(accountRepository.findAllByIbanIn(Collections.singleton("DE"))).thenReturn(List.of(account));
         when(mapper.toEntity(dtoIn, account)).thenReturn(entity);
@@ -91,7 +92,7 @@ class BankTransactionServiceTest {
 
     @Test
     void testSaveWithoutIban() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
         BankTransaction entity = new BankTransaction();
         BankTransaction saved = new BankTransaction();
 
@@ -108,7 +109,7 @@ class BankTransactionServiceTest {
 
     @Test
     void testSaveWithIbanNotFound() {
-        BankTransactionDTO dto = new BankTransactionDTO();
+        IngV1TransactionDTO dto = new IngV1TransactionDTO();
         dto.setIban("DE");
         BankTransaction entity = new BankTransaction();
         BankTransaction saved = new BankTransaction();

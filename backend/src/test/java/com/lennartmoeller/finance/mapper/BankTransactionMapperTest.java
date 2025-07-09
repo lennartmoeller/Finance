@@ -29,19 +29,6 @@ class BankTransactionMapperTest {
         return acc;
     }
 
-    private static BankTransactionDTO baseDto() {
-        BankTransactionDTO dto = new BankTransactionDTO();
-        dto.setId(1L);
-        dto.setBank(BankType.CAMT_V8);
-        dto.setIban("DE000");
-        dto.setBookingDate(LocalDate.of(2024, 1, 1));
-        dto.setPurpose("p");
-        dto.setCounterparty("c");
-        dto.setAmount(10L);
-        dto.setData(Map.of("k", "v"));
-        return dto;
-    }
-
     private static IngV1TransactionDTO ingDto() {
         IngV1TransactionDTO dto = new IngV1TransactionDTO();
         dto.setId(2L);
@@ -67,10 +54,7 @@ class BankTransactionMapperTest {
     }
 
     private static Stream<Arguments> dtoVariants() {
-        return Stream.of(
-                Arguments.of(baseDto(), BankType.CAMT_V8),
-                Arguments.of(ingDto(), BankType.ING_V1),
-                Arguments.of(camtDto(), BankType.CAMT_V8));
+        return Stream.of(Arguments.of(ingDto(), BankType.ING_V1), Arguments.of(camtDto(), BankType.CAMT_V8));
     }
 
     @Nested
@@ -85,7 +69,7 @@ class BankTransactionMapperTest {
             } else if (dto instanceof CamtV8TransactionDTO camt) {
                 entity = mapper.toEntity(camt, acc);
             } else {
-                entity = mapper.toEntity(dto, acc);
+                throw new IllegalStateException("Unexpected DTO type");
             }
 
             assertThat(entity.getAccount()).isSameAs(acc);
@@ -97,38 +81,8 @@ class BankTransactionMapperTest {
 
         @Test
         void returnsNullWhenBothArgumentsAreNull() {
-            assertThat(mapper.toEntity((BankTransactionDTO) null, null)).isNull();
             assertThat(mapper.toEntity((IngV1TransactionDTO) null, null)).isNull();
             assertThat(mapper.toEntity((CamtV8TransactionDTO) null, null)).isNull();
-        }
-
-        @Test
-        void createsEntityWithOnlyAccount() {
-            Account acc = account();
-
-            BankTransaction entity = mapper.toEntity((BankTransactionDTO) null, acc);
-
-            assertThat(entity.getAccount()).isSameAs(acc);
-            assertThat(entity.getBank()).isNull();
-        }
-
-        @Test
-        void createsEntityWithoutAccount() {
-            BankTransactionDTO dto = baseDto();
-
-            BankTransaction entity = mapper.toEntity(dto, null);
-
-            assertThat(entity.getAccount()).isNull();
-            assertThat(entity.getBank()).isEqualTo(dto.getBank());
-        }
-
-        @Test
-        void handlesNullData() {
-            BankTransactionDTO dto = baseDto();
-            dto.setData(null);
-            BankTransaction entity = mapper.toEntity(dto, account());
-
-            assertThat(entity.getData()).isEmpty();
         }
     }
 
