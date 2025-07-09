@@ -55,7 +55,6 @@ public class TransactionService {
     }
 
     public void deleteById(Long id) {
-        suggestionService.removeForTransaction(id);
         transactionRepository.deleteById(id);
     }
 }

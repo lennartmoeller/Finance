@@ -111,14 +111,6 @@ public class TransactionLinkSuggestionService {
         generateSuggestions(null, bankTransactions);
     }
 
-    public void removeForTransaction(Long id) {
-        repository.deleteAllByTransaction_Id(id);
-    }
-
-    public void removeForBankTransaction(Long id) {
-        repository.deleteAllByBankTransaction_Id(id);
-    }
-
     public Optional<TransactionLinkSuggestionDTO> updateLinkState(Long id, TransactionLinkState linkState) {
         return repository
                 .findById(id)

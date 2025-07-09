@@ -133,7 +133,6 @@ class TransactionServiceTest {
     @Test
     void testDeleteById() {
         service.deleteById(11L);
-        verify(suggestionService).removeForTransaction(11L);
         verify(transactionRepository).deleteById(11L);
     }
 

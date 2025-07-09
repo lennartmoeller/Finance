@@ -274,14 +274,6 @@ class TransactionLinkSuggestionServiceTest {
     }
 
     @Test
-    void testRemoveMethods() {
-        service.removeForTransaction(1L);
-        service.removeForBankTransaction(2L);
-        verify(repository).deleteAllByTransaction_Id(1L);
-        verify(repository).deleteAllByBankTransaction_Id(2L);
-    }
-
-    @Test
     void testFindByIdFound() {
         TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
         TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();

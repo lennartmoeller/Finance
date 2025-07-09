@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 @DataJpaTest(
         properties = {
@@ -38,6 +39,9 @@ class TransactionLinkSuggestionRepositoryTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private TestEntityManager entityManager;
+
     private BankTransaction bank1;
     private BankTransaction bank2;
     private Transaction tx1;
@@ -59,6 +63,8 @@ class TransactionLinkSuggestionRepositoryTest {
         link1 = suggestionRepository.save(newLink(bank1, tx1));
         link2 = suggestionRepository.save(newLink(bank2, tx1));
         link3 = suggestionRepository.save(newLink(bank2, tx2));
+        entityManager.flush();
+        entityManager.clear();
     }
 
     @Test
@@ -78,11 +84,13 @@ class TransactionLinkSuggestionRepositoryTest {
     }
 
     @Test
-    void deleteMethodsRemoveMatchingSuggestions() {
-        suggestionRepository.deleteAllByTransaction_Id(tx1.getId());
+    void cascadeDeletesRemoveSuggestions() {
+        transactionRepository.deleteById(tx1.getId());
+        transactionRepository.flush();
         assertThat(suggestionRepository.findAll()).containsExactly(link3);
 
-        suggestionRepository.deleteAllByBankTransaction_Id(bank2.getId());
+        bankTransactionRepository.deleteById(bank2.getId());
+        bankTransactionRepository.flush();
         assertThat(suggestionRepository.findAll()).isEmpty();
     }
 

@@ -15,6 +15,8 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Data
 @Entity
@@ -30,10 +32,12 @@ public class TransactionLinkSuggestion extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_transaction", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private BankTransaction bankTransaction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Transaction transaction;
 
     @Column(nullable = false)
