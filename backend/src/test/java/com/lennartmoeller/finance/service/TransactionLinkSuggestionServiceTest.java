@@ -280,4 +280,43 @@ class TransactionLinkSuggestionServiceTest {
         verify(repository).deleteAllByTransaction_Id(1L);
         verify(repository).deleteAllByBankTransaction_Id(2L);
     }
+
+    @Test
+    void testFindByIdFound() {
+        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+        when(repository.findById(10L)).thenReturn(java.util.Optional.of(suggestion));
+        when(mapper.toDto(suggestion)).thenReturn(dto);
+
+        var result = service.findById(10L);
+
+        assertTrue(result.isPresent());
+        assertEquals(dto, result.get());
+    }
+
+    @Test
+    void testFindByIdNotFound() {
+        when(repository.findById(11L)).thenReturn(java.util.Optional.empty());
+
+        var result = service.findById(11L);
+
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void testUpdateLinkState() {
+        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion saved = new TransactionLinkSuggestion();
+        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+        when(repository.findById(12L)).thenReturn(java.util.Optional.of(suggestion));
+        when(repository.save(suggestion)).thenReturn(saved);
+        when(mapper.toDto(saved)).thenReturn(dto);
+
+        var result = service.updateLinkState(12L, TransactionLinkState.CONFIRMED);
+
+        assertTrue(result.isPresent());
+        assertEquals(dto, result.get());
+        assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
+    }
 }
