@@ -5,6 +5,7 @@ import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
+import javax.annotation.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -17,12 +18,9 @@ public interface BankTransactionMapper {
     @Mapping(source = "account.iban", target = "iban")
     CamtV8TransactionDTO toCamtDto(BankTransaction entity);
 
-    default BankTransactionDTO toDto(BankTransaction entity) {
+    default BankTransactionDTO toDto(@Nullable BankTransaction entity) {
         if (entity == null) {
             return null;
-        }
-        if (entity.getBank() == null) {
-            return toIngDto(entity);
         }
         return switch (entity.getBank()) {
             case ING_V1 -> toIngDto(entity);
