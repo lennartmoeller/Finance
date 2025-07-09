@@ -80,7 +80,7 @@ class BankTransactionServiceTest {
         IngV1TransactionDTO dtoOut = new IngV1TransactionDTO();
         Account account = new Account();
         when(accountRepository.findAllByIbanIn(Collections.singleton("DE"))).thenReturn(List.of(account));
-        when(mapper.toEntity(dtoIn, account)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dtoIn, account)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(saved);
         when(mapper.toDto(saved)).thenReturn(dtoOut);
 
@@ -96,7 +96,7 @@ class BankTransactionServiceTest {
         BankTransaction entity = new BankTransaction();
         BankTransaction saved = new BankTransaction();
 
-        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(saved);
         when(mapper.toDto(saved)).thenReturn(dto);
 
@@ -115,7 +115,7 @@ class BankTransactionServiceTest {
         BankTransaction saved = new BankTransaction();
 
         when(accountRepository.findAllByIbanIn(Collections.singleton("DE"))).thenReturn(List.of());
-        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(saved);
         when(mapper.toDto(saved)).thenReturn(dto);
 

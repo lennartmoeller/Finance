@@ -4,8 +4,6 @@ import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
-import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
-import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -55,13 +53,7 @@ public class BankCsvImportService {
         List<? extends Map.Entry<? extends BankTransactionDTO, BankTransaction>> entries = dtos.stream()
                 .map(dto -> {
                     Account account = accountsByIban.get(dto.getIban());
-                    BankTransaction entity =
-                            switch (dto) {
-                                case IngV1TransactionDTO ing -> mapper.toEntity(ing, account);
-                                case CamtV8TransactionDTO camt -> mapper.toEntity(camt, account);
-                                default ->
-                                    throw new IllegalStateException("Unsupported BankTransactionDTO type: " + dto);
-                            };
+                    BankTransaction entity = mapper.toEntity(dto, account);
                     return Map.entry(dto, entity);
                 })
                 .sorted(Comparator.comparing(e -> e.getKey().getBookingDate()))
