@@ -25,7 +25,7 @@ class AccountServiceTest {
     void setUp() {
         accountRepository = mock(AccountRepository.class);
         accountMapper = mock(AccountMapper.class);
-        accountService = new AccountService(accountRepository, accountMapper);
+        accountService = new AccountService(accountMapper, accountRepository);
     }
 
     @Test

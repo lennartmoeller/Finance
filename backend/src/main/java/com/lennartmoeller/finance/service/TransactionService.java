@@ -20,9 +20,9 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
+    private final TransactionLinkSuggestionService suggestionService;
     private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
-    private final TransactionLinkSuggestionService suggestionService;
 
     public List<TransactionDTO> findFiltered(
             @Nullable List<Long> accountIds,

@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class BankTransactionDTO {
+public abstract class BankTransactionDTO {
     private @Nullable Long id;
     private BankType bank;
     private String iban;
