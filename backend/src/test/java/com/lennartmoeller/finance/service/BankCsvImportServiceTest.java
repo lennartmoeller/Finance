@@ -67,7 +67,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity(dto, account)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
         when(repository.findAllByDataIn(any())).thenReturn(List.of());
         BankTransaction saved = new BankTransaction();
         when(repository.saveAll(List.of(entity))).thenReturn(List.of(saved));
@@ -98,7 +98,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity(dto, account)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
         when(repository.findAllByDataIn(any())).thenReturn(List.of(entity));
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.ING_V1, file);
@@ -117,7 +117,7 @@ class BankCsvImportServiceTest {
         when(camtParser.parse(any())).thenReturn(List.of(dto));
         when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
                 .thenReturn(java.util.Collections.emptyList());
-        when(mapper.toEntity(eq(dto), isNull())).thenReturn(new BankTransaction());
+        when(mapper.toEntity(eq((BankTransactionDTO) dto), isNull())).thenReturn(new BankTransaction());
 
         BankTransactionImportResultDTO result = service.importCsv(BankType.CAMT_V8, file);
 
@@ -153,8 +153,8 @@ class BankCsvImportServiceTest {
         e1.setAccount(account);
         BankTransaction e2 = new BankTransaction();
         e2.setAccount(account);
-        when(mapper.toEntity(dto1, account)).thenReturn(e1);
-        when(mapper.toEntity(dto2, account)).thenReturn(e2);
+        when(mapper.toEntity((BankTransactionDTO) dto1, account)).thenReturn(e1);
+        when(mapper.toEntity((BankTransactionDTO) dto2, account)).thenReturn(e2);
         when(repository.findAllByDataIn(any())).thenReturn(List.of());
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(same(e1))).thenReturn(dto1);
@@ -182,7 +182,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
                 .thenReturn(java.util.Collections.emptyList());
         BankTransaction entity = new BankTransaction();
-        when(mapper.toEntity(dto, null)).thenReturn(entity);
+        when(mapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
         when(repository.findAllByDataIn(any())).thenReturn(List.of());
         when(repository.saveAll(any())).thenReturn(List.of());
 

@@ -39,4 +39,15 @@ public interface BankTransactionMapper {
     @Mapping(target = "bank", constant = "CAMT_V8")
     @Mapping(target = "account", source = "account")
     BankTransaction toEntity(CamtV8TransactionDTO dto, Account account);
+
+    default BankTransaction toEntity(BankTransactionDTO dto, Account account) {
+        if (dto == null) {
+            return null;
+        }
+        return switch (dto) {
+            case IngV1TransactionDTO ingV1Dto -> toEntity(ingV1Dto, account);
+            case CamtV8TransactionDTO camtV8Dto -> toEntity(camtV8Dto, account);
+            default -> throw new IllegalArgumentException("Unsupported BankTransactionDTO type: " + dto.getClass());
+        };
+    }
 }
