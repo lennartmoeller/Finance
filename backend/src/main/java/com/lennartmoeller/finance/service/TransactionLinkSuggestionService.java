@@ -12,6 +12,7 @@ import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.DateRange;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,10 @@ public class TransactionLinkSuggestionService {
 
     public List<TransactionLinkSuggestionDTO> findAll() {
         return repository.findAll().stream().map(mapper::toDto).toList();
+    }
+
+    public Optional<TransactionLinkSuggestionDTO> findById(Long id) {
+        return repository.findById(id).map(mapper::toDto);
     }
 
     public List<TransactionLinkSuggestionDTO> generateSuggestions(
@@ -112,5 +117,15 @@ public class TransactionLinkSuggestionService {
 
     public void removeForBankTransaction(Long id) {
         repository.deleteAllByBankTransaction_Id(id);
+    }
+
+    public Optional<TransactionLinkSuggestionDTO> updateLinkState(Long id, TransactionLinkState linkState) {
+        return repository
+                .findById(id)
+                .map(existing -> {
+                    existing.setLinkState(linkState);
+                    return repository.save(existing);
+                })
+                .map(mapper::toDto);
     }
 }

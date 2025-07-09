@@ -101,4 +101,37 @@ class TransactionLinkSuggestionControllerTest {
         verify(bankTransactionRepository).findAllById(bIds);
         verify(service).generateSuggestions(transactions, bankTransactions);
     }
+
+    @Test
+    void shouldReturnSuggestionById() {
+        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+        when(service.findById(5L)).thenReturn(java.util.Optional.of(dto));
+
+        var response = controller.getTransactionLinkSuggestionById(5L);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(dto);
+    }
+
+    @Test
+    void shouldReturnNotFoundForUnknownSuggestionId() {
+        when(service.findById(6L)).thenReturn(java.util.Optional.empty());
+
+        var response = controller.getTransactionLinkSuggestionById(6L);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
+    }
+
+    @Test
+    void shouldUpdateLinkState() {
+        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+        when(service.updateLinkState(7L, com.lennartmoeller.finance.model.TransactionLinkState.CONFIRMED))
+                .thenReturn(java.util.Optional.of(dto));
+
+        var response = controller.updateLinkState(7L, com.lennartmoeller.finance.model.TransactionLinkState.CONFIRMED);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(dto);
+    }
 }
