@@ -57,14 +57,8 @@ public class TransactionLinkSuggestion extends BaseModel {
         return suggestion;
     }
 
-    public boolean isConfirmed() {
-        return linkState == TransactionLinkState.AUTO_CONFIRMED || linkState == TransactionLinkState.CONFIRMED;
-    }
-
-    public boolean hasNoManualLinkStateDecision() {
-        return linkState == TransactionLinkState.UNDECIDED
-                || linkState == TransactionLinkState.AUTO_CONFIRMED
-                || linkState == TransactionLinkState.AUTO_REJECTED;
+    public boolean hasManualLinkStateDecision() {
+        return linkState == TransactionLinkState.CONFIRMED || linkState == TransactionLinkState.REJECTED;
     }
 
     public TransactionLinkState getDefaultLinkState() {

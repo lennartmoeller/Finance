@@ -70,7 +70,7 @@ public class BankCsvImportService {
                 partition.get(true).stream().map(Map.Entry::getValue).toList();
         List<BankTransaction> saved = toSave.isEmpty() ? List.of() : transactionRepository.saveAll(toSave);
 
-        suggestionService.updateForBankTransactions(saved);
+        suggestionService.updateAllFor(saved, null);
 
         List<BankTransactionDTO> savedDtos = saved.stream().map(mapper::toDto).toList();
         List<BankTransactionDTO> skippedDtos =

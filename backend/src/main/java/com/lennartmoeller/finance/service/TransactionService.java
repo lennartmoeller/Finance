@@ -50,7 +50,7 @@ public class TransactionService {
     public TransactionDTO save(TransactionDTO transactionDTO) {
         Transaction transaction = transactionMapper.toEntity(transactionDTO, accountRepository, categoryRepository);
         Transaction savedTransaction = transactionRepository.save(transaction);
-        suggestionService.updateForTransactions(List.of(savedTransaction));
+        suggestionService.updateAllFor(null, List.of(savedTransaction));
         return transactionMapper.toDto(savedTransaction);
     }
 
