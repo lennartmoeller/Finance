@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.model;
 
+import com.lennartmoeller.finance.util.DateRange;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,6 +25,8 @@ import lombok.RequiredArgsConstructor;
         name = "transaction_link_suggestions",
         uniqueConstraints = @UniqueConstraint(columnNames = {"bank_transaction", "transaction"}))
 public class TransactionLinkSuggestion extends BaseModel {
+    private static final int PROBABILITY_MATCH_WINDOW_DAYS = 7;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,4 +45,68 @@ public class TransactionLinkSuggestion extends BaseModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "link_state", nullable = false)
     private TransactionLinkState linkState = TransactionLinkState.UNDECIDED;
+
+    public static TransactionLinkSuggestion of(BankTransaction bankTransaction, Transaction transaction) {
+        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        suggestion.setBankTransaction(bankTransaction);
+        suggestion.setTransaction(transaction);
+        suggestion.setProbability(suggestion.calculateProbability());
+        suggestion.setLinkState(suggestion.getDefaultLinkState());
+        return suggestion;
+    }
+
+    public boolean isConfirmed() {
+        return linkState == TransactionLinkState.AUTO_CONFIRMED || linkState == TransactionLinkState.CONFIRMED;
+    }
+
+    public boolean hasNoManualLinkStateDecision() {
+        return linkState == TransactionLinkState.UNDECIDED
+                || linkState == TransactionLinkState.AUTO_CONFIRMED
+                || linkState == TransactionLinkState.AUTO_REJECTED;
+    }
+
+    public TransactionLinkState getDefaultLinkState() {
+        return probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED;
+    }
+
+    public double calculateProbability() {
+        if (!bankTransaction
+                .getAccount()
+                .getId()
+                .equals(transaction.getAccount().getId())) {
+            return 0.0;
+        }
+        if (!bankTransaction.getAmount().equals(transaction.getAmount())) {
+            return 0.0;
+        }
+        DateRange dateRange = new DateRange(bankTransaction.getBookingDate(), transaction.getDate());
+        long daysBetween = Math.abs(dateRange.getDays() - 1);
+        if (daysBetween > PROBABILITY_MATCH_WINDOW_DAYS) {
+            return 0.0;
+        }
+        return 1.0 - daysBetween / (2.0 * PROBABILITY_MATCH_WINDOW_DAYS);
+    }
+
+    public boolean isUseful() {
+        return 0.0 < probability && probability <= 1.0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TransactionLinkSuggestion that)) {
+            return false;
+        }
+        if (this.getId() != null && that.getId() != null) {
+            return this.id.equals(that.getId());
+        }
+        return this.bankTransaction.equals(that.bankTransaction) && this.transaction.equals(that.transaction);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

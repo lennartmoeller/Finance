@@ -9,10 +9,10 @@ import com.lennartmoeller.finance.model.TransactionLinkSuggestion;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
-import com.lennartmoeller.finance.util.DateRange;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TransactionLinkSuggestionService {
-    private static final int WINDOW_DAYS = 7;
     private final BankTransactionRepository bankTransactionRepository;
     private final TransactionLinkSuggestionMapper mapper;
     private final TransactionLinkSuggestionRepository repository;
@@ -48,39 +47,62 @@ public class TransactionLinkSuggestionService {
                 repository.findAllByBankTransactionIdsAndTransactionIds(bankIds, transactionIds);
 
         List<TransactionLinkSuggestion> suggestions = bankTransactionList.stream()
-                .flatMap(bankTransaction -> {
-                    LocalDate date = bankTransaction.getBookingDate();
-                    DateRange range = new DateRange(date.minusDays(WINDOW_DAYS), date.plusDays(WINDOW_DAYS));
-                    return transactionList.stream()
-                            .filter(t -> t.getAccount()
-                                    .getId()
-                                    .equals(bankTransaction.getAccount().getId()))
-                            .filter(t -> t.getAmount().equals(bankTransaction.getAmount()))
-                            .filter(t -> new DateRange(t.getDate()).getOverlapDays(range) != 0)
-                            .filter(t -> existing.stream()
-                                    .noneMatch(s -> s.getBankTransaction()
-                                                    .getId()
-                                                    .equals(bankTransaction.getId())
-                                            && s.getTransaction().getId().equals(t.getId())))
-                            .map(t -> buildSuggestion(bankTransaction, t));
-                })
+                .flatMap(bankTransaction -> transactionList.stream()
+                        .map(transaction -> TransactionLinkSuggestion.of(bankTransaction, transaction))
+                        .filter(suggestion -> existing.stream().noneMatch(suggestion::equals))
+                        .filter(TransactionLinkSuggestion::isUseful))
                 .toList();
 
         List<TransactionLinkSuggestion> saved = suggestions.isEmpty() ? List.of() : repository.saveAll(suggestions);
+
+        List<Long> savedBankTransactionIds = saved.stream()
+                .map(s -> s.getBankTransaction().getId())
+                .distinct()
+                .toList();
+        List<Long> savedTransactionIds =
+                saved.stream().map(s -> s.getTransaction().getId()).distinct().toList();
+        ensureLinkStateConsistency(savedBankTransactionIds, savedTransactionIds);
+
         return saved.stream().map(mapper::toDto).toList();
     }
 
-    private static TransactionLinkSuggestion buildSuggestion(BankTransaction bankTransaction, Transaction transaction) {
-        long daysBetween =
-                Math.abs(new DateRange(bankTransaction.getBookingDate(), transaction.getDate()).getDays() - 1);
-        double probability = 1.0 - daysBetween / (2.0 * WINDOW_DAYS);
-        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
-        suggestion.setBankTransaction(bankTransaction);
-        suggestion.setTransaction(transaction);
-        suggestion.setProbability(probability);
-        suggestion.setLinkState(
-                probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED);
-        return suggestion;
+    public void ensureLinkStateConsistency(
+            @Nullable List<Long> bankTransactionIds, @Nullable List<Long> transactionIds) {
+        boolean noBankTransactionIds = bankTransactionIds == null || bankTransactionIds.isEmpty();
+        boolean noTransactionIds = transactionIds == null || transactionIds.isEmpty();
+        if (noBankTransactionIds && noTransactionIds) {
+            return;
+        }
+
+        List<TransactionLinkSuggestion> suggestions =
+                repository.findAllByBankTransactionIdsOrTransactionIds(bankTransactionIds, transactionIds);
+        if (suggestions.isEmpty()) {
+            return;
+        }
+
+        Set<Long> confirmedBankTransactionIds = suggestions.stream()
+                .filter(TransactionLinkSuggestion::isConfirmed)
+                .map(s -> s.getBankTransaction().getId())
+                .collect(Collectors.toSet());
+        Set<Long> confirmedTransactionIds = suggestions.stream()
+                .filter(TransactionLinkSuggestion::isConfirmed)
+                .map(s -> s.getTransaction().getId())
+                .collect(Collectors.toSet());
+
+        for (TransactionLinkSuggestion suggestion : suggestions) {
+            if (confirmedBankTransactionIds.contains(
+                            suggestion.getBankTransaction().getId())
+                    || confirmedTransactionIds.contains(
+                            suggestion.getTransaction().getId())) {
+                if (!suggestion.isConfirmed()) {
+                    suggestion.setLinkState(TransactionLinkState.AUTO_REJECTED);
+                    repository.save(suggestion);
+                }
+            } else if (suggestion.getLinkState() == TransactionLinkState.AUTO_REJECTED) {
+                suggestion.setLinkState(suggestion.getDefaultLinkState());
+                repository.save(suggestion);
+            }
+        }
     }
 
     public void updateForTransactions(@Nullable List<Transaction> transactions) {
@@ -88,13 +110,17 @@ public class TransactionLinkSuggestionService {
             return;
         }
         List<Long> ids = transactions.stream().map(Transaction::getId).toList();
-        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(null, ids);
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsOrTransactionIds(null, ids);
         List<TransactionLinkSuggestion> deletions = existing.stream()
-                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .filter(TransactionLinkSuggestion::hasNoManualLinkStateDecision)
                 .toList();
         repository.deleteAll(deletions);
         generateSuggestions(transactions, null);
+        List<Long> deletedBankTransactionIds = deletions.stream()
+                .map(s -> s.getBankTransaction().getId())
+                .distinct()
+                .toList();
+        ensureLinkStateConsistency(deletedBankTransactionIds, ids);
     }
 
     public void updateForBankTransactions(@Nullable List<BankTransaction> bankTransactions) {
@@ -102,21 +128,27 @@ public class TransactionLinkSuggestionService {
             return;
         }
         List<Long> ids = bankTransactions.stream().map(BankTransaction::getId).toList();
-        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsAndTransactionIds(ids, null);
+        List<TransactionLinkSuggestion> existing = repository.findAllByBankTransactionIdsOrTransactionIds(ids, null);
         List<TransactionLinkSuggestion> deletions = existing.stream()
-                .filter(s -> s.getLinkState() == TransactionLinkState.AUTO_CONFIRMED
-                        || s.getLinkState() == TransactionLinkState.UNDECIDED)
+                .filter(TransactionLinkSuggestion::hasNoManualLinkStateDecision)
                 .toList();
         repository.deleteAll(deletions);
         generateSuggestions(null, bankTransactions);
+        List<Long> deletedTransactionIds = deletions.stream()
+                .map(s -> s.getTransaction().getId())
+                .distinct()
+                .toList();
+        ensureLinkStateConsistency(ids, deletedTransactionIds);
     }
 
     public void removeForTransaction(Long id) {
+        List<Long> bankTransactionIds =
+                repository.findAllByBankTransactionIdsOrTransactionIds(null, List.of(id)).stream()
+                        .map(s -> s.getBankTransaction().getId())
+                        .distinct()
+                        .toList();
         repository.deleteAllByTransaction_Id(id);
-    }
-
-    public void removeForBankTransaction(Long id) {
-        repository.deleteAllByBankTransaction_Id(id);
+        ensureLinkStateConsistency(bankTransactionIds, null);
     }
 
     public Optional<TransactionLinkSuggestionDTO> updateLinkState(Long id, TransactionLinkState linkState) {
@@ -124,7 +156,11 @@ public class TransactionLinkSuggestionService {
                 .findById(id)
                 .map(existing -> {
                     existing.setLinkState(linkState);
-                    return repository.save(existing);
+                    TransactionLinkSuggestion saved = repository.save(existing);
+                    ensureLinkStateConsistency(
+                            List.of(saved.getBankTransaction().getId()),
+                            List.of(saved.getTransaction().getId()));
+                    return saved;
                 })
                 .map(mapper::toDto);
     }

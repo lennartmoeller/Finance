@@ -63,9 +63,15 @@ class ModelCommonBehaviorTest {
                     Arguments.of("Target", (Supplier<Object>) Target::new, (BiConsumer<Target, Long>) Target::setId),
                     Arguments.of("Transaction", (Supplier<Object>) Transaction::new, (BiConsumer<Transaction, Long>)
                             Transaction::setId),
-                    Arguments.of("LinkSuggestion", (Supplier<Object>) TransactionLinkSuggestion::new, (BiConsumer<
-                                    TransactionLinkSuggestion, Long>)
-                            TransactionLinkSuggestion::setId),
+                    Arguments.of(
+                            "LinkSuggestion",
+                            (Supplier<Object>) () -> {
+                                TransactionLinkSuggestion s = new TransactionLinkSuggestion();
+                                s.setBankTransaction(new BankTransaction());
+                                s.setTransaction(new Transaction());
+                                return s;
+                            },
+                            (BiConsumer<TransactionLinkSuggestion, Long>) TransactionLinkSuggestion::setId),
                     Arguments.of("BankTransaction", (Supplier<Object>) BankTransaction::new, (BiConsumer<
                                     BankTransaction, Long>)
                             BankTransaction::setId));
