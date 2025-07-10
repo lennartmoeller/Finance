@@ -188,12 +188,18 @@ class TransactionLinkSuggestionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(40L);
 
+        BankTransaction bt = new BankTransaction();
+        bt.setId(41L);
         TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
         undecided.setLinkState(TransactionLinkState.UNDECIDED);
+        undecided.setBankTransaction(bt);
+        undecided.setTransaction(transaction);
         TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
         confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+        confirmed.setBankTransaction(bt);
+        confirmed.setTransaction(transaction);
 
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(null, List.of(40L)))
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(null, List.of(40L)))
                 .thenReturn(List.of(undecided, confirmed));
         when(bankTransactionRepository.findAll()).thenReturn(List.of());
 
@@ -217,10 +223,14 @@ class TransactionLinkSuggestionServiceTest {
 
         TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
         auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
+        auto.setBankTransaction(bankTransaction);
+        auto.setTransaction(new Transaction());
         TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
         rejected.setLinkState(TransactionLinkState.REJECTED);
+        rejected.setBankTransaction(bankTransaction);
+        rejected.setTransaction(new Transaction());
 
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(50L), null))
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(50L), null))
                 .thenReturn(List.of(auto, rejected));
         when(transactionRepository.findAll()).thenReturn(List.of());
 
@@ -276,9 +286,7 @@ class TransactionLinkSuggestionServiceTest {
     @Test
     void testRemoveMethods() {
         service.removeForTransaction(1L);
-        service.removeForBankTransaction(2L);
         verify(repository).deleteAllByTransaction_Id(1L);
-        verify(repository).deleteAllByBankTransaction_Id(2L);
     }
 
     @Test
@@ -307,7 +315,19 @@ class TransactionLinkSuggestionServiceTest {
     @Test
     void testUpdateLinkState() {
         TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        BankTransaction sbt = new BankTransaction();
+        sbt.setId(1L);
+        suggestion.setBankTransaction(sbt);
+        Transaction st = new Transaction();
+        st.setId(1L);
+        suggestion.setTransaction(st);
         TransactionLinkSuggestion saved = new TransactionLinkSuggestion();
+        BankTransaction dbt = new BankTransaction();
+        dbt.setId(1L);
+        saved.setBankTransaction(dbt);
+        Transaction dt = new Transaction();
+        dt.setId(1L);
+        saved.setTransaction(dt);
         TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
         when(repository.findById(12L)).thenReturn(java.util.Optional.of(suggestion));
         when(repository.save(suggestion)).thenReturn(saved);

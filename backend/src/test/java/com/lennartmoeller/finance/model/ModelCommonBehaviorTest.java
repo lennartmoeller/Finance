@@ -63,9 +63,19 @@ class ModelCommonBehaviorTest {
                     Arguments.of("Target", (Supplier<Object>) Target::new, (BiConsumer<Target, Long>) Target::setId),
                     Arguments.of("Transaction", (Supplier<Object>) Transaction::new, (BiConsumer<Transaction, Long>)
                             Transaction::setId),
-                    Arguments.of("LinkSuggestion", (Supplier<Object>) TransactionLinkSuggestion::new, (BiConsumer<
-                                    TransactionLinkSuggestion, Long>)
-                            TransactionLinkSuggestion::setId),
+                    Arguments.of(
+                            "LinkSuggestion",
+                            (Supplier<Object>) () -> {
+                                TransactionLinkSuggestion s = new TransactionLinkSuggestion();
+                                s.setBankTransaction(new BankTransaction());
+                                s.setTransaction(new Transaction());
+                                return s;
+                            },
+                            (BiConsumer<TransactionLinkSuggestion, Long>) (s, id) -> {
+                                s.setId(id);
+                                s.getBankTransaction().setId(id);
+                                s.getTransaction().setId(id);
+                            }),
                     Arguments.of("BankTransaction", (Supplier<Object>) BankTransaction::new, (BiConsumer<
                                     BankTransaction, Long>)
                             BankTransaction::setId));
@@ -73,7 +83,6 @@ class ModelCommonBehaviorTest {
 
         @ParameterizedTest(name = "{0} equality based on id")
         @MethodSource("entities")
-        @SuppressWarnings("unchecked")
         void verifyEquality(String name, Supplier<Object> factory, BiConsumer<Object, Long> idSetter) {
             Object first = factory.get();
             Object second = factory.get();
