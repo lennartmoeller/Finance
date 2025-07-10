@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TransactionLinkSuggestionDTO;
@@ -22,8 +23,13 @@ import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 class TransactionLinkSuggestionServiceTest {
@@ -338,5 +344,89 @@ class TransactionLinkSuggestionServiceTest {
         assertTrue(result.isPresent());
         assertEquals(dto, result.get());
         assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
+    }
+
+    @Nested
+    class EnsureLinkStateConsistency {
+
+        @ParameterizedTest
+        @MethodSource(
+                "com.lennartmoeller.finance.service.TransactionLinkSuggestionServiceTest$EnsureLinkStateConsistency#noInput")
+        void returnsImmediately(List<Long> bankIds, List<Long> transactionIds) {
+            service.ensureLinkStateConsistency(bankIds, transactionIds);
+
+            verifyNoInteractions(repository);
+        }
+
+        static Stream<Arguments> noInput() {
+            return Stream.of(
+                    Arguments.of(null, null),
+                    Arguments.of(List.of(), null),
+                    Arguments.of(null, List.of()),
+                    Arguments.of(List.of(), List.of()));
+        }
+
+        @Test
+        void returnsWhenRepositoryFindsNothing() {
+            when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(2L)))
+                    .thenReturn(List.of());
+
+            service.ensureLinkStateConsistency(List.of(1L), List.of(2L));
+
+            verify(repository).findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(2L));
+            verifyNoMoreInteractions(repository);
+        }
+
+        @Test
+        void rejectsSuggestionsIfOtherConfirmed() {
+            BankTransaction confirmedBt = new BankTransaction();
+            confirmedBt.setId(1L);
+            Transaction confirmedTr = new Transaction();
+            confirmedTr.setId(10L);
+            TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
+            confirmed.setBankTransaction(confirmedBt);
+            confirmed.setTransaction(confirmedTr);
+            confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+
+            BankTransaction secondBt = new BankTransaction();
+            secondBt.setId(1L);
+            Transaction secondTr = new Transaction();
+            secondTr.setId(11L);
+            TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+            undecided.setBankTransaction(secondBt);
+            undecided.setTransaction(secondTr);
+            undecided.setLinkState(TransactionLinkState.UNDECIDED);
+
+            when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(10L, 11L)))
+                    .thenReturn(List.of(confirmed, undecided));
+            when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            service.ensureLinkStateConsistency(List.of(1L), List.of(10L, 11L));
+
+            assertEquals(TransactionLinkState.AUTO_REJECTED, undecided.getLinkState());
+            verify(repository).save(undecided);
+        }
+
+        @Test
+        void restoresDefaultStateForAutoRejected() {
+            BankTransaction bt = new BankTransaction();
+            bt.setId(1L);
+            Transaction tr = new Transaction();
+            tr.setId(10L);
+            TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+            suggestion.setBankTransaction(bt);
+            suggestion.setTransaction(tr);
+            suggestion.setProbability(0.5);
+            suggestion.setLinkState(TransactionLinkState.AUTO_REJECTED);
+
+            when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(10L)))
+                    .thenReturn(List.of(suggestion));
+            when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            service.ensureLinkStateConsistency(List.of(1L), List.of(10L));
+
+            assertEquals(TransactionLinkState.UNDECIDED, suggestion.getLinkState());
+            verify(repository).save(suggestion);
+        }
     }
 }
