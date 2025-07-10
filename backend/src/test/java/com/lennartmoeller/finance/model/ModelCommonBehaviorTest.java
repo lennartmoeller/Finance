@@ -42,7 +42,7 @@ class ModelCommonBehaviorTest {
 
         @ParameterizedTest(name = "{0} defaults to {2}")
         @MethodSource("defaults")
-        void verifyDefaultValues(Supplier<Object> supplier, Object expected) {
+        void verifyDefaultValues(String name, Supplier<Object> supplier, Object expected) {
             assertThat(supplier.get()).isEqualTo(expected);
         }
     }
@@ -71,7 +71,11 @@ class ModelCommonBehaviorTest {
                                 s.setTransaction(new Transaction());
                                 return s;
                             },
-                            (BiConsumer<TransactionLinkSuggestion, Long>) TransactionLinkSuggestion::setId),
+                            (BiConsumer<TransactionLinkSuggestion, Long>) (s, id) -> {
+                                s.setId(id);
+                                s.getBankTransaction().setId(id);
+                                s.getTransaction().setId(id);
+                            }),
                     Arguments.of("BankTransaction", (Supplier<Object>) BankTransaction::new, (BiConsumer<
                                     BankTransaction, Long>)
                             BankTransaction::setId));
@@ -79,7 +83,7 @@ class ModelCommonBehaviorTest {
 
         @ParameterizedTest(name = "{0} equality based on id")
         @MethodSource("entities")
-        void verifyEquality(Supplier<Object> factory, BiConsumer<Object, Long> idSetter) {
+        void verifyEquality(String name, Supplier<Object> factory, BiConsumer<Object, Long> idSetter) {
             Object first = factory.get();
             Object second = factory.get();
             idSetter.accept(first, 1L);
