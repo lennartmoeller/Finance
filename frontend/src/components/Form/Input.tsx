@@ -1,4 +1,4 @@
-import React, {RefObject, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 import {motion} from "framer-motion";
 
@@ -32,7 +32,7 @@ const Input = <T, >(
         textAlign,
     }: InputProps<T>
 ) => {
-    const input: RefObject<HTMLInputElement> = useRef(null);
+    const input = useRef<HTMLInputElement>(null);
     const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
     const [isRegistered, setIsRegistered] = useState(false);
 
@@ -59,7 +59,9 @@ const Input = <T, >(
                     hasFocus: document.activeElement === input.current,
                     reset: () => {
                         setInputState(inputFormatter.valueToInputState(initial));
-                        autoFocus && input.current!.focus();
+                        if (autoFocus) {
+                            input.current!.focus();
+                        }
                     }
                 };
             }

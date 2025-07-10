@@ -205,7 +205,9 @@ const getChartPlugins = (setHoveredIndex: (hoverIndex: number | null) => void): 
         {
             id: 'resetHoveredIndex',
             beforeEvent: (_chart, args) => {
-                args.event.type === 'mouseout' && setHoveredIndex(null);
+                if (args.event.type === 'mouseout') {
+                    setHoveredIndex(null);
+                }
             },
         }
     ];

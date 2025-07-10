@@ -2,8 +2,8 @@ import React from "react";
 
 import PerformanceCircle from "@/components/PerformanceCircle/PerformanceCircle";
 import StyledGoalContainer from "@/views/DashboardView/Goal/styles/StyledGoalContainer";
-import StyledGoalLabels from "@/views/DashboardView/Goal/styles/StyledGoalLabels";
 import StyledGoalLabel from "@/views/DashboardView/Goal/styles/StyledGoalLabel";
+import StyledGoalLabels from "@/views/DashboardView/Goal/styles/StyledGoalLabels";
 import StyledGoalSublabel from "@/views/DashboardView/Goal/styles/StyledGoalSublabel";
 
 interface GoalProps {
