@@ -119,6 +119,11 @@ public class TransactionLinkSuggestionService {
 
         repository.saveAll(toSave);
         repository.deleteAll(existingList);
+
+        updateLinkStateFor(
+                bts.stream().map(BankTransaction::getId).toList(),
+                ts.stream().map(Transaction::getId).toList());
+
         return toSave.stream().map(mapper::toDto).toList();
     }
 
@@ -161,7 +166,7 @@ public class TransactionLinkSuggestionService {
             } else if (autoConfirmed.size() == 1) {
                 Stream.concat(confirmed.stream(), undecided.stream()).forEach(s -> s.setLinkState(AUTO_REJECTED));
             } else {
-                Stream.of(confirmed, undecided).forEach(list -> {
+                Stream.of(confirmed, autoConfirmed).forEach(list -> {
                     if (list.size() > 1) {
                         list.forEach(s -> s.setLinkState(UNDECIDED));
                     }
