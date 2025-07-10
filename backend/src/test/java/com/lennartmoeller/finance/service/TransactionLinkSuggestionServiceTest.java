@@ -188,10 +188,17 @@ class TransactionLinkSuggestionServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(40L);
 
+        BankTransaction bank = new BankTransaction();
+        bank.setId(41L);
+
         TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
         undecided.setLinkState(TransactionLinkState.UNDECIDED);
+        undecided.setBankTransaction(bank);
+        undecided.setTransaction(transaction);
         TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
         confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+        confirmed.setBankTransaction(bank);
+        confirmed.setTransaction(transaction);
 
         when(repository.findAllByBankTransactionIdsAndTransactionIds(null, List.of(40L)))
                 .thenReturn(List.of(undecided, confirmed));
@@ -215,10 +222,17 @@ class TransactionLinkSuggestionServiceTest {
         account.setId(1L);
         bankTransaction.setAccount(account);
 
+        Transaction tx = new Transaction();
+        tx.setId(51L);
+
         TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
         auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
+        auto.setBankTransaction(bankTransaction);
+        auto.setTransaction(tx);
         TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
         rejected.setLinkState(TransactionLinkState.REJECTED);
+        rejected.setBankTransaction(bankTransaction);
+        rejected.setTransaction(tx);
 
         when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(50L), null))
                 .thenReturn(List.of(auto, rejected));
@@ -306,11 +320,23 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testUpdateLinkState() {
+        BankTransaction bank = new BankTransaction();
+        bank.setId(70L);
+        Transaction tx = new Transaction();
+        tx.setId(71L);
+
         TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        suggestion.setBankTransaction(bank);
+        suggestion.setTransaction(tx);
         TransactionLinkSuggestion saved = new TransactionLinkSuggestion();
+        saved.setBankTransaction(bank);
+        saved.setTransaction(tx);
         TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
         when(repository.findById(12L)).thenReturn(java.util.Optional.of(suggestion));
         when(repository.save(suggestion)).thenReturn(saved);
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(any(), any()))
+                .thenReturn(List.of(saved));
+        when(repository.saveAll(any())).thenReturn(List.of(saved));
         when(mapper.toDto(saved)).thenReturn(dto);
 
         var result = service.updateLinkState(12L, TransactionLinkState.CONFIRMED);
@@ -318,5 +344,75 @@ class TransactionLinkSuggestionServiceTest {
         assertTrue(result.isPresent());
         assertEquals(dto, result.get());
         assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
+    }
+
+    @Test
+    void testUpdateLinkStateEnforcesAutoReject() {
+        BankTransaction bank = new BankTransaction();
+        bank.setId(100L);
+        Transaction t1 = new Transaction();
+        t1.setId(101L);
+        Transaction t2 = new Transaction();
+        t2.setId(102L);
+
+        TransactionLinkSuggestion toConfirm = new TransactionLinkSuggestion();
+        toConfirm.setId(1L);
+        toConfirm.setBankTransaction(bank);
+        toConfirm.setTransaction(t1);
+        toConfirm.setLinkState(TransactionLinkState.UNDECIDED);
+
+        TransactionLinkSuggestion other = new TransactionLinkSuggestion();
+        other.setId(2L);
+        other.setBankTransaction(bank);
+        other.setTransaction(t2);
+        other.setLinkState(TransactionLinkState.UNDECIDED);
+
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(toConfirm));
+        when(repository.save(toConfirm)).thenReturn(toConfirm);
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(100L), List.of(101L)))
+                .thenReturn(List.of(toConfirm, other));
+        when(repository.saveAll(List.of(other))).thenReturn(List.of(other));
+        when(mapper.toDto(toConfirm)).thenReturn(new TransactionLinkSuggestionDTO());
+
+        service.updateLinkState(1L, TransactionLinkState.CONFIRMED);
+
+        assertEquals(TransactionLinkState.CONFIRMED, toConfirm.getLinkState());
+        assertEquals(TransactionLinkState.AUTO_REJECTED, other.getLinkState());
+    }
+
+    @Test
+    void testUpdateLinkStateRestoresAutoRejected() {
+        BankTransaction bank = new BankTransaction();
+        bank.setId(200L);
+        Transaction t1 = new Transaction();
+        t1.setId(201L);
+        Transaction t2 = new Transaction();
+        t2.setId(202L);
+
+        TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
+        confirmed.setId(3L);
+        confirmed.setBankTransaction(bank);
+        confirmed.setTransaction(t1);
+        confirmed.setProbability(0.5);
+        confirmed.setLinkState(TransactionLinkState.CONFIRMED);
+
+        TransactionLinkSuggestion auto1 = new TransactionLinkSuggestion();
+        auto1.setId(4L);
+        auto1.setBankTransaction(bank);
+        auto1.setTransaction(t2);
+        auto1.setProbability(1.0);
+        auto1.setLinkState(TransactionLinkState.AUTO_REJECTED);
+
+        when(repository.findById(3L)).thenReturn(java.util.Optional.of(confirmed));
+        when(repository.save(confirmed)).thenReturn(confirmed);
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(200L), List.of(201L)))
+                .thenReturn(List.of(confirmed, auto1));
+        when(repository.saveAll(List.of(auto1))).thenReturn(List.of(auto1));
+        when(mapper.toDto(confirmed)).thenReturn(new TransactionLinkSuggestionDTO());
+
+        service.updateLinkState(3L, TransactionLinkState.REJECTED);
+
+        assertEquals(TransactionLinkState.REJECTED, confirmed.getLinkState());
+        assertEquals(TransactionLinkState.AUTO_CONFIRMED, auto1.getLinkState());
     }
 }
