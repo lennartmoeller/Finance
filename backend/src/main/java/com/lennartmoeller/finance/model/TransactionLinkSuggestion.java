@@ -62,7 +62,9 @@ public class TransactionLinkSuggestion extends BaseModel {
     }
 
     public boolean hasNoManualLinkStateDecision() {
-        return linkState == TransactionLinkState.UNDECIDED || linkState == TransactionLinkState.AUTO_CONFIRMED || linkState == TransactionLinkState.AUTO_REJECTED;
+        return linkState == TransactionLinkState.UNDECIDED
+                || linkState == TransactionLinkState.AUTO_CONFIRMED
+                || linkState == TransactionLinkState.AUTO_REJECTED;
     }
 
     public TransactionLinkState getDefaultLinkState() {
@@ -71,7 +73,10 @@ public class TransactionLinkSuggestion extends BaseModel {
 
     public double calculateProbability() {
         // check if accounts match
-        if (!bankTransaction.getAccount().getId().equals(transaction.getAccount().getId())) {
+        if (!bankTransaction
+                .getAccount()
+                .getId()
+                .equals(transaction.getAccount().getId())) {
             return 0.0;
         }
         // check if amounts match
