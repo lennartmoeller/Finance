@@ -127,9 +127,7 @@ public class TransactionLinkSuggestionService {
     }
 
     private static TransactionLinkSuggestion buildSuggestion(BankTransaction bankTransaction, Transaction transaction) {
-        long daysBetween =
-                Math.abs(new DateRange(bankTransaction.getBookingDate(), transaction.getDate()).getDays() - 1);
-        double probability = 1.0 - daysBetween / (2.0 * WINDOW_DAYS);
+        double probability = TransactionLinkSuggestion.calculateProbability(bankTransaction, transaction, WINDOW_DAYS);
         TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
         suggestion.setBankTransaction(bankTransaction);
         suggestion.setTransaction(transaction);

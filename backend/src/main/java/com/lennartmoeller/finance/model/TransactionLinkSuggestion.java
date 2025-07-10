@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.model;
 
+import com.lennartmoeller.finance.util.DateRange;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -53,5 +54,12 @@ public class TransactionLinkSuggestion extends BaseModel {
 
     public TransactionLinkState getDefaultLinkState() {
         return probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED;
+    }
+
+    public static double calculateProbability(
+            BankTransaction bankTransaction, Transaction transaction, int windowDays) {
+        long daysBetween =
+                Math.abs(new DateRange(bankTransaction.getBookingDate(), transaction.getDate()).getDays() - 1);
+        return 1.0 - daysBetween / (2.0 * windowDays);
     }
 }
