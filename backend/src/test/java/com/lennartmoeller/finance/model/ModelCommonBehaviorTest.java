@@ -42,7 +42,7 @@ class ModelCommonBehaviorTest {
 
         @ParameterizedTest(name = "{0} defaults to {2}")
         @MethodSource("defaults")
-        void verifyDefaultValues(String name, Supplier<Object> supplier, Object expected) {
+        void verifyDefaultValues(Supplier<Object> supplier, Object expected) {
             assertThat(supplier.get()).isEqualTo(expected);
         }
     }
@@ -63,18 +63,23 @@ class ModelCommonBehaviorTest {
                     Arguments.of("Target", (Supplier<Object>) Target::new, (BiConsumer<Target, Long>) Target::setId),
                     Arguments.of("Transaction", (Supplier<Object>) Transaction::new, (BiConsumer<Transaction, Long>)
                             Transaction::setId),
-                    Arguments.of("LinkSuggestion", (Supplier<Object>) TransactionLinkSuggestion::new, (BiConsumer<
-                                    TransactionLinkSuggestion, Long>)
-                            TransactionLinkSuggestion::setId),
+                    Arguments.of(
+                            "LinkSuggestion",
+                            (Supplier<Object>) () -> {
+                                TransactionLinkSuggestion s = new TransactionLinkSuggestion();
+                                s.setBankTransaction(new BankTransaction());
+                                s.setTransaction(new Transaction());
+                                return s;
+                            },
+                            (BiConsumer<TransactionLinkSuggestion, Long>) TransactionLinkSuggestion::setId),
                     Arguments.of("BankTransaction", (Supplier<Object>) BankTransaction::new, (BiConsumer<
-                                    BankTransaction, Long>)
+                            BankTransaction, Long>)
                             BankTransaction::setId));
         }
 
         @ParameterizedTest(name = "{0} equality based on id")
         @MethodSource("entities")
-        @SuppressWarnings("unchecked")
-        void verifyEquality(String name, Supplier<Object> factory, BiConsumer<Object, Long> idSetter) {
+        void verifyEquality(Supplier<Object> factory, BiConsumer<Object, Long> idSetter) {
             Object first = factory.get();
             Object second = factory.get();
             idSetter.accept(first, 1L);
