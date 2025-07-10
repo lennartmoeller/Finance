@@ -73,7 +73,7 @@ class ModelCommonBehaviorTest {
                             },
                             (BiConsumer<TransactionLinkSuggestion, Long>) TransactionLinkSuggestion::setId),
                     Arguments.of("BankTransaction", (Supplier<Object>) BankTransaction::new, (BiConsumer<
-                            BankTransaction, Long>)
+                                    BankTransaction, Long>)
                             BankTransaction::setId));
         }
 
