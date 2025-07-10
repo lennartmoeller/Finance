@@ -28,15 +28,6 @@ public class TransactionLinkSuggestionService {
     private final TransactionLinkSuggestionRepository repository;
     private final TransactionRepository transactionRepository;
 
-    private static boolean isConfirmed(TransactionLinkSuggestion suggestion) {
-        TransactionLinkState state = suggestion.getLinkState();
-        return state == TransactionLinkState.CONFIRMED || state == TransactionLinkState.AUTO_CONFIRMED;
-    }
-
-    private static TransactionLinkState defaultState(TransactionLinkSuggestion s) {
-        return s.getProbability() == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED;
-    }
-
     private void ensureConsistency(@Nullable List<Long> bankTransactionIds, @Nullable List<Long> transactionIds) {
         boolean noBankIds = bankTransactionIds == null || bankTransactionIds.isEmpty();
         boolean noTxIds = transactionIds == null || transactionIds.isEmpty();
@@ -51,11 +42,11 @@ public class TransactionLinkSuggestionService {
         }
 
         Set<Long> confirmedBanks = suggestions.stream()
-                .filter(TransactionLinkSuggestionService::isConfirmed)
+                .filter(TransactionLinkSuggestion::isConfirmed)
                 .map(s -> s.getBankTransaction().getId())
                 .collect(java.util.stream.Collectors.toSet());
         Set<Long> confirmedTxs = suggestions.stream()
-                .filter(TransactionLinkSuggestionService::isConfirmed)
+                .filter(TransactionLinkSuggestion::isConfirmed)
                 .map(s -> s.getTransaction().getId())
                 .collect(java.util.stream.Collectors.toSet());
 
@@ -66,11 +57,11 @@ public class TransactionLinkSuggestionService {
                             || confirmedTxs.contains(s.getTransaction().getId());
             TransactionLinkState desired = s.getLinkState();
             if (hasConfirmed) {
-                if (!isConfirmed(s)) {
+                if (!s.isConfirmed()) {
                     desired = TransactionLinkState.AUTO_REJECTED;
                 }
             } else if (s.getLinkState() == TransactionLinkState.AUTO_REJECTED) {
-                desired = defaultState(s);
+                desired = s.getDefaultLinkState();
             }
 
             if (desired != s.getLinkState()) {
@@ -143,8 +134,7 @@ public class TransactionLinkSuggestionService {
         suggestion.setBankTransaction(bankTransaction);
         suggestion.setTransaction(transaction);
         suggestion.setProbability(probability);
-        suggestion.setLinkState(
-                probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED);
+        suggestion.setLinkState(suggestion.getDefaultLinkState());
         return suggestion;
     }
 

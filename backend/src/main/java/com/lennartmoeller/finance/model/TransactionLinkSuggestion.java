@@ -42,4 +42,16 @@ public class TransactionLinkSuggestion extends BaseModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "link_state", nullable = false)
     private TransactionLinkState linkState = TransactionLinkState.UNDECIDED;
+
+    public boolean isConfirmed() {
+        return linkState == TransactionLinkState.AUTO_CONFIRMED || linkState == TransactionLinkState.CONFIRMED;
+    }
+
+    public boolean isRejected() {
+        return linkState == TransactionLinkState.AUTO_REJECTED || linkState == TransactionLinkState.REJECTED;
+    }
+
+    public TransactionLinkState getDefaultLinkState() {
+        return probability == 1.0 ? TransactionLinkState.AUTO_CONFIRMED : TransactionLinkState.UNDECIDED;
+    }
 }
