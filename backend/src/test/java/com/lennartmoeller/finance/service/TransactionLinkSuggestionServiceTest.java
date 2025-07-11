@@ -1,8 +1,8 @@
 package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -341,8 +341,120 @@ class TransactionLinkSuggestionServiceTest {
     @Test
     void testUpdateLinkStateRejectsAutoStates() {
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.updateLinkState(1L, TransactionLinkState.AUTO_CONFIRMED));
+                IllegalArgumentException.class, () -> service.updateLinkState(1L, TransactionLinkState.AUTO_CONFIRMED));
+    }
+
+    @Test
+    void updateLinkStateRejectsOtherSuggestionsWhenOneConfirmedExists() {
+        BankTransaction bankTransaction = new BankTransaction();
+        bankTransaction.setId(1L);
+        Transaction t1 = new Transaction();
+        t1.setId(1L);
+        Transaction t2 = new Transaction();
+        t2.setId(2L);
+
+        TransactionLinkSuggestion toUpdate = new TransactionLinkSuggestion();
+        toUpdate.setId(10L);
+        toUpdate.setBankTransaction(bankTransaction);
+        toUpdate.setTransaction(t1);
+        toUpdate.setLinkState(TransactionLinkState.UNDECIDED);
+
+        TransactionLinkSuggestion alreadyConfirmed = new TransactionLinkSuggestion();
+        alreadyConfirmed.setId(11L);
+        alreadyConfirmed.setBankTransaction(bankTransaction);
+        alreadyConfirmed.setTransaction(t2);
+        alreadyConfirmed.setLinkState(TransactionLinkState.CONFIRMED);
+
+        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        undecided.setId(12L);
+        undecided.setBankTransaction(bankTransaction);
+        undecided.setTransaction(t2);
+        undecided.setLinkState(TransactionLinkState.UNDECIDED);
+
+        when(repository.findById(10L)).thenReturn(java.util.Optional.of(toUpdate));
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(1L)))
+                .thenReturn(List.of(alreadyConfirmed))
+                .thenReturn(List.of(toUpdate, alreadyConfirmed, undecided));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
+
+        service.updateLinkState(10L, TransactionLinkState.CONFIRMED);
+
+        verify(repository).save(alreadyConfirmed);
+        verify(repository).save(toUpdate);
+        verify(repository).saveAll(captor.capture());
+
+        List<TransactionLinkSuggestion> saved = captor.getValue();
+        assertEquals(1, saved.size());
+        assertTrue(saved.contains(undecided));
+        assertEquals(TransactionLinkState.AUTO_REJECTED, undecided.getLinkState());
+    }
+
+    @Test
+    void updateLinkStateAutoConfirmedDominatesWhenNoConfirmedSuggestions() {
+        BankTransaction bankTransaction = new BankTransaction();
+        bankTransaction.setId(2L);
+        Transaction t1 = new Transaction();
+        t1.setId(3L);
+        Transaction t2 = new Transaction();
+        t2.setId(4L);
+
+        TransactionLinkSuggestion toUpdate = new TransactionLinkSuggestion();
+        toUpdate.setId(20L);
+        toUpdate.setBankTransaction(bankTransaction);
+        toUpdate.setTransaction(t1);
+        toUpdate.setLinkState(TransactionLinkState.CONFIRMED);
+
+        TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
+        auto.setId(21L);
+        auto.setBankTransaction(bankTransaction);
+        auto.setTransaction(t2);
+        auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
+
+        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        undecided.setId(22L);
+        undecided.setBankTransaction(bankTransaction);
+        undecided.setTransaction(t2);
+        undecided.setLinkState(TransactionLinkState.UNDECIDED);
+
+        when(repository.findById(20L)).thenReturn(java.util.Optional.of(toUpdate));
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(2L), List.of(3L)))
+                .thenReturn(List.of(toUpdate, auto, undecided));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
+
+        service.updateLinkState(20L, TransactionLinkState.UNDECIDED);
+
+        verify(repository).save(toUpdate);
+        verify(repository).saveAll(captor.capture());
+
+        List<TransactionLinkSuggestion> saved = captor.getValue();
+        assertEquals(2, saved.size());
+        assertTrue(saved.contains(toUpdate));
+        assertTrue(saved.contains(undecided));
+        assertEquals(TransactionLinkState.AUTO_REJECTED, toUpdate.getLinkState());
+        assertEquals(TransactionLinkState.AUTO_REJECTED, undecided.getLinkState());
+    }
+
+    @Test
+    void updateLinkStateReturnsDtoWhenStateUnchanged() {
+        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
+        suggestion.setLinkState(TransactionLinkState.UNDECIDED);
+        TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
+
+        when(repository.findById(99L)).thenReturn(java.util.Optional.of(suggestion));
+        when(mapper.toDto(suggestion)).thenReturn(dto);
+
+        TransactionLinkSuggestionDTO result = service.updateLinkState(99L, TransactionLinkState.UNDECIDED);
+
+        assertEquals(dto, result);
+        verify(repository, never()).save(any());
     }
 
     @Test
