@@ -25,10 +25,11 @@ class MapToJsonStringConverterTest {
         void wrapsJsonProcessingException() {
             class SelfRef {
                 @SuppressWarnings("unused")
-                SelfRef self = this;
+                final SelfRef self = this;
             }
 
             Map<String, String> map = new HashMap<>();
+            @SuppressWarnings("rawtypes")
             Map raw = map; // intentionally bypass generic type check
             raw.put("ref", new SelfRef());
 

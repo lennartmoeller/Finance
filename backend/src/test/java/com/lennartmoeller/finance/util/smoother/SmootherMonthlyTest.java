@@ -39,7 +39,7 @@ class SmootherMonthlyTest {
         YearMonth ym = YearMonth.of(2021, 5); // May is in Q2 (April, May, June)
         // For QUARTER_YEARLY smoothing, the range covers 3 months.
         smoother.add(ym, CategorySmoothType.QUARTER_YEARLY, 300L);
-        // Raw value stored on the original key (May 2021) is 300.
+        // The raw value stored on the original key (May 2021) is 300.
         StatsMetricDTO metricRaw = smoother.get(YearMonth.of(2021, 5));
         assertEquals(300.0, metricRaw.getRaw());
         // Each month in Q2 should receive 300/3 = 100 as the smoothed amount.
@@ -54,7 +54,7 @@ class SmootherMonthlyTest {
         YearMonth ym = YearMonth.of(2021, 3); // March belongs to H1 (January to June)
         // For HALF_YEARLY smoothing, the range covers 6 months.
         smoother.add(ym, CategorySmoothType.HALF_YEARLY, 600L);
-        // Raw value stored on the original key (March 2021) is 600.
+        // The raw value stored on the original key (March 2021) is 600.
         StatsMetricDTO metricRaw = smoother.get(YearMonth.of(2021, 3));
         assertEquals(600.0, metricRaw.getRaw());
         // Each month in H1 gets 600/6 = 100.

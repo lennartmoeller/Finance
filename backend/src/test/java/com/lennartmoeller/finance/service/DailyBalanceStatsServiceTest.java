@@ -65,7 +65,7 @@ class DailyBalanceStatsServiceTest {
         assertEquals(1030.0, dayOne.getBalance().getRaw(), 0.0001); // 1000 + 50 - 20
         assertEquals(1010.0, dayOne.getTarget().getRaw(), 0.0001); // 1000 + 10
 
-        DailySavingStatsDTO lastDay = result.get(result.size() - 1);
+        DailySavingStatsDTO lastDay = result.getLast();
         assertEquals(1060.0, lastDay.getBalance().getRaw(), 0.0001); // +30 investment on day two
         assertEquals(1040.0, lastDay.getTarget().getRaw(), 0.0001); // +30 investment to target
     }
