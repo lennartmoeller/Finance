@@ -86,6 +86,6 @@ class CamtV8CsvParserTest {
         assertThat(result).hasSize(1);
         CamtV8TransactionDTO dto = result.getFirst();
         assertThat(dto.getIban()).isEqualTo("DE12");
-        assertThat(dto.getData().get("BIC (SWIFT-Code)")).isEqualTo("BIC");
+        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
     }
 }
