@@ -26,8 +26,11 @@ class ImmutablePairUtilsTest {
 
     @Test
     void crossProductStreamHandlesNullOrEmpty() {
-        assertThat(ImmutablePairUtils.crossProductStream(null, List.of("a")).count()).isZero();
-        assertThat(ImmutablePairUtils.crossProductStream(List.of(1), null).count()).isZero();
-        assertThat(ImmutablePairUtils.crossProductStream(List.of(), List.of(1)).count()).isZero();
+        assertThat(ImmutablePairUtils.crossProductStream(null, List.of("a")).count())
+                .isZero();
+        assertThat(ImmutablePairUtils.crossProductStream(List.of(1), null).count())
+                .isZero();
+        assertThat(ImmutablePairUtils.crossProductStream(List.of(), List.of(1)).count())
+                .isZero();
     }
 }
