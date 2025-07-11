@@ -79,24 +79,12 @@ class TransactionLinkSuggestionTest {
     class Helpers {
         @ParameterizedTest
         @EnumSource(TransactionLinkState.class)
-        void confirmCheck(TransactionLinkState state) {
+        void manualDecision(TransactionLinkState state) {
             TransactionLinkSuggestion s = new TransactionLinkSuggestion();
             s.setLinkState(state);
 
-            boolean expected = state == TransactionLinkState.AUTO_CONFIRMED || state == TransactionLinkState.CONFIRMED;
-            assertThat(s.isConfirmed()).isEqualTo(expected);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TransactionLinkState.class)
-        void noManualDecision(TransactionLinkState state) {
-            TransactionLinkSuggestion s = new TransactionLinkSuggestion();
-            s.setLinkState(state);
-
-            boolean expected = state == TransactionLinkState.UNDECIDED
-                    || state == TransactionLinkState.AUTO_CONFIRMED
-                    || state == TransactionLinkState.AUTO_REJECTED;
-            assertThat(s.hasNoManualLinkStateDecision()).isEqualTo(expected);
+            boolean expected = state == TransactionLinkState.CONFIRMED || state == TransactionLinkState.REJECTED;
+            assertThat(s.hasManualLinkStateDecision()).isEqualTo(expected);
         }
 
         @Test

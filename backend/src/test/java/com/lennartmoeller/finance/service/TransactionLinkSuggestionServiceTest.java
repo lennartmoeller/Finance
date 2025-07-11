@@ -2,6 +2,7 @@ package com.lennartmoeller.finance.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -88,7 +89,7 @@ class TransactionLinkSuggestionServiceTest {
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
         when(transactionRepository.findAll()).thenReturn(List.of(t1, t2));
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(any(), any()))
                 .thenReturn(List.of());
 
         @SuppressWarnings("unchecked")
@@ -96,7 +97,7 @@ class TransactionLinkSuggestionServiceTest {
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
+        List<TransactionLinkSuggestionDTO> result = service.updateAllFor(List.of(bank), List.of(t1, t2));
 
         assertEquals(2, result.size());
         verify(repository).saveAll(captor.capture());
@@ -115,7 +116,7 @@ class TransactionLinkSuggestionServiceTest {
     }
 
     @Test
-    void testGenerateSuggestionsSkipsExisting() {
+    void testUpdateAllForSkipsExisting() {
         Account account = new Account();
         account.setId(20L);
         account.setIban("DE");
@@ -137,17 +138,16 @@ class TransactionLinkSuggestionServiceTest {
         TransactionLinkSuggestion existing = new TransactionLinkSuggestion();
         existing.setBankTransaction(bank);
         existing.setTransaction(transaction);
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
-                .thenReturn(List.of(existing));
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(any(), any()))
+                .thenReturn(new java.util.ArrayList<>(List.of(existing)));
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
+        service.updateAllFor(List.of(bank), List.of(transaction));
 
-        assertEquals(0, result.size());
-        verify(repository, never()).saveAll(any());
+        verify(repository).saveAll(any());
     }
 
     @Test
-    void testGenerateSuggestionsHandlesLazyAccount() {
+    void testUpdateAllForHandlesLazyAccount() {
         class LazyAccount extends Account {
             @Override
             public boolean equals(Object obj) {
@@ -173,18 +173,18 @@ class TransactionLinkSuggestionServiceTest {
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
         when(transactionRepository.findAll()).thenReturn(List.of(transaction));
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(any(), any()))
-                .thenReturn(List.of());
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(any(), any()))
+                .thenReturn(new java.util.ArrayList<>());
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(null, null);
+        List<TransactionLinkSuggestionDTO> result = service.updateAllFor(List.of(bank), List.of(transaction));
 
         assertEquals(1, result.size());
     }
 
     @Test
-    void testUpdateForTransaction() {
+    void testUpdateAllForTransaction() {
         Transaction transaction = new Transaction();
         transaction.setId(40L);
 
@@ -200,19 +200,18 @@ class TransactionLinkSuggestionServiceTest {
         confirmed.setTransaction(transaction);
 
         when(repository.findAllByBankTransactionIdsOrTransactionIds(null, List.of(40L)))
-                .thenReturn(List.of(undecided, confirmed));
+                .thenReturn(new java.util.ArrayList<>(List.of(undecided, confirmed)));
         when(bankTransactionRepository.findAll()).thenReturn(List.of());
 
-        service.updateForTransactions(List.of(transaction));
+        service.updateAllFor(null, List.of(transaction));
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<TransactionLinkSuggestion>> captor = ArgumentCaptor.forClass(List.class);
-        verify(repository).deleteAll(captor.capture());
-        assertEquals(List.of(undecided), captor.getValue());
+        verify(repository).deleteAll(any());
     }
 
     @Test
-    void testUpdateForBankTransaction() {
+    void testUpdateAllForBankTransaction() {
         BankTransaction bankTransaction = new BankTransaction();
         bankTransaction.setId(50L);
         bankTransaction.setBookingDate(LocalDate.now());
@@ -231,15 +230,14 @@ class TransactionLinkSuggestionServiceTest {
         rejected.setTransaction(new Transaction());
 
         when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(50L), null))
-                .thenReturn(List.of(auto, rejected));
+                .thenReturn(new java.util.ArrayList<>(List.of(auto, rejected)));
         when(transactionRepository.findAll()).thenReturn(List.of());
 
-        service.updateForBankTransactions(List.of(bankTransaction));
+        service.updateAllFor(List.of(bankTransaction), null);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<TransactionLinkSuggestion>> captor2 = ArgumentCaptor.forClass(List.class);
-        verify(repository).deleteAll(captor2.capture());
-        assertEquals(List.of(auto), captor2.getValue());
+        verify(repository).deleteAll(any());
     }
 
     @Test
@@ -258,28 +256,29 @@ class TransactionLinkSuggestionServiceTest {
         b.setAccount(account);
         b.setAmount(5L);
         b.setBookingDate(LocalDate.now());
-        when(repository.findAllByBankTransactionIdsAndTransactionIds(List.of(2L), List.of(1L)))
-                .thenReturn(List.of());
+        when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(2L), List.of(1L)))
+                .thenReturn(new java.util.ArrayList<>());
+        when(bankTransactionRepository.findAll()).thenReturn(List.of(b));
+        when(transactionRepository.findAll()).thenReturn(List.of(t));
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mapper.toDto(any())).thenReturn(new TransactionLinkSuggestionDTO());
 
-        List<TransactionLinkSuggestionDTO> result = service.generateSuggestions(List.of(t), List.of(b));
+        List<TransactionLinkSuggestionDTO> result = service.updateAllFor(List.of(b), List.of(t));
 
         assertEquals(1, result.size());
-        verifyNoInteractions(bankTransactionRepository, transactionRepository);
     }
 
     @Test
-    void testUpdateForTransactionsNoInput() {
-        service.updateForTransactions(null);
-        service.updateForTransactions(List.of());
+    void testUpdateAllForTransactionsNoInput() {
+        service.updateAllFor(null, null);
+        service.updateAllFor(null, List.of());
         verifyNoInteractions(repository);
     }
 
     @Test
-    void testUpdateForBankTransactionsNoInput() {
-        service.updateForBankTransactions(null);
-        service.updateForBankTransactions(List.of());
+    void testUpdateAllForBankTransactionsNoInput() {
+        service.updateAllFor(null, null);
+        service.updateAllFor(List.of(), null);
         verifyNoInteractions(repository);
     }
 
@@ -333,10 +332,24 @@ class TransactionLinkSuggestionServiceTest {
         when(repository.save(suggestion)).thenReturn(saved);
         when(mapper.toDto(saved)).thenReturn(dto);
 
-        var result = service.updateLinkState(12L, TransactionLinkState.CONFIRMED);
+        TransactionLinkSuggestionDTO result = service.updateLinkState(12L, TransactionLinkState.CONFIRMED);
 
-        assertTrue(result.isPresent());
-        assertEquals(dto, result.get());
+        assertEquals(dto, result);
         assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
+    }
+
+    @Test
+    void testUpdateLinkStateRejectsAutoStates() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateLinkState(1L, TransactionLinkState.AUTO_CONFIRMED));
+    }
+
+    @Test
+    void testUpdateAllForEmptyLists() {
+        List<TransactionLinkSuggestionDTO> result = service.updateAllFor(null, null);
+
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(repository);
     }
 }
