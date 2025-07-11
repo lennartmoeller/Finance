@@ -41,19 +41,18 @@ class TransactionLinkSuggestionRepositoryTest {
     private BankTransaction bank1;
     private BankTransaction bank2;
     private Transaction tx1;
-    private Transaction tx2;
     private TransactionLinkSuggestion link1;
     private TransactionLinkSuggestion link2;
     private TransactionLinkSuggestion link3;
 
     @BeforeEach
     void setUp() {
-        Account acc = newAccount("acc");
-        Category cat = newCategory("cat");
+        Account acc = newAccount();
+        Category cat = newCategory();
         bank1 = bankTransactionRepository.save(newBankTransaction(acc, Map.of("b", "1")));
         bank2 = bankTransactionRepository.save(newBankTransaction(acc, Map.of("b", "2")));
         tx1 = transactionRepository.save(newTransaction(acc, cat, LocalDate.now()));
-        tx2 = transactionRepository.save(
+        Transaction tx2 = transactionRepository.save(
                 newTransaction(acc, cat, LocalDate.now().plusDays(1)));
 
         link1 = suggestionRepository.save(newLink(bank1, tx1));
@@ -86,16 +85,16 @@ class TransactionLinkSuggestionRepositoryTest {
         assertThat(suggestionRepository.findAll()).isEmpty();
     }
 
-    private Account newAccount(String label) {
+    private Account newAccount() {
         Account a = new Account();
-        a.setLabel(label);
+        a.setLabel("acc");
         a.setStartBalance(0L);
         return accountRepository.save(a);
     }
 
-    private Category newCategory(String label) {
+    private Category newCategory() {
         Category c = new Category();
-        c.setLabel(label);
+        c.setLabel("cat");
         c.setTransactionType(TransactionType.EXPENSE);
         return categoryRepository.save(c);
     }

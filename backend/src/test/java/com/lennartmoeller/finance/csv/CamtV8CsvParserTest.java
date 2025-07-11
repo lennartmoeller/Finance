@@ -25,10 +25,12 @@ class CamtV8CsvParserTest {
     @Test
     void shouldParseValidCsvAndSkipInvalidLines() {
         String csv =
-                "\uFEFF\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz (End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
-                        + "\"DE12 3456\";\"01.01.24\";\"01.01.24\";\"Booking\";\"Purpose\";\"CID\";\"MID\";\"CR\";\"Collector\";\"Original\";\"Fee\";\"Counter\";\"DE55 6666\";\"BIC\";\"1,00\";\"EUR\";\"Info\"\n"
-                        + "\n"
-                        + "DE12;01.01.24\n"; // invalid line
+                """
+                        \uFEFF"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
+                        "DE12 3456";"01.01.24";"01.01.24";"Booking";"Purpose";"CID";"MID";"CR";"Collector";"Original";"Fee";"Counter";"DE55 6666";"BIC";"1,00";"EUR";"Info"
+
+                        DE12;01.01.24
+                        """; // invalid line
 
         CamtV8CsvParser parser = new CamtV8CsvParser();
         List<CamtV8TransactionDTO> result =
@@ -70,10 +72,11 @@ class CamtV8CsvParserTest {
     @Test
     void shouldIgnoreBlankAndShortLines() {
         String csv =
-                "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz (End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
-                        + "\n"
-                        + "\"DE12\";\"01.01.24\";\"01.01.24\";\"Booking\";\"Purpose\";\"CID\";\"MID\";\"CR\";\"Collector\";\"Original\";\"Fee\";\"Counter\";\"DE55\";\"BIC\";\"1,00\";\"EUR\";\"Info\"\n"
-                        + "short";
+                """
+                        "Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
+
+                        "DE12";"01.01.24";"01.01.24";"Booking";"Purpose";"CID";"MID";"CR";"Collector";"Original";"Fee";"Counter";"DE55";"BIC";"1,00";"EUR";"Info"
+                        short""";
 
         CamtV8CsvParser parser = new CamtV8CsvParser();
 

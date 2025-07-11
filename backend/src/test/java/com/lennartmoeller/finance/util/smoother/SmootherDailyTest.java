@@ -44,7 +44,7 @@ class SmootherDailyTest {
         // Q1 of 2021 has 90 days.
         smoother.add(date, CategorySmoothType.QUARTER_YEARLY, 9000L);
         StatsMetricDTO metric = smoother.get(date);
-        // Raw value should be 9000, and each day gets 9000/90 = 100.
+        // The raw value should be 9000, and each day gets 9000/90 = 100.
         assertEquals(9000.0, metric.getRaw());
         assertEquals(100.0, metric.getSmoothed(), 0.0001);
     }

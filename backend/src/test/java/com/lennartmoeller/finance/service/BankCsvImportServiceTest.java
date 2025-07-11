@@ -36,7 +36,6 @@ class BankCsvImportServiceTest {
     private BankTransactionMapper mapper;
     private IngV1CsvParser ingParser;
     private CamtV8CsvParser camtParser;
-    private MapToJsonStringConverter converter;
     private AccountRepository accountRepository;
     private TransactionLinkSuggestionService suggestionService;
     private BankCsvImportService service;
@@ -47,7 +46,7 @@ class BankCsvImportServiceTest {
         mapper = mock(BankTransactionMapper.class);
         ingParser = mock(IngV1CsvParser.class);
         camtParser = mock(CamtV8CsvParser.class);
-        converter = new MapToJsonStringConverter();
+        MapToJsonStringConverter converter = new MapToJsonStringConverter();
         accountRepository = mock(AccountRepository.class);
         suggestionService = mock(TransactionLinkSuggestionService.class);
         service = new BankCsvImportService(
@@ -148,7 +147,7 @@ class BankCsvImportServiceTest {
         dto2.setAmount(2L);
 
         when(file.getInputStream()).thenReturn(InputStream.nullInputStream());
-        when(ingParser.parse(any())).thenReturn((List) List.of(dto1, dto2));
+        when(ingParser.parse(any())).thenReturn(List.of(dto1, dto2));
         Account account = new Account();
         account.setIban("DE");
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));

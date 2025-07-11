@@ -29,7 +29,7 @@ class YearHalfTest {
 
     @Test
     void testInvalidHalf() {
-        // Test invalid half values: zero and greater than 2.
+        // Test invalid half-values: zero and greater than 2.
         assertThrows(IllegalArgumentException.class, () -> new YearHalf(2021, 0));
         assertThrows(IllegalArgumentException.class, () -> new YearHalf(2021, 3));
     }
