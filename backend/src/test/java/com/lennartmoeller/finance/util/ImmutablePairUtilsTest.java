@@ -3,7 +3,6 @@ package com.lennartmoeller.finance.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +13,7 @@ class ImmutablePairUtilsTest {
         List<String> right = List.of("a", "b");
 
         List<ImmutablePair<Integer, String>> result =
-                ImmutablePairUtils.crossProductStream(left, right).collect(Collectors.toList());
+                ImmutablePairUtils.crossProductStream(left, right).toList();
 
         assertThat(result)
                 .containsExactlyInAnyOrder(
