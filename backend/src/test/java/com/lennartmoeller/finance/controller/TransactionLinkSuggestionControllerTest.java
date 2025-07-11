@@ -45,12 +45,12 @@ class TransactionLinkSuggestionControllerTest {
     @Test
     void shouldGenerateSuggestionsWithoutIds() {
         List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
-        when(service.generateSuggestions(null, null)).thenReturn(list);
+        when(service.updateAllFor(null, null)).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(null, null);
 
         assertThat(result).isEqualTo(list);
-        verify(service).generateSuggestions(null, null);
+        verify(service).updateAllFor(null, null);
     }
 
     @Test
@@ -59,13 +59,13 @@ class TransactionLinkSuggestionControllerTest {
         List<Transaction> transactions = List.of(new Transaction());
         when(transactionRepository.findAllById(ids)).thenReturn(transactions);
         List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
-        when(service.generateSuggestions(transactions, null)).thenReturn(list);
+        when(service.updateAllFor(null, transactions)).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(ids, null);
 
         assertThat(result).isEqualTo(list);
         verify(transactionRepository).findAllById(ids);
-        verify(service).generateSuggestions(transactions, null);
+        verify(service).updateAllFor(null, transactions);
     }
 
     @Test
@@ -74,13 +74,13 @@ class TransactionLinkSuggestionControllerTest {
         List<BankTransaction> bankTransactions = List.of(new BankTransaction());
         when(bankTransactionRepository.findAllById(ids)).thenReturn(bankTransactions);
         List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
-        when(service.generateSuggestions(null, bankTransactions)).thenReturn(list);
+        when(service.updateAllFor(bankTransactions, null)).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(null, ids);
 
         assertThat(result).isEqualTo(list);
         verify(bankTransactionRepository).findAllById(ids);
-        verify(service).generateSuggestions(null, bankTransactions);
+        verify(service).updateAllFor(bankTransactions, null);
     }
 
     @Test
@@ -92,14 +92,14 @@ class TransactionLinkSuggestionControllerTest {
         when(transactionRepository.findAllById(tIds)).thenReturn(transactions);
         when(bankTransactionRepository.findAllById(bIds)).thenReturn(bankTransactions);
         List<TransactionLinkSuggestionDTO> list = List.of(new TransactionLinkSuggestionDTO());
-        when(service.generateSuggestions(transactions, bankTransactions)).thenReturn(list);
+        when(service.updateAllFor(bankTransactions, transactions)).thenReturn(list);
 
         List<TransactionLinkSuggestionDTO> result = controller.generateTransactionLinkSuggestions(tIds, bIds);
 
         assertThat(result).isEqualTo(list);
         verify(transactionRepository).findAllById(tIds);
         verify(bankTransactionRepository).findAllById(bIds);
-        verify(service).generateSuggestions(transactions, bankTransactions);
+        verify(service).updateAllFor(bankTransactions, transactions);
     }
 
     @Test
@@ -127,11 +127,11 @@ class TransactionLinkSuggestionControllerTest {
     void shouldUpdateLinkState() {
         TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
         when(service.updateLinkState(7L, com.lennartmoeller.finance.model.TransactionLinkState.CONFIRMED))
-                .thenReturn(java.util.Optional.of(dto));
+                .thenReturn(dto);
 
-        var response = controller.updateLinkState(7L, com.lennartmoeller.finance.model.TransactionLinkState.CONFIRMED);
+        TransactionLinkSuggestionDTO result =
+                controller.updateLinkState(7L, com.lennartmoeller.finance.model.TransactionLinkState.CONFIRMED);
 
-        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
-        assertThat(response.getBody()).isSameAs(dto);
+        assertThat(result).isSameAs(dto);
     }
 }
