@@ -37,10 +37,9 @@ public class TransactionLinkSuggestionController {
     }
 
     @PostMapping("/{id}/link-state")
-    public ResponseEntity<TransactionLinkSuggestionDTO> updateLinkState(
+    public TransactionLinkSuggestionDTO updateLinkState(
             @PathVariable Long id, @RequestParam TransactionLinkState linkState) {
-        return service.updateLinkState(id, linkState).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
-                .build());
+        return service.updateLinkState(id, linkState);
     }
 
     @PostMapping("/generate")
@@ -51,6 +50,6 @@ public class TransactionLinkSuggestionController {
                 transactionIds != null ? transactionRepository.findAllById(transactionIds) : null;
         List<BankTransaction> bankTransactions =
                 bankTransactionIds != null ? bankTransactionRepository.findAllById(bankTransactionIds) : null;
-        return service.generateSuggestions(transactions, bankTransactions);
+        return service.updateAllFor(bankTransactions, transactions);
     }
 }

@@ -61,28 +61,25 @@ class TransactionLinkSuggestionRepositoryTest {
     }
 
     @Test
-    void findAllByBankTransactionIdsAndTransactionIdsRespectsFilters() {
-        assertThat(suggestionRepository.findAllByBankTransactionIdsAndTransactionIds(null, null))
-                .containsExactlyInAnyOrder(link1, link2, link3);
+    void findAllByBankTransactionIdsOrTransactionIdsRespectsFilters() {
+        assertThat(suggestionRepository.findAllByBankTransactionIdsOrTransactionIds(null, null))
+                .isEmpty();
 
-        assertThat(suggestionRepository.findAllByBankTransactionIdsAndTransactionIds(List.of(bank1.getId()), null))
+        assertThat(suggestionRepository.findAllByBankTransactionIdsOrTransactionIds(List.of(bank1.getId()), null))
                 .containsExactly(link1);
 
-        assertThat(suggestionRepository.findAllByBankTransactionIdsAndTransactionIds(null, List.of(tx1.getId())))
+        assertThat(suggestionRepository.findAllByBankTransactionIdsOrTransactionIds(null, List.of(tx1.getId())))
                 .containsExactlyInAnyOrder(link1, link2);
 
-        assertThat(suggestionRepository.findAllByBankTransactionIdsAndTransactionIds(
+        assertThat(suggestionRepository.findAllByBankTransactionIdsOrTransactionIds(
                         List.of(bank2.getId()), List.of(tx1.getId())))
-                .containsExactly(link2);
+                .containsExactlyInAnyOrder(link1, link2, link3);
     }
 
     @Test
     void deleteMethodsRemoveMatchingSuggestions() {
         suggestionRepository.deleteAllByTransaction_Id(tx1.getId());
         assertThat(suggestionRepository.findAll()).containsExactly(link3);
-
-        suggestionRepository.deleteAllByBankTransaction_Id(bank2.getId());
-        assertThat(suggestionRepository.findAll()).isEmpty();
     }
 
     private Account newAccount() {
