@@ -4,8 +4,6 @@ import com.lennartmoeller.finance.converter.MapToJsonStringConverter;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
-import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
-import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -15,7 +13,6 @@ import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,7 +56,7 @@ public class BankCsvImportService {
                 .map(dto -> {
                     Account account = accountsByIban.get(dto.getIban());
                     BankTransaction entity = mapper.toEntity(dto, account);
-                    Map<String, String> map = buildDataMap(dto);
+                    Map<String, String> map = dto.toDataMap();
                     entity.getData().clear();
                     entity.getData().putAll(map);
                     return Map.entry(dto, entity);
@@ -88,47 +85,5 @@ public class BankCsvImportService {
         }
         String data = converter.convertToDatabaseColumn(entity.getData());
         return !datas.contains(data);
-    }
-
-    private Map<String, String> buildDataMap(BankTransactionDTO dto) {
-        Map<String, String> map = new LinkedHashMap<>();
-        BankType type = dto.getBank();
-        if (type == null) {
-            type = dto instanceof IngV1TransactionDTO ? BankType.ING_V1 : BankType.CAMT_V8;
-        }
-        map.put("bank", type.name());
-        map.put("iban", dto.getIban());
-        map.put(
-                "bookingDate",
-                dto.getBookingDate() == null ? null : dto.getBookingDate().toString());
-        map.put("purpose", dto.getPurpose());
-        map.put("counterparty", dto.getCounterparty());
-        map.put("amount", dto.getAmount() == null ? null : dto.getAmount().toString());
-        if (dto instanceof IngV1TransactionDTO ing) {
-            map.put(
-                    "valueDate",
-                    ing.getValueDate() == null ? null : ing.getValueDate().toString());
-            map.put("bookingText", ing.getBookingText());
-            map.put(
-                    "balance",
-                    ing.getBalance() == null ? null : ing.getBalance().toString());
-            map.put("balanceCurrency", ing.getBalanceCurrency());
-            map.put("amountCurrency", ing.getAmountCurrency());
-        } else if (dto instanceof CamtV8TransactionDTO camt) {
-            map.put(
-                    "valueDate",
-                    camt.getValueDate() == null ? null : camt.getValueDate().toString());
-            map.put("bookingText", camt.getBookingText());
-            map.put("creditorId", camt.getCreditorId());
-            map.put("mandateReference", camt.getMandateReference());
-            map.put("customerReference", camt.getCustomerReference());
-            map.put("collectorReference", camt.getCollectorReference());
-            map.put("directDebitOriginalAmount", camt.getDirectDebitOriginalAmount());
-            map.put("refundFee", camt.getRefundFee());
-            map.put("bic", camt.getBic());
-            map.put("currency", camt.getCurrency());
-            map.put("info", camt.getInfo());
-        }
-        return map;
     }
 }
