@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
-import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.service.BankCsvImportService;
@@ -40,13 +39,11 @@ class BankTransactionControllerTest {
     @Test
     void shouldImportCsv() throws IOException {
         BankTransactionDTO dto = new IngV1TransactionDTO();
-        BankTransactionImportResultDTO resultDto = new BankTransactionImportResultDTO(List.of(dto), List.of());
-        when(importService.importCsv(BankType.ING_V1, file)).thenReturn(resultDto);
+        when(importService.importCsv(BankType.ING_V1, file)).thenReturn(List.of(dto));
 
-        BankTransactionImportResultDTO result = controller.importCsv(BankType.ING_V1, file);
+        List<BankTransactionDTO> result = controller.importCsv(BankType.ING_V1, file);
 
-        assertThat(result.getSaved()).containsExactly(dto);
-        assertThat(result.getUnsaved()).isEmpty();
+        assertThat(result).containsExactly(dto);
         verify(importService).importCsv(BankType.ING_V1, file);
     }
 

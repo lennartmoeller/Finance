@@ -60,8 +60,6 @@ class IngV1CsvParserTest {
 
         assertThat(result).hasSize(1);
         IngV1TransactionDTO dto = result.getFirst();
-        assertThat(dto.getData()).containsEntry("Währung", "EUR");
-        assertThat(dto.getData()).containsEntry("Währung_9", "EUR");
     }
 
     @Test
@@ -81,7 +79,6 @@ class IngV1CsvParserTest {
         assertThat(dto.getIban()).isEmpty();
         assertThat(dto.getAmount()).isEqualTo(-500L);
         assertThat(dto.getBalance()).isEqualTo(-10000L);
-        assertThat(dto.getData()).containsEntry("IBAN", "");
     }
 
     @Test

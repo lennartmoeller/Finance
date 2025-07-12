@@ -9,8 +9,6 @@ import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,6 @@ class BankTransactionMapperTest {
         dto.setPurpose("p");
         dto.setCounterparty("c");
         dto.setAmount(11L);
-        dto.setData(Map.of("k", "v"));
         return dto;
     }
 
@@ -49,7 +46,6 @@ class BankTransactionMapperTest {
         dto.setPurpose("p");
         dto.setCounterparty("c");
         dto.setAmount(12L);
-        dto.setData(Map.of("k", "v"));
         return dto;
     }
 
@@ -76,7 +72,6 @@ class BankTransactionMapperTest {
             assertThat(entity.getBookingDate()).isEqualTo(dto.getBookingDate());
             assertThat(entity.getAmount()).isEqualTo(dto.getAmount());
             assertThat(entity.getBank()).isEqualTo(expectedBank);
-            assertThat(entity.getData()).isEqualTo(dto.getData());
         }
 
         @Test
@@ -98,14 +93,12 @@ class BankTransactionMapperTest {
             entity.setPurpose("p");
             entity.setCounterparty("c");
             entity.setAmount(13L);
-            entity.setData(new LinkedHashMap<>(Map.of("x", "y")));
 
             BankTransactionDTO dto = mapper.toDto(entity);
 
             assertThat(dto.getId()).isEqualTo(entity.getId());
             assertThat(dto.getIban()).isEqualTo(entity.getAccount().getIban());
             assertThat(dto.getBank()).isEqualTo(entity.getBank());
-            assertThat(dto.getData()).isEqualTo(entity.getData());
         }
 
         @ParameterizedTest
@@ -123,7 +116,6 @@ class BankTransactionMapperTest {
             BankTransactionDTO dto = mapper.toDto(entity);
 
             assertThat(dto.getIban()).isNull();
-            assertThat(dto.getData()).isNull();
         }
     }
 }

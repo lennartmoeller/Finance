@@ -42,7 +42,6 @@ class CamtV8CsvParserTest {
         assertThat(dto.getIban()).isEqualTo("DE123456");
         assertThat(dto.getBookingDate()).isEqualTo(LocalDate.of(2024, 1, 1));
         assertThat(dto.getAmount()).isEqualTo(100L);
-        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
     }
 
     @Test
@@ -86,6 +85,5 @@ class CamtV8CsvParserTest {
         assertThat(result).hasSize(1);
         CamtV8TransactionDTO dto = result.getFirst();
         assertThat(dto.getIban()).isEqualTo("DE12");
-        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
     }
 }

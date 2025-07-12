@@ -9,11 +9,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 
@@ -61,18 +58,6 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
             return Optional.empty();
         }
 
-        Map<String, String> data = IntStream.range(0, headers.length)
-                .boxed()
-                .collect(Collectors.toMap(
-                        i -> {
-                            String key = headers[i];
-                            return headerMapContains(headers, i) ? key + '_' + i : key;
-                        },
-                        i -> values[i],
-                        (a, b) -> b,
-                        LinkedHashMap::new));
-        data.put("IBAN", iban);
-
         return Optional.of(IngV1TransactionDTO.builder()
                 .bank(BankType.ING_V1)
                 .iban(iban)
@@ -85,7 +70,6 @@ public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
                 .balanceCurrency(values[6])
                 .amount(EuroParser.parseToCents(values[7]).orElse(null))
                 .amountCurrency(values[8])
-                .data(data)
                 .build());
     }
 

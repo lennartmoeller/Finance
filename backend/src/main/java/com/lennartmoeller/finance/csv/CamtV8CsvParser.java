@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,9 +46,6 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
         if (values.length < headers.length) {
             return Optional.empty();
         }
-        Map<String, String> data = IntStream.range(0, headers.length)
-                .boxed()
-                .collect(Collectors.toMap(i -> headers[i], i -> values[i], (a, b) -> b, LinkedHashMap::new));
         String iban = values[idx.get("Auftragskonto")].replaceAll("\\s+", "");
 
         return Optional.of(CamtV8TransactionDTO.builder()
@@ -70,7 +66,6 @@ public class CamtV8CsvParser implements BankCsvParser<CamtV8TransactionDTO> {
                 .refundFee(values[idx.get("Auslagenersatz Ruecklastschrift")])
                 .bic(values[idx.get("BIC (SWIFT-Code)")])
                 .info(values[idx.get("Info")])
-                .data(data)
                 .build());
     }
 
