@@ -18,4 +18,15 @@ public abstract class BankTransactionDTO {
     private String purpose;
     private String counterparty;
     private Long amount;
+
+    public java.util.Map<String, String> buildDataMap() {
+        java.util.Map<String, String> map = new java.util.LinkedHashMap<>();
+        map.put("bank", bank == null ? null : bank.name());
+        map.put("iban", iban);
+        map.put("bookingDate", bookingDate == null ? null : bookingDate.toString());
+        map.put("purpose", purpose);
+        map.put("counterparty", counterparty);
+        map.put("amount", amount == null ? null : amount.toString());
+        return map;
+    }
 }

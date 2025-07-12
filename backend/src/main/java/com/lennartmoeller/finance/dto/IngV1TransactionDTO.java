@@ -16,4 +16,15 @@ public class IngV1TransactionDTO extends BankTransactionDTO {
     private Long balance;
     private String balanceCurrency;
     private String amountCurrency;
+
+    @Override
+    public java.util.Map<String, String> buildDataMap() {
+        java.util.Map<String, String> map = new java.util.LinkedHashMap<>(super.buildDataMap());
+        map.put("valueDate", valueDate == null ? null : valueDate.toString());
+        map.put("bookingText", bookingText);
+        map.put("balance", balance == null ? null : balance.toString());
+        map.put("balanceCurrency", balanceCurrency);
+        map.put("amountCurrency", amountCurrency);
+        return map;
+    }
 }

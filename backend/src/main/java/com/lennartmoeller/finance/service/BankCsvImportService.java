@@ -5,8 +5,6 @@ import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
-import com.lennartmoeller.finance.mapper.CamtV8TransactionMapper;
-import com.lennartmoeller.finance.mapper.IngV1TransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
@@ -29,8 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class BankCsvImportService {
     private final AccountRepository accountRepository;
-    private final IngV1TransactionMapper ingMapper;
-    private final CamtV8TransactionMapper camtMapper;
+    private final BankTransactionMapper mapper;
     private final BankTransactionRepository transactionRepository;
     private final CamtV8CsvParser camtParser;
     private final IngV1CsvParser ingParser;
@@ -58,11 +55,7 @@ public class BankCsvImportService {
                 .sorted(Comparator.comparing(BankTransactionDTO::getBookingDate))
                 .map(dto -> {
                     Account account = accountsByIban.get(dto.getIban());
-                    BankTransactionMapper mapper = bankType == BankType.ING_V1 ? ingMapper : camtMapper;
                     BankTransaction entity = mapper.toEntity(dto, account);
-                    Map<String, String> map = mapper.toDataMap(dto);
-                    entity.getData().clear();
-                    entity.getData().putAll(map);
                     return Map.entry(dto, entity);
                 })
                 .toList();
@@ -78,14 +71,9 @@ public class BankCsvImportService {
 
         suggestionService.updateAllFor(saved, null);
 
-        List<BankTransactionDTO> savedDtos =
-                saved.stream().map(e -> mapperFor(e.getBank()).toDto(e)).toList();
+        List<BankTransactionDTO> savedDtos = saved.stream().map(mapper::toDto).toList();
 
         return savedDtos;
-    }
-
-    private BankTransactionMapper mapperFor(BankType type) {
-        return type == BankType.ING_V1 ? ingMapper : camtMapper;
     }
 
     private boolean shouldGetSaved(BankTransaction entity, List<String> datas) {

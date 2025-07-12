@@ -5,14 +5,14 @@ import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import javax.annotation.Nullable;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BankTransactionMapper {
     @Mapping(source = "account.iban", target = "iban")
     IngV1TransactionDTO toIngDto(BankTransaction entity);
@@ -51,16 +51,9 @@ public interface BankTransactionMapper {
         };
     }
 
-    default Map<String, String> toDataMap(BankTransactionDTO dto) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("bank", dto.getBank() == null ? null : dto.getBank().name());
-        map.put("iban", dto.getIban());
-        map.put(
-                "bookingDate",
-                dto.getBookingDate() == null ? null : dto.getBookingDate().toString());
-        map.put("purpose", dto.getPurpose());
-        map.put("counterparty", dto.getCounterparty());
-        map.put("amount", dto.getAmount() == null ? null : dto.getAmount().toString());
-        return map;
+    @AfterMapping
+    default void fillData(BankTransactionDTO dto, @MappingTarget BankTransaction entity) {
+        entity.getData().clear();
+        entity.getData().putAll(dto.buildDataMap());
     }
 }

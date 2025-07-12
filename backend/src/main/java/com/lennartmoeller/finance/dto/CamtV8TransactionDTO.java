@@ -22,4 +22,21 @@ public class CamtV8TransactionDTO extends BankTransactionDTO {
     private String bic;
     private String currency;
     private String info;
+
+    @Override
+    public java.util.Map<String, String> buildDataMap() {
+        java.util.Map<String, String> map = new java.util.LinkedHashMap<>(super.buildDataMap());
+        map.put("valueDate", valueDate == null ? null : valueDate.toString());
+        map.put("bookingText", bookingText);
+        map.put("creditorId", creditorId);
+        map.put("mandateReference", mandateReference);
+        map.put("customerReference", customerReference);
+        map.put("collectorReference", collectorReference);
+        map.put("directDebitOriginalAmount", directDebitOriginalAmount);
+        map.put("refundFee", refundFee);
+        map.put("bic", bic);
+        map.put("currency", currency);
+        map.put("info", info);
+        return map;
+    }
 }
