@@ -39,4 +39,45 @@ public class CamtV8TransactionDTO extends BankTransactionDTO {
         map.put("info", info);
         return map;
     }
+
+    @Override
+    public void fillFromMap(java.util.Map<String, String> map) {
+        super.fillFromMap(map);
+        if (map == null) {
+            return;
+        }
+        java.util.Optional.ofNullable(map.get("valueDate"))
+                .map(java.time.LocalDate::parse)
+                .ifPresent(this::setValueDate);
+        if (map.containsKey("bookingText")) {
+            setBookingText(map.get("bookingText"));
+        }
+        if (map.containsKey("creditorId")) {
+            setCreditorId(map.get("creditorId"));
+        }
+        if (map.containsKey("mandateReference")) {
+            setMandateReference(map.get("mandateReference"));
+        }
+        if (map.containsKey("customerReference")) {
+            setCustomerReference(map.get("customerReference"));
+        }
+        if (map.containsKey("collectorReference")) {
+            setCollectorReference(map.get("collectorReference"));
+        }
+        if (map.containsKey("directDebitOriginalAmount")) {
+            setDirectDebitOriginalAmount(map.get("directDebitOriginalAmount"));
+        }
+        if (map.containsKey("refundFee")) {
+            setRefundFee(map.get("refundFee"));
+        }
+        if (map.containsKey("bic")) {
+            setBic(map.get("bic"));
+        }
+        if (map.containsKey("currency")) {
+            setCurrency(map.get("currency"));
+        }
+        if (map.containsKey("info")) {
+            setInfo(map.get("info"));
+        }
+    }
 }

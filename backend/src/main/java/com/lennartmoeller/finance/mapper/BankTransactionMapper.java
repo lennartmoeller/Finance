@@ -28,6 +28,13 @@ public abstract class BankTransactionMapper {
         entity.getData().putAll(dto.buildDataMap());
     }
 
+    @AfterMapping
+    protected void fillDto(BankTransaction entity, @MappingTarget BankTransactionDTO dto) {
+        if (dto != null && entity != null) {
+            dto.fillFromMap(entity.getData());
+        }
+    }
+
     @ObjectFactory
     protected BankTransactionDTO createDto(@Nullable BankTransaction entity) {
         if (entity == null) {

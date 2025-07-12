@@ -29,4 +29,27 @@ public abstract class BankTransactionDTO {
         map.put("amount", amount == null ? null : amount.toString());
         return map;
     }
+
+    public void fillFromMap(java.util.Map<String, String> map) {
+        if (map == null) {
+            return;
+        }
+        java.util.Optional.ofNullable(map.get("bank"))
+                .ifPresent(v -> setBank(com.lennartmoeller.finance.model.BankType.valueOf(v)));
+        if (map.containsKey("iban")) {
+            setIban(map.get("iban"));
+        }
+        java.util.Optional.ofNullable(map.get("bookingDate"))
+                .map(java.time.LocalDate::parse)
+                .ifPresent(this::setBookingDate);
+        if (map.containsKey("purpose")) {
+            setPurpose(map.get("purpose"));
+        }
+        if (map.containsKey("counterparty")) {
+            setCounterparty(map.get("counterparty"));
+        }
+        java.util.Optional.ofNullable(map.get("amount"))
+                .map(java.lang.Long::valueOf)
+                .ifPresent(this::setAmount);
+    }
 }

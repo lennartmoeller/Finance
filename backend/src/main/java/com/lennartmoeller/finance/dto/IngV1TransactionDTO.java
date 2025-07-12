@@ -27,4 +27,27 @@ public class IngV1TransactionDTO extends BankTransactionDTO {
         map.put("amountCurrency", amountCurrency);
         return map;
     }
+
+    @Override
+    public void fillFromMap(java.util.Map<String, String> map) {
+        super.fillFromMap(map);
+        if (map == null) {
+            return;
+        }
+        java.util.Optional.ofNullable(map.get("valueDate"))
+                .map(java.time.LocalDate::parse)
+                .ifPresent(this::setValueDate);
+        if (map.containsKey("bookingText")) {
+            setBookingText(map.get("bookingText"));
+        }
+        java.util.Optional.ofNullable(map.get("balance"))
+                .map(java.lang.Long::valueOf)
+                .ifPresent(this::setBalance);
+        if (map.containsKey("balanceCurrency")) {
+            setBalanceCurrency(map.get("balanceCurrency"));
+        }
+        if (map.containsKey("amountCurrency")) {
+            setAmountCurrency(map.get("amountCurrency"));
+        }
+    }
 }
