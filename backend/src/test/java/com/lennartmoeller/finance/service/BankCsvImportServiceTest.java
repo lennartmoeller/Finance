@@ -17,7 +17,8 @@ import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
-import com.lennartmoeller.finance.mapper.BankTransactionMapper;
+import com.lennartmoeller.finance.mapper.CamtV8TransactionMapper;
+import com.lennartmoeller.finance.mapper.IngV1TransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
@@ -32,7 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 class BankCsvImportServiceTest {
     private BankTransactionRepository repository;
-    private BankTransactionMapper mapper;
+    private IngV1TransactionMapper ingMapper;
+    private CamtV8TransactionMapper camtMapper;
     private IngV1CsvParser ingParser;
     private CamtV8CsvParser camtParser;
     private AccountRepository accountRepository;
@@ -42,14 +44,22 @@ class BankCsvImportServiceTest {
     @BeforeEach
     void setUp() {
         repository = mock(BankTransactionRepository.class);
-        mapper = mock(BankTransactionMapper.class);
+        ingMapper = mock(IngV1TransactionMapper.class);
+        camtMapper = mock(CamtV8TransactionMapper.class);
         ingParser = mock(IngV1CsvParser.class);
         camtParser = mock(CamtV8CsvParser.class);
         MapToJsonStringConverter converter = new MapToJsonStringConverter();
         accountRepository = mock(AccountRepository.class);
         suggestionService = mock(TransactionLinkSuggestionService.class);
         service = new BankCsvImportService(
-                accountRepository, mapper, repository, camtParser, ingParser, converter, suggestionService);
+                accountRepository,
+                ingMapper,
+                camtMapper,
+                repository,
+                camtParser,
+                ingParser,
+                converter,
+                suggestionService);
     }
 
     @Test
@@ -68,12 +78,14 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
+        entity.setBank(BankType.ING_V1);
+        when(ingMapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
         when(repository.findAllDatas()).thenReturn(List.of());
         BankTransaction saved = new BankTransaction();
+        saved.setBank(BankType.ING_V1);
         when(repository.saveAll(List.of(entity))).thenReturn(List.of(saved));
         BankTransactionDTO resultDto = new IngV1TransactionDTO();
-        when(mapper.toDto(saved)).thenReturn(resultDto);
+        when(ingMapper.toDto(saved)).thenReturn(resultDto);
 
         List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
 
@@ -98,7 +110,7 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction entity = new BankTransaction();
         entity.setAccount(account);
-        when(mapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
+        when(ingMapper.toEntity((BankTransactionDTO) dto, account)).thenReturn(entity);
         when(repository.findAllDatas()).thenReturn(List.of(entity.getData()));
 
         List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
@@ -116,7 +128,9 @@ class BankCsvImportServiceTest {
         when(camtParser.parse(any())).thenReturn(List.of(dto));
         when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
                 .thenReturn(java.util.Collections.emptyList());
-        when(mapper.toEntity(eq((BankTransactionDTO) dto), isNull())).thenReturn(new BankTransaction());
+        BankTransaction camtEntity = new BankTransaction();
+        camtEntity.setBank(BankType.CAMT_V8);
+        when(camtMapper.toEntity(eq((BankTransactionDTO) dto), isNull())).thenReturn(camtEntity);
 
         List<BankTransactionDTO> result = service.importCsv(BankType.CAMT_V8, file);
 
@@ -149,14 +163,16 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Set.of("DE"))).thenReturn(List.of(account));
         BankTransaction e1 = new BankTransaction();
         e1.setAccount(account);
+        e1.setBank(BankType.ING_V1);
         BankTransaction e2 = new BankTransaction();
         e2.setAccount(account);
-        when(mapper.toEntity((BankTransactionDTO) dto1, account)).thenReturn(e1);
-        when(mapper.toEntity((BankTransactionDTO) dto2, account)).thenReturn(e2);
+        e2.setBank(BankType.ING_V1);
+        when(ingMapper.toEntity((BankTransactionDTO) dto1, account)).thenReturn(e1);
+        when(ingMapper.toEntity((BankTransactionDTO) dto2, account)).thenReturn(e2);
         when(repository.findAllDatas()).thenReturn(List.of());
         when(repository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(mapper.toDto(same(e1))).thenReturn(dto1);
-        when(mapper.toDto(same(e2))).thenReturn(dto2);
+        when(ingMapper.toDto(same(e1))).thenReturn(dto1);
+        when(ingMapper.toDto(same(e2))).thenReturn(dto2);
 
         List<BankTransactionDTO> result = service.importCsv(BankType.ING_V1, file);
 
@@ -179,7 +195,8 @@ class BankCsvImportServiceTest {
         when(accountRepository.findAllByIbanIn(java.util.Collections.emptySet()))
                 .thenReturn(java.util.Collections.emptyList());
         BankTransaction entity = new BankTransaction();
-        when(mapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
+        entity.setBank(BankType.ING_V1);
+        when(ingMapper.toEntity((BankTransactionDTO) dto, null)).thenReturn(entity);
         when(repository.findAllDatas()).thenReturn(List.of());
         when(repository.saveAll(any())).thenReturn(List.of());
 
