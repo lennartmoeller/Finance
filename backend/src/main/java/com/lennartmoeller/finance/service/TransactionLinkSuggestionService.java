@@ -17,13 +17,12 @@ import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import com.lennartmoeller.finance.util.ImmutablePairUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -82,47 +81,43 @@ public class TransactionLinkSuggestionService {
     }
 
     public List<TransactionLinkSuggestionDTO> updateAllFor(
-            List<BankTransaction> bankTransactions, List<Transaction> transactions) {
+            @Nullable List<BankTransaction> bankTransactions, @Nullable List<Transaction> transactions) {
         List<BankTransaction> bts = Optional.ofNullable(bankTransactions).orElse(List.of());
         List<Transaction> ts = Optional.ofNullable(transactions).orElse(List.of());
         if (bts.isEmpty() && ts.isEmpty()) {
             return List.of();
         }
 
-        List<TransactionLinkSuggestion> existingList = repository.findAllByBankTransactionIdsOrTransactionIds(
-                bts.stream().map(BankTransaction::getId).toList(),
-                ts.stream().map(Transaction::getId).toList());
+        List<Long> btIds = bts.stream().map(BankTransaction::getId).toList();
+        List<Long> tIds = ts.stream().map(Transaction::getId).toList();
 
-        List<TransactionLinkSuggestion> updatedList = generateAllFor(bts, ts);
+        Map<String, TransactionLinkSuggestion> existingByKey =
+                repository.findAllByBankTransactionIdsOrTransactionIds(btIds, tIds).stream()
+                        .collect(Collectors.toMap(
+                                s -> s.getBankTransaction().getId() + ":"
+                                        + s.getTransaction().getId(),
+                                Function.identity()));
 
-        List<TransactionLinkSuggestion> toSave = new ArrayList<>();
-        for (TransactionLinkSuggestion updated : updatedList) {
-            int idx = existingList.indexOf(updated);
-            if (idx < 0) {
-                toSave.add(updated);
-            } else {
-                TransactionLinkSuggestion existing = existingList.remove(idx);
-                boolean hasNoMatchingLinkState = existing.getLinkState() != updated.getLinkState();
-                boolean hasNoMatchingProbability = !Objects.equals(existing.getProbability(), updated.getProbability());
-                if (existing.hasManualLinkStateDecision()) {
-                    if (hasNoMatchingProbability) {
+        List<TransactionLinkSuggestion> toSave = generateAllFor(bts, ts).stream()
+                .map(updated -> {
+                    String key = updated.getBankTransaction().getId() + ":"
+                            + updated.getTransaction().getId();
+                    TransactionLinkSuggestion existing = existingByKey.remove(key);
+                    if (existing != null) {
                         existing.setProbability(updated.getProbability());
-                        toSave.add(existing);
+                        if (!existing.hasManualLinkStateDecision()) {
+                            existing.setLinkState(updated.getLinkState());
+                        }
+                        return existing;
                     }
-                } else if (hasNoMatchingLinkState || hasNoMatchingProbability) {
-                    existing.setLinkState(updated.getLinkState());
-                    existing.setProbability(updated.getProbability());
-                    toSave.add(existing);
-                }
-            }
-        }
+                    return updated;
+                })
+                .toList();
 
         repository.saveAll(toSave);
-        repository.deleteAll(existingList);
+        repository.deleteAll(existingByKey.values());
 
-        updateLinkStateFor(
-                bts.stream().map(BankTransaction::getId).toList(),
-                ts.stream().map(Transaction::getId).toList());
+        updateLinkStateFor(btIds, tIds);
 
         return toSave.stream().map(mapper::toDto).toList();
     }
