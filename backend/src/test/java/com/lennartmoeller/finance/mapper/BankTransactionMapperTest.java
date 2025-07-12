@@ -29,6 +29,7 @@ class BankTransactionMapperTest {
 
     private static IngV1TransactionDTO ingDto() {
         IngV1TransactionDTO dto = new IngV1TransactionDTO();
+        dto.setBank(BankType.ING_V1);
         dto.setId(2L);
         dto.setIban("DE000");
         dto.setBookingDate(LocalDate.of(2024, 1, 2));
@@ -40,6 +41,7 @@ class BankTransactionMapperTest {
 
     private static CamtV8TransactionDTO camtDto() {
         CamtV8TransactionDTO dto = new CamtV8TransactionDTO();
+        dto.setBank(BankType.CAMT_V8);
         dto.setId(3L);
         dto.setIban("DE000");
         dto.setBookingDate(LocalDate.of(2024, 1, 3));
@@ -59,14 +61,7 @@ class BankTransactionMapperTest {
         @MethodSource("com.lennartmoeller.finance.mapper.BankTransactionMapperTest#dtoVariants")
         void mapsFieldsFromDifferentDtos(BankTransactionDTO dto, BankType expectedBank) {
             Account acc = account();
-            BankTransaction entity;
-            if (dto instanceof IngV1TransactionDTO ing) {
-                entity = mapper.toEntity(ing, acc);
-            } else if (dto instanceof CamtV8TransactionDTO camt) {
-                entity = mapper.toEntity(camt, acc);
-            } else {
-                throw new IllegalStateException("Unexpected DTO type");
-            }
+            BankTransaction entity = mapper.toEntity(dto, acc);
 
             assertThat(entity.getAccount()).isSameAs(acc);
             assertThat(entity.getBookingDate()).isEqualTo(dto.getBookingDate());
@@ -76,8 +71,7 @@ class BankTransactionMapperTest {
 
         @Test
         void returnsNullWhenBothArgumentsAreNull() {
-            assertThat(mapper.toEntity((IngV1TransactionDTO) null, null)).isNull();
-            assertThat(mapper.toEntity((CamtV8TransactionDTO) null, null)).isNull();
+            assertThat(mapper.toEntity((BankTransactionDTO) null, null)).isNull();
         }
     }
 

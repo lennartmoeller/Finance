@@ -10,50 +10,32 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface BankTransactionMapper {
+public abstract class BankTransactionMapper {
     @Mapping(source = "account.iban", target = "iban")
-    IngV1TransactionDTO toIngDto(BankTransaction entity);
+    public abstract BankTransactionDTO toDto(@Nullable BankTransaction entity);
 
-    @Mapping(source = "account.iban", target = "iban")
-    CamtV8TransactionDTO toCamtDto(BankTransaction entity);
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "account", source = "account")
+    public abstract BankTransaction toEntity(BankTransactionDTO dto, Account account);
 
-    default BankTransactionDTO toDto(@Nullable BankTransaction entity) {
+    @AfterMapping
+    protected void fillData(BankTransactionDTO dto, @MappingTarget BankTransaction entity) {
+        entity.getData().clear();
+        entity.getData().putAll(dto.buildDataMap());
+    }
+
+    @ObjectFactory
+    protected BankTransactionDTO createDto(@Nullable BankTransaction entity) {
         if (entity == null) {
             return null;
         }
         return switch (entity.getBank()) {
-            case ING_V1 -> toIngDto(entity);
-            case CAMT_V8 -> toCamtDto(entity);
+            case ING_V1 -> new IngV1TransactionDTO();
+            case CAMT_V8 -> new CamtV8TransactionDTO();
         };
-    }
-
-    @Mapping(target = "id", source = "dto.id")
-    @Mapping(target = "bank", constant = "ING_V1")
-    @Mapping(target = "account", source = "account")
-    BankTransaction toEntity(IngV1TransactionDTO dto, Account account);
-
-    @Mapping(target = "id", source = "dto.id")
-    @Mapping(target = "bank", constant = "CAMT_V8")
-    @Mapping(target = "account", source = "account")
-    BankTransaction toEntity(CamtV8TransactionDTO dto, Account account);
-
-    default BankTransaction toEntity(BankTransactionDTO dto, Account account) {
-        if (dto == null) {
-            return null;
-        }
-        return switch (dto) {
-            case IngV1TransactionDTO ingV1Dto -> toEntity(ingV1Dto, account);
-            case CamtV8TransactionDTO camtV8Dto -> toEntity(camtV8Dto, account);
-            default -> throw new IllegalArgumentException("Unsupported BankTransactionDTO type: " + dto.getClass());
-        };
-    }
-
-    @AfterMapping
-    default void fillData(BankTransactionDTO dto, @MappingTarget BankTransaction entity) {
-        entity.getData().clear();
-        entity.getData().putAll(dto.buildDataMap());
     }
 }
