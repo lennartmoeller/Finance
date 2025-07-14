@@ -1,8 +1,6 @@
 package com.lennartmoeller.finance.model;
 
-import com.lennartmoeller.finance.converter.MapToJsonStringConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,12 +9,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +21,10 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @EqualsAndHashCode(of = "id", callSuper = false)
 @RequiredArgsConstructor
-@Table(name = "bank_transactions")
+@Table(
+        name = "bank_transactions",
+        uniqueConstraints =
+                @UniqueConstraint(columnNames = {"account", "booking_date", "purpose", "counterparty", "amount"}))
 public class BankTransaction extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,8 +50,6 @@ public class BankTransaction extends BaseModel {
     @Column(nullable = false)
     private Long amount;
 
-    @Lob
-    @Convert(converter = MapToJsonStringConverter.class)
     @Column(nullable = false, unique = true, columnDefinition = "LONGTEXT")
-    private Map<String, String> data = new HashMap<>();
+    private String data;
 }

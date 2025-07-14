@@ -1,96 +1,66 @@
 package com.lennartmoeller.finance.csv;
 
-import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
+import com.lennartmoeller.finance.model.Account;
+import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.util.EuroParser;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 
 @Component
-public class IngV1CsvParser implements BankCsvParser<IngV1TransactionDTO> {
+public class IngV1CsvParser extends BankCsvParser {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     @Override
-    public List<IngV1TransactionDTO> parse(InputStream inputStream) {
-        List<String> lines = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                .lines()
-                .toList();
-
-        String iban = lines.stream()
-                .filter(l -> l.startsWith("IBAN;"))
-                .map(l -> l.split(";", 2)[1])
-                .findFirst()
-                .orElse("")
-                .replaceAll("\\s+", "");
-
-        int headerIdx = IntStream.range(0, lines.size())
-                .filter(i -> lines.get(i).startsWith("Buchung;"))
-                .findFirst()
-                .orElse(-1);
-        if (headerIdx < 0) {
-            return List.of();
-        }
-
-        String[] headers = lines.get(headerIdx).split(";");
-
+    protected Map<String, String> extractHeader(List<String> lines) {
         return lines.stream()
-                .skip(headerIdx + 1L)
-                .map(line -> parseLine(line, headers, iban))
-                .flatMap(Optional::stream)
-                .toList();
+                .map(line -> {
+                    String[] parts = line.split(";");
+                    if (parts.length != 2) {
+                        return null;
+                    }
+                    return Map.entry(parts[0], parts[1]);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Optional<IngV1TransactionDTO> parseLine(String line, String[] headers, String iban) {
-        if (line.isBlank()) {
-            return Optional.empty();
-        }
-
-        String[] values = line.split(";", -1);
-        if (values.length < headers.length) {
-            return Optional.empty();
-        }
-
-        Map<String, String> data = IntStream.range(0, headers.length)
-                .boxed()
-                .collect(Collectors.toMap(
-                        i -> {
-                            String key = headers[i];
-                            return headerMapContains(headers, i) ? key + '_' + i : key;
-                        },
-                        i -> values[i],
-                        (a, b) -> b,
-                        LinkedHashMap::new));
-        data.put("IBAN", iban);
-
-        return Optional.of(IngV1TransactionDTO.builder()
-                .bank(BankType.ING_V1)
-                .iban(iban)
-                .bookingDate(LocalDate.parse(values[0], DATE))
-                .valueDate(LocalDate.parse(values[1], DATE))
-                .counterparty(values[2])
-                .bookingText(values[3])
-                .purpose(values[4])
-                .balance(EuroParser.parseToCents(values[5]).orElse(null))
-                .balanceCurrency(values[6])
-                .amount(EuroParser.parseToCents(values[7]).orElse(null))
-                .amountCurrency(values[8])
-                .data(data)
-                .build());
+    @Override
+    protected List<String> extractColumnNames(List<String> lines) {
+        return lines.stream()
+                .filter(line -> line.startsWith("Buchung;"))
+                .findFirst()
+                .map(this::parseLine)
+                .orElseThrow(() -> new IllegalArgumentException("No header line found in the CSV file"));
     }
 
-    private static boolean headerMapContains(String[] headers, int index) {
-        String key = headers[index];
-        return IntStream.range(0, index).anyMatch(i -> headers[i].equals(key));
+    protected BankTransaction buildEntities(
+            Map<String, String> values, String line, Map<String, String> header, Map<String, Account> accountsByIban) {
+        String iban = header.get("IBAN").replaceAll("\\s+", "");
+        Account account = accountsByIban.get(iban);
+        if (account == null) {
+            return null;
+        }
+
+        BankTransaction entity = new BankTransaction();
+        entity.setBank(BankType.ING_V1);
+        entity.setAccount(account);
+        entity.setBookingDate(LocalDate.parse(values.get("Buchung"), DATE));
+        entity.setPurpose(values.get("Verwendungszweck"));
+        entity.setCounterparty(values.get("Auftraggeber/Empfänger"));
+        entity.setAmount(EuroParser.parseToCents(values.get("Betrag"))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid amount format: " + values.get("Betrag"))));
+        entity.setData(line);
+        return entity;
+    }
+
+    @Override
+    protected List<String> parseLine(String line) {
+        return List.of(line.split(";", -1));
     }
 }
