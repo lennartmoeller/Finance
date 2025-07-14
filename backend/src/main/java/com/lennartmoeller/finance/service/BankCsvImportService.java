@@ -5,7 +5,6 @@ import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
-import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
 import java.io.IOException;
@@ -25,14 +24,19 @@ public class BankCsvImportService {
     private final BankTransactionRepository transactionRepository;
     private final TransactionLinkSuggestionService suggestionService;
 
-    public List<BankTransactionDTO> importCsv(BankType bankType, MultipartFile file) throws IOException {
-        Map<String, Account> accountsByIban =
-                accountRepository.findAll().stream().collect(Collectors.toMap(Account::getIban, Function.identity()));
+    public List<BankTransactionDTO> importCsv(MultipartFile file) throws IOException {
+        Map<String, Account> accountsByIban = accountRepository.findByIbanIsNotNull().stream()
+                .collect(Collectors.toMap(Account::getIban, Function.identity()));
 
-        List<BankTransaction> toSave = BankCsvParser.parse(bankType, file, accountsByIban).stream()
-                .filter(entity -> transactionRepository.findAll().stream()
+        List<BankTransaction> entitiesList = BankCsvParser.parse(file, accountsByIban);
+        List<BankTransaction> existingList = transactionRepository.findAll();
+
+        List<BankTransaction> toSave = entitiesList.stream()
+                .filter(entity -> existingList.stream()
                         .noneMatch(existing -> !existing.getData().equals(entity.getData())
-                                && !(existing.getAccount().equals(entity.getAccount())
+                                && !(existing.getAccount()
+                                                .getId()
+                                                .equals(entity.getAccount().getId())
                                         && existing.getBookingDate().equals(entity.getBookingDate())
                                         && existing.getPurpose().equals(entity.getPurpose())
                                         && existing.getCounterparty().equals(entity.getCounterparty())
