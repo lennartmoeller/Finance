@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 public class IngV1CsvParser extends BankCsvParser {
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    public static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     protected IngV1CsvParser(MultipartFile file) throws IOException {
         super(file);

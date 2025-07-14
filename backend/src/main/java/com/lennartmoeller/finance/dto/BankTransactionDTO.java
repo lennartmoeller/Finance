@@ -9,7 +9,7 @@ import lombok.Data;
 public abstract class BankTransactionDTO {
     private @Nullable Long id;
     private BankType bank;
-    private String iban;
+    private Long accountId;
     private LocalDate bookingDate;
     private String purpose;
     private String counterparty;

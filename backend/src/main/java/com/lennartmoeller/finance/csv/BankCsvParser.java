@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +42,12 @@ public abstract class BankCsvParser {
         return validParsers.getFirst().parse(accountsByIban);
     }
 
+    public static List<String> parseLine(String line) {
+        return Stream.of(line.split("\\s*;\\s*"))
+                .map(s -> s.replaceAll("(^\")|(\"$)", ""))
+                .toList();
+    }
+
     public List<BankTransaction> parse(Map<String, Account> accountsByIban) {
         Map<String, String> header = extractHeader();
         int dataStartLineIndex = getDataStartLineIndex();
@@ -53,7 +58,6 @@ public abstract class BankCsvParser {
                     List<String> values = parseLine(line);
                     return buildEntity(header, line, values, accountsByIban);
                 })
-                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -62,13 +66,7 @@ public abstract class BankCsvParser {
     }
 
     protected int getDataStartLineIndex() {
-        return 0;
-    }
-
-    protected List<String> parseLine(String line) {
-        return Stream.of(line.split("\\s*;\\s*"))
-                .map(s -> s.replaceAll("(^\")|(\"$)", ""))
-                .toList();
+        return 1;
     }
 
     protected abstract @Nullable BankTransaction buildEntity(

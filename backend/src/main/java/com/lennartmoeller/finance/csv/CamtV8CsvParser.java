@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 public class CamtV8CsvParser extends BankCsvParser {
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yy");
+    public static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yy");
 
     protected CamtV8CsvParser(MultipartFile file) throws IOException {
         super(file);

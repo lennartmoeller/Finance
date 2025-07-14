@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.controller;
 
+import com.lennartmoeller.finance.dto.BankCsvImportStatsDTO;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
 import com.lennartmoeller.finance.service.BankCsvImportService;
 import com.lennartmoeller.finance.service.BankTransactionService;
@@ -23,7 +24,7 @@ public class BankTransactionController {
     private final BankTransactionService service;
 
     @PostMapping("/import")
-    public List<BankTransactionDTO> importCsv(@RequestParam("file") MultipartFile file) throws IOException {
+    public BankCsvImportStatsDTO importCsv(@RequestParam("file") MultipartFile file) throws IOException {
         return importService.importCsv(file);
     }
 
