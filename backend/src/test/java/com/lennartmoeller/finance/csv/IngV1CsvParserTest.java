@@ -29,5 +29,20 @@ class IngV1CsvParserTest {
         BankTransaction bt = result.getFirst();
         assertThat(bt.getBank()).isEqualTo(BankType.ING_V1);
         assertThat(bt.getAccount()).isSameAs(acc);
+        assertThat(bt.getPurpose()).isEqualTo("Purpose");
+        assertThat(bt.getData()).contains("Counter");
+    }
+
+    @Test
+    void returnsNullEntityWhenAccountMissing() throws IOException {
+        String csv = "Header1\nHeader2\nIBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+
+        List<BankTransaction> result = parser.parse(Map.of());
+
+        assertThat(result).containsExactly((BankTransaction) null);
     }
 }

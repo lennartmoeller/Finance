@@ -29,5 +29,20 @@ class CamtV8CsvParserTest {
         BankTransaction bt = result.getFirst();
         assertThat(bt.getBank()).isEqualTo(BankType.CAMT_V8);
         assertThat(bt.getAccount()).isSameAs(account);
+        assertThat(bt.getPurpose()).isEqualTo("Purpose");
+        assertThat(bt.getData()).contains("Info");
+    }
+
+    @Test
+    void returnsNullEntityWhenAccountMissing() throws IOException {
+        String csv =
+                "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz(End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
+                        + "DE12;01.01.24;01.01.24;Text;Purpose;CID;MID;CR;Collector;O;F;Counter;DE55;BIC;1,00;EUR;Info";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        CamtV8CsvParser parser = new CamtV8CsvParser(file);
+
+        List<BankTransaction> result = parser.parse(Map.of());
+
+        assertThat(result).containsExactly((BankTransaction) null);
     }
 }
