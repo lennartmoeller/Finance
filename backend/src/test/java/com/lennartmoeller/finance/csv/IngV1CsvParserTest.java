@@ -9,7 +9,10 @@ import com.lennartmoeller.finance.model.BankType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.mock.web.MockMultipartFile;
 
 class IngV1CsvParserTest {
@@ -78,5 +81,52 @@ class IngV1CsvParserTest {
         assertThatThrownBy(() -> parser.parse(Map.of("DE12", acc)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid amount");
+    }
+
+    @Nested
+    class InternalFunctions {
+        private String buildCsv(String ibanLine, String headerLine, boolean addDataHeader) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("H1\nH2\n").append(ibanLine).append('\n');
+            for (int i = 0; i < 10; i++) {
+                sb.append('x').append('\n');
+            }
+            sb.append(headerLine);
+            if (addDataHeader) {
+                sb.append('\n').append("Buchung;data");
+            }
+            return sb.toString();
+        }
+
+        @Test
+        void validatesHeaderLines() throws IOException {
+            String header =
+                    "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv("IBAN;DE12", header, false);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+            assertThat(parser.isValid()).isTrue();
+        }
+
+        @ParameterizedTest
+        @CsvSource({"WRONG;DE12,false", "IBAN;DE12,true"})
+        void invalidCombinationsReturnFalse(String ibanLine, boolean wrongHeader) throws IOException {
+            String header = wrongHeader
+                    ? "WRONG"
+                    : "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv(ibanLine, header, false);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+            assertThat(parser.isValid()).isFalse();
+        }
+
+        @Test
+        void extractsHeaderAndFindsDataStart() throws IOException {
+            String header =
+                    "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv("IBAN;DE55", header, true);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+
+            assertThat(parser.extractHeader()).containsEntry("IBAN", "DE55");
+            assertThat(parser.getDataStartLineIndex()).isEqualTo(15);
+        }
     }
 }
