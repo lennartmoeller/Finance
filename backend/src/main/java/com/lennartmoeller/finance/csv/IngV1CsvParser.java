@@ -22,11 +22,10 @@ public class IngV1CsvParser extends BankCsvParser {
 
     @Override
     protected boolean isValid() {
+        String columnNamesLine =
+                "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf�nger;Buchungstext;Verwendungszweck;Saldo;W�hrung;Betrag;W�hrung\"";
         boolean validIbanLine = this.lines.get(2).startsWith("IBAN;");
-        boolean validColumnNameLine = this.lines
-                .get(13)
-                .equals(
-                        "Buchung;Wertstellungsdatum;Auftraggeber/Empf�nger;Buchungstext;Verwendungszweck;Saldo;W�hrung;Betrag;W�hrung");
+        boolean validColumnNameLine = this.lines.get(13).equals(columnNamesLine);
         return validColumnNameLine && validIbanLine;
     }
 

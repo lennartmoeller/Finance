@@ -2,7 +2,6 @@ package com.lennartmoeller.finance.service;
 
 import com.lennartmoeller.finance.csv.BankCsvParser;
 import com.lennartmoeller.finance.dto.BankCsvImportStatsDTO;
-import com.lennartmoeller.finance.mapper.BankTransactionMapper;
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
@@ -21,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class BankCsvImportService {
     private final AccountRepository accountRepository;
-    private final BankTransactionMapper mapper;
     private final BankTransactionRepository transactionRepository;
     private final TransactionLinkSuggestionService suggestionService;
 

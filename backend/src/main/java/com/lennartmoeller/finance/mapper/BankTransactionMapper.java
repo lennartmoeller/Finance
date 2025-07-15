@@ -1,5 +1,6 @@
 package com.lennartmoeller.finance.mapper;
 
+import com.lennartmoeller.finance.csv.BankCsvParser;
 import com.lennartmoeller.finance.csv.CamtV8CsvParser;
 import com.lennartmoeller.finance.csv.IngV1CsvParser;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
@@ -27,7 +28,7 @@ public interface BankTransactionMapper {
 
     private IngV1TransactionDTO mapIngV1(BankTransaction entity) {
         IngV1TransactionDTO dto = mapCommonFields(entity, new IngV1TransactionDTO());
-        List<String> data = IngV1CsvParser.parseLine(entity.getData());
+        List<String> data = BankCsvParser.parseLine(entity.getData());
         dto.setValueDate(LocalDate.parse(data.get(1), IngV1CsvParser.DATE));
         dto.setBookingText(data.get(3));
         String amountStr = data.get(5);
@@ -40,7 +41,7 @@ public interface BankTransactionMapper {
 
     private CamtV8TransactionDTO mapCamtV8(BankTransaction entity) {
         CamtV8TransactionDTO dto = mapCommonFields(entity, new CamtV8TransactionDTO());
-        List<String> data = CamtV8CsvParser.parseLine(entity.getData());
+        List<String> data = BankCsvParser.parseLine(entity.getData());
         dto.setValueDate(LocalDate.parse(data.get(2), CamtV8CsvParser.DATE));
         dto.setBookingText(data.get(3));
         dto.setCreditorId(data.get(5));
