@@ -6,4 +6,6 @@ public interface AccountBalanceProjection {
     Long getBalance();
 
     Long getTransactionCount();
+
+    Boolean getActive();
 }
