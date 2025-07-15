@@ -5,10 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.lennartmoeller.finance.dto.BankCsvImportStatsDTO;
 import com.lennartmoeller.finance.dto.BankTransactionDTO;
-import com.lennartmoeller.finance.dto.BankTransactionImportResultDTO;
 import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
-import com.lennartmoeller.finance.model.BankType;
 import com.lennartmoeller.finance.service.BankCsvImportService;
 import com.lennartmoeller.finance.service.BankTransactionService;
 import java.io.IOException;
@@ -39,23 +38,22 @@ class BankTransactionControllerTest {
 
     @Test
     void shouldImportCsv() throws IOException {
-        BankTransactionDTO dto = new IngV1TransactionDTO();
-        BankTransactionImportResultDTO resultDto = new BankTransactionImportResultDTO(List.of(dto), List.of());
-        when(importService.importCsv(BankType.ING_V1, file)).thenReturn(resultDto);
+        BankCsvImportStatsDTO stats = new BankCsvImportStatsDTO();
+        stats.setImports(1);
+        when(importService.importCsv(file)).thenReturn(stats);
 
-        BankTransactionImportResultDTO result = controller.importCsv(BankType.ING_V1, file);
+        BankCsvImportStatsDTO result = controller.importCsv(file);
 
-        assertThat(result.getSaved()).containsExactly(dto);
-        assertThat(result.getUnsaved()).isEmpty();
-        verify(importService).importCsv(BankType.ING_V1, file);
+        assertThat(result.getImports()).isEqualTo(1);
+        verify(importService).importCsv(file);
     }
 
     @Test
     void shouldPropagateIOExceptionDuringImport() throws IOException {
-        when(importService.importCsv(BankType.ING_V1, file)).thenThrow(new IOException("fail"));
+        when(importService.importCsv(file)).thenThrow(new IOException("fail"));
 
-        assertThatThrownBy(() -> controller.importCsv(BankType.ING_V1, file)).isInstanceOf(IOException.class);
-        verify(importService).importCsv(BankType.ING_V1, file);
+        assertThatThrownBy(() -> controller.importCsv(file)).isInstanceOf(IOException.class);
+        verify(importService).importCsv(file);
     }
 
     @Test
