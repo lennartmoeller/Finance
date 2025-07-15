@@ -32,4 +32,15 @@ class ImmutablePairUtilsTest {
         assertThat(ImmutablePairUtils.crossProductStream(List.of(), List.of(1)).count())
                 .isZero();
     }
+
+    @Test
+    void zipStreamProducesPairs() {
+        List<Integer> left = List.of(1, 2);
+        List<String> right = List.of("a", "b");
+
+        List<ImmutablePair<Integer, String>> result =
+                ImmutablePairUtils.zipStream(left, right).toList();
+
+        assertThat(result).containsExactly(new ImmutablePair<>(1, "a"), new ImmutablePair<>(2, "b"));
+    }
 }

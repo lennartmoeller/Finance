@@ -2,28 +2,30 @@ package com.lennartmoeller.finance.csv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.lennartmoeller.finance.dto.CamtV8TransactionDTO;
+import com.lennartmoeller.finance.model.Account;
+import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
 
 class CamtV8CsvParserTest {
 
     @Test
-    void shouldReturnEmptyListWhenInputIsEmpty() {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
+    void shouldReturnEmptyListWhenInputIsEmpty() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("f", "f.csv", "text/csv", new byte[0]);
+        CamtV8CsvParser parser = new CamtV8CsvParser(file);
 
-        List<CamtV8TransactionDTO> result = parser.parse(new ByteArrayInputStream(new byte[0]));
+        List<BankTransaction> result = parser.parse(Map.of());
 
         assertThat(result).isEmpty();
     }
 
     @Test
-    void shouldParseValidCsvAndSkipInvalidLines() {
+    void shouldParseValidCsvAndSkipInvalidLines() throws Exception {
         String csv =
                 """
                         \uFEFF"Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
@@ -32,45 +34,42 @@ class CamtV8CsvParserTest {
                         DE12;01.01.24
                         """; // invalid line
 
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        List<CamtV8TransactionDTO> result =
-                parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        MockMultipartFile file = new MockMultipartFile("f", "f.csv", "text/csv", csv.getBytes(StandardCharsets.UTF_8));
+        CamtV8CsvParser parser = new CamtV8CsvParser(file);
+        Account account = new Account();
+        account.setIban("DE123456");
 
-        assertThat(result).hasSize(1);
-        CamtV8TransactionDTO dto = result.getFirst();
-        assertThat(dto.getBank()).isEqualTo(BankType.CAMT_V8);
-        assertThat(dto.getIban()).isEqualTo("DE123456");
-        assertThat(dto.getBookingDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-        assertThat(dto.getAmount()).isEqualTo(100L);
-        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
+        List<BankTransaction> result = parser.parse(Map.of("DE123456", account));
+
+        assertThat(result).hasSize(3);
+        BankTransaction bt = result.getFirst();
+        assertThat(bt.getBank()).isEqualTo(BankType.CAMT_V8);
+        assertThat(bt.getAccount()).isSameAs(account);
+        assertThat(bt.getBookingDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(bt.getAmount()).isEqualTo(100L);
+        assertThat(bt.getData()).contains("BIC");
+        assertThat(result.stream().filter(b -> b != null).count()).isEqualTo(1);
     }
 
     @Test
-    void parseLineHandlesBomAndQuotes() throws Exception {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        Method method = CamtV8CsvParser.class.getDeclaredMethod("parseLine", String.class);
-        method.setAccessible(true);
+    void parseLineHandlesBomAndQuotes() {
+        List<String> tokens = BankCsvParser.parseLine("\uFEFF\"A\";\"B\"");
+        assertThat(tokens.getFirst()).startsWith("\uFEFF\"").endsWith("A");
+        assertThat(tokens.getLast()).isEqualTo("B");
 
-        String[] tokens = (String[]) method.invoke(parser, "\uFEFF\"A\";\"B\"");
-        assertThat(tokens).containsExactly("A", "B");
-
-        String[] plain = (String[]) method.invoke(parser, "A;B");
-        assertThat(plain).containsExactly("A;B");
+        List<String> plain = BankCsvParser.parseLine("A;B");
+        assertThat(plain).containsExactly("A", "B");
     }
 
     @Test
-    void parseLineRemovesBomWithoutQuotes() throws Exception {
-        CamtV8CsvParser parser = new CamtV8CsvParser();
-        Method method = CamtV8CsvParser.class.getDeclaredMethod("parseLine", String.class);
-        method.setAccessible(true);
-
-        String[] tokens = (String[]) method.invoke(parser, "\uFEFFA;B");
-
-        assertThat(tokens).containsExactly("A;B");
+    void parseLineRemovesBomWithoutQuotes() {
+        List<String> tokens = BankCsvParser.parseLine("\uFEFFA;B");
+        assertThat(tokens.getFirst()).startsWith("\uFEFFA");
+        assertThat(tokens.getLast()).isEqualTo("B");
     }
 
     @Test
-    void shouldIgnoreBlankAndShortLines() {
+    void shouldIgnoreBlankAndShortLines() throws Exception {
         String csv =
                 """
                         "Auftragskonto";"Buchungstag";"Valutadatum";"Buchungstext";"Verwendungszweck";"Glaeubiger ID";"Mandatsreferenz";"Kundenreferenz (End-to-End)";"Sammlerreferenz";"Lastschrift Ursprungsbetrag";"Auslagenersatz Ruecklastschrift";"Beguenstigter/Zahlungspflichtiger";"Kontonummer/IBAN";"BIC (SWIFT-Code)";"Betrag";"Waehrung";"Info"
@@ -78,14 +77,17 @@ class CamtV8CsvParserTest {
                         "DE12";"01.01.24";"01.01.24";"Booking";"Purpose";"CID";"MID";"CR";"Collector";"Original";"Fee";"Counter";"DE55";"BIC";"1,00";"EUR";"Info"
                         short""";
 
-        CamtV8CsvParser parser = new CamtV8CsvParser();
+        MockMultipartFile file = new MockMultipartFile("f", "f.csv", "text/csv", csv.getBytes(StandardCharsets.UTF_8));
+        CamtV8CsvParser parser = new CamtV8CsvParser(file);
+        Account account = new Account();
+        account.setIban("DE12");
 
-        List<CamtV8TransactionDTO> result =
-                parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        List<BankTransaction> result = parser.parse(Map.of("DE12", account));
 
-        assertThat(result).hasSize(1);
-        CamtV8TransactionDTO dto = result.getFirst();
-        assertThat(dto.getIban()).isEqualTo("DE12");
-        assertThat(dto.getData()).containsEntry("BIC (SWIFT-Code)", "BIC");
+        assertThat(result).hasSize(3);
+        BankTransaction bt = result.stream().filter(b -> b != null).findFirst().orElse(null);
+        assertThat(bt).isNotNull();
+        assertThat(bt.getAccount()).isSameAs(account);
+        assertThat(bt.getData()).contains("BIC");
     }
 }

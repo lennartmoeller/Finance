@@ -11,7 +11,6 @@ import com.lennartmoeller.finance.model.TransactionLinkSuggestion;
 import com.lennartmoeller.finance.model.TransactionType;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,9 @@ class TransactionLinkSuggestionRepositoryTest {
     void setUp() {
         Account acc = newAccount();
         Category cat = newCategory();
-        bank1 = bankTransactionRepository.save(newBankTransaction(acc, Map.of("b", "1")));
-        bank2 = bankTransactionRepository.save(newBankTransaction(acc, Map.of("b", "2")));
+        bank1 = bankTransactionRepository.save(newBankTransaction(acc, "d1", LocalDate.now()));
+        bank2 = bankTransactionRepository.save(
+                newBankTransaction(acc, "d2", LocalDate.now().plusDays(1)));
         tx1 = transactionRepository.save(newTransaction(acc, cat, LocalDate.now()));
         Transaction tx2 = transactionRepository.save(
                 newTransaction(acc, cat, LocalDate.now().plusDays(1)));
@@ -105,11 +105,11 @@ class TransactionLinkSuggestionRepositoryTest {
         return t;
     }
 
-    private BankTransaction newBankTransaction(Account acc, Map<String, String> data) {
+    private BankTransaction newBankTransaction(Account acc, String data, LocalDate date) {
         BankTransaction b = new BankTransaction();
         b.setAccount(acc);
         b.setBank(BankType.ING_V1);
-        b.setBookingDate(LocalDate.now());
+        b.setBookingDate(date);
         b.setPurpose("p");
         b.setCounterparty("c");
         b.setAmount(1L);

@@ -7,7 +7,6 @@ import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,7 +24,7 @@ class BankTransactionRepositoryTest {
     private AccountRepository accountRepository;
 
     @Test
-    void findAllDatasReturnsSavedMaps() {
+    void findAllDatasReturnsSavedStrings() {
         Account account = new Account();
         account.setLabel("acc");
         account.setStartBalance(0L);
@@ -38,7 +37,7 @@ class BankTransactionRepositoryTest {
         bt1.setPurpose("p1");
         bt1.setCounterparty("c1");
         bt1.setAmount(1L);
-        bt1.setData(Map.of("k1", "v1"));
+        bt1.setData("d1");
 
         BankTransaction bt2 = new BankTransaction();
         bt2.setBank(BankType.ING_V1);
@@ -47,13 +46,13 @@ class BankTransactionRepositoryTest {
         bt2.setPurpose("p2");
         bt2.setCounterparty("c2");
         bt2.setAmount(2L);
-        bt2.setData(Map.of("k2", "v2"));
+        bt2.setData("d2");
 
         repository.save(bt1);
         repository.save(bt2);
 
-        List<Map<String, String>> result = repository.findAllDatas();
+        List<String> result = repository.findAllDatas();
 
-        assertThat(result).containsExactlyInAnyOrder(bt1.getData(), bt2.getData());
+        assertThat(result).containsExactlyInAnyOrder("d1", "d2");
     }
 }
