@@ -17,7 +17,10 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class TransactionServiceTest {
     private CategoryService categoryService;
@@ -46,7 +49,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testFindFiltered() {
+    void findFilteredSortsResults() {
         List<Long> accountIds = List.of(1L);
         List<Long> categoryIds = List.of(2L);
         List<Long> extendedCategoryIds = List.of(2L, 3L);
@@ -80,7 +83,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testFindFilteredNullParameters() {
+    void findFilteredReturnsEmptyWhenParametersAreNull() {
         when(categoryService.collectChildCategoryIdsRecursively(null)).thenReturn(null);
         when(transactionRepository.findFiltered(null, null, null, null)).thenReturn(List.of());
 
@@ -89,31 +92,32 @@ class TransactionServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    @Test
-    void testFindByIdFound() {
-        Transaction t = new Transaction();
-        t.setId(7L);
-        TransactionDTO dto = new TransactionDTO();
-        when(transactionRepository.findById(7L)).thenReturn(Optional.of(t));
-        when(transactionMapper.toDto(t)).thenReturn(dto);
+    @Nested
+    class FindById {
+        @ParameterizedTest
+        @CsvSource({"7,true", "8,false"})
+        void returnsOptionalDependingOnRepository(long id, boolean exists) {
+            Transaction entity = new Transaction();
+            TransactionDTO dto = new TransactionDTO();
 
-        Optional<TransactionDTO> result = service.findById(7L);
+            if (exists) {
+                when(transactionRepository.findById(id)).thenReturn(Optional.of(entity));
+                when(transactionMapper.toDto(entity)).thenReturn(dto);
+            } else {
+                when(transactionRepository.findById(id)).thenReturn(Optional.empty());
+            }
 
-        assertTrue(result.isPresent());
-        assertEquals(dto, result.get());
+            Optional<TransactionDTO> result = service.findById(id);
+
+            assertEquals(exists, result.isPresent());
+            if (exists) {
+                assertEquals(dto, result.get());
+            }
+        }
     }
 
     @Test
-    void testFindByIdNotFound() {
-        when(transactionRepository.findById(8L)).thenReturn(Optional.empty());
-
-        Optional<TransactionDTO> result = service.findById(8L);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testSave() {
+    void saveMapsAndPersistsEntity() {
         TransactionDTO dtoIn = new TransactionDTO();
         Transaction entity = new Transaction();
         Transaction saved = new Transaction();
@@ -131,14 +135,14 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testDeleteById() {
+    void deleteByIdRemovesEntityAndSuggestions() {
         service.deleteById(11L);
         verify(suggestionService).removeForTransaction(11L);
         verify(transactionRepository).deleteById(11L);
     }
 
     @Test
-    void testSaveInvokesSuggestionUpdate() {
+    void saveTriggersSuggestionUpdate() {
         TransactionDTO dto = new TransactionDTO();
         Transaction entity = new Transaction();
         Transaction saved = new Transaction();
