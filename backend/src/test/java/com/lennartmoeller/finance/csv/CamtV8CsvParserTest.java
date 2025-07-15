@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.csv;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -44,5 +45,20 @@ class CamtV8CsvParserTest {
         List<BankTransaction> result = parser.parse(Map.of());
 
         assertThat(result).containsExactly((BankTransaction) null);
+    }
+
+    @Test
+    void throwsForInvalidAmount() throws IOException {
+        String csv =
+                "\"Auftragskonto\";\"Buchungstag\";\"Valutadatum\";\"Buchungstext\";\"Verwendungszweck\";\"Glaeubiger ID\";\"Mandatsreferenz\";\"Kundenreferenz(End-to-End)\";\"Sammlerreferenz\";\"Lastschrift Ursprungsbetrag\";\"Auslagenersatz Ruecklastschrift\";\"Beguenstigter/Zahlungspflichtiger\";\"Kontonummer/IBAN\";\"BIC (SWIFT-Code)\";\"Betrag\";\"Waehrung\";\"Info\"\n"
+                        + "DE12;01.01.24;01.01.24;Text;Purpose;CID;MID;CR;Collector;O;F;Counter;DE55;BIC;abc;EUR;Info";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        CamtV8CsvParser parser = new CamtV8CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
+
+        assertThatThrownBy(() -> parser.parse(Map.of("DE12", acc)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid amount");
     }
 }

@@ -1,6 +1,7 @@
 package com.lennartmoeller.finance.csv;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
@@ -44,5 +45,38 @@ class IngV1CsvParserTest {
         List<BankTransaction> result = parser.parse(Map.of());
 
         assertThat(result).containsExactly((BankTransaction) null);
+    }
+
+    @Test
+    void throwsForMissingDataHeader() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Header1\nHeader2\nIBAN;DE12\n");
+        for (int i = 0; i < 20; i++) {
+            sb.append('x').append('\n');
+        }
+        MockMultipartFile file = new MockMultipartFile("f", sb.toString().getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
+        Map<String, Account> map = Map.of("DE12", acc);
+
+        assertThatThrownBy(() -> parser.parse(map))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No header line");
+    }
+
+    @Test
+    void throwsForInvalidAmount() throws IOException {
+        String csv = "Header1\nHeader2\nIBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;abc;EUR";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
+
+        assertThatThrownBy(() -> parser.parse(Map.of("DE12", acc)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid amount");
     }
 }

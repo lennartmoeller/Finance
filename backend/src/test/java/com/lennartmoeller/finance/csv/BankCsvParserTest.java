@@ -29,6 +29,11 @@ class BankCsvParserTest {
         void splitsSemicolonSeparatedLine(String line, String a, String b, String c) {
             assertThat(BankCsvParser.parseLine(line)).containsExactly(a, b, c);
         }
+
+        @Test
+        void ignoresTrailingDelimiter() {
+            assertThat(BankCsvParser.parseLine("A;B;C;")).containsExactly("A", "B", "C");
+        }
     }
 
     @Nested
