@@ -15,8 +15,9 @@ public class AccountBalanceService {
 
     public List<AccountBalanceDTO> findAll() {
         return accountRepository.getAccountBalances().stream()
-                .sorted(Comparator.comparing(AccountBalanceProjection::getTransactionCount)
-                        .reversed())
+                .sorted(Comparator.comparing(AccountBalanceProjection::getActive)
+                        .reversed()
+                        .thenComparing(AccountBalanceProjection::getTransactionCount, Comparator.reverseOrder()))
                 .map(accountBalanceProjection -> {
                     AccountBalanceDTO accountBalanceDTO = new AccountBalanceDTO();
                     accountBalanceDTO.setAccountId(accountBalanceProjection.getAccountId());

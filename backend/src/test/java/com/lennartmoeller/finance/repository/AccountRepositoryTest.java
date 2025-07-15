@@ -70,11 +70,13 @@ class AccountRepositoryTest {
         assertEquals(a1.getId(), b1.getAccountId());
         assertEquals(140L, b1.getBalance());
         assertEquals(2L, b1.getTransactionCount());
+        assertEquals(true, b1.getActive());
 
         AccountBalanceProjection b2 = balances.get(1);
         assertEquals(a2.getId(), b2.getAccountId());
         assertEquals(220L, b2.getBalance());
         assertEquals(1L, b2.getTransactionCount());
+        assertEquals(true, b2.getActive());
 
         Long summed = accountRepository.getSummedStartBalance();
         assertEquals(300L, summed);
