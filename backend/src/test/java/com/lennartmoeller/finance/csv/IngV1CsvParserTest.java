@@ -1,104 +1,132 @@
 package com.lennartmoeller.finance.csv;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.lennartmoeller.finance.dto.IngV1TransactionDTO;
+import com.lennartmoeller.finance.model.Account;
+import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.model.BankType;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.mock.web.MockMultipartFile;
 
 class IngV1CsvParserTest {
-
     @Test
-    void shouldReturnEmptyWhenHeaderIsMissing() {
-        String csv = "IBAN;DE12\nfoo";
-        IngV1CsvParser parser = new IngV1CsvParser();
+    void parsesValidFile() throws IOException {
+        String csv = "Header1\nHeader2\nIBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
+        Map<String, Account> map = Map.of("DE12", acc);
 
-        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        List<BankTransaction> result = parser.parse(map);
 
-        assertThat(result).isEmpty();
+        assertThat(result).hasSize(1);
+        BankTransaction bt = result.getFirst();
+        assertThat(bt.getBank()).isEqualTo(BankType.ING_V1);
+        assertThat(bt.getAccount()).isSameAs(acc);
+        assertThat(bt.getPurpose()).isEqualTo("Purpose");
+        assertThat(bt.getData()).contains("Counter");
     }
 
     @Test
-    void shouldParseTransactionAndSanitizeIban() {
-        String csv =
-                """
-                Umsatzanzeige;Datei
-                IBAN;DE12 3456 7890 1234 5678 90
-                Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
-                01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR
-                """;
-        IngV1CsvParser parser = new IngV1CsvParser();
+    void returnsNullEntityWhenAccountMissing() throws IOException {
+        String csv = "Header1\nHeader2\nIBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
 
-        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        List<BankTransaction> result = parser.parse(Map.of());
 
-        assertThat(result).hasSize(1);
-        IngV1TransactionDTO dto = result.getFirst();
-        assertThat(dto.getBank()).isEqualTo(BankType.ING_V1);
-        assertThat(dto.getIban()).isEqualTo("DE12345678901234567890");
-        assertThat(dto.getBookingDate()).isEqualTo(LocalDate.of(2025, 1, 1));
-        assertThat(dto.getBalance()).isEqualTo(10000L);
-        assertThat(dto.getAmount()).isEqualTo(500L);
+        assertThat(result).containsExactly((BankTransaction) null);
     }
 
     @Test
-    void shouldHandleDuplicateHeadersAndSkipInvalidLines() {
-        String csv =
-                """
-                IBAN;DE12
-                Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung;Währung
+    void throwsForMissingDataHeader() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Header1\nHeader2\nIBAN;DE12\n");
+        for (int i = 0; i < 20; i++) {
+            sb.append('x').append('\n');
+        }
+        MockMultipartFile file = new MockMultipartFile("f", sb.toString().getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
+        Map<String, Account> map = Map.of("DE12", acc);
 
-                01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR;EUR
-                01.01;01.01
-                """; // invalid
-        IngV1CsvParser parser = new IngV1CsvParser();
-
-        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-
-        assertThat(result).hasSize(1);
-        IngV1TransactionDTO dto = result.getFirst();
-        assertThat(dto.getData()).containsEntry("Währung", "EUR");
-        assertThat(dto.getData()).containsEntry("Währung_9", "EUR");
+        assertThatThrownBy(() -> parser.parse(map))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No header line");
     }
 
     @Test
-    void shouldUseEmptyIbanWhenNotPresent() {
-        String csv =
-                """
-                Header
-                Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
-                01.01.2025;01.01.2025;Counter;Text;Purpose;-100,00;EUR;-5,00;EUR
-                """;
-        IngV1CsvParser parser = new IngV1CsvParser();
+    void throwsForInvalidAmount() throws IOException {
+        String csv = "Header1\nHeader2\nIBAN;DE12\n"
+                + "Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\n"
+                + "01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;abc;EUR";
+        MockMultipartFile file = new MockMultipartFile("f", csv.getBytes());
+        IngV1CsvParser parser = new IngV1CsvParser(file);
+        Account acc = new Account();
+        acc.setIban("DE12");
 
-        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
-
-        assertThat(result).hasSize(1);
-        IngV1TransactionDTO dto = result.getFirst();
-        assertThat(dto.getIban()).isEmpty();
-        assertThat(dto.getAmount()).isEqualTo(-500L);
-        assertThat(dto.getBalance()).isEqualTo(-10000L);
-        assertThat(dto.getData()).containsEntry("IBAN", "");
+        assertThatThrownBy(() -> parser.parse(Map.of("DE12", acc)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid amount");
     }
 
-    @Test
-    void shouldSkipBlankAndMalformedLines() {
-        String csv =
-                """
-                IBAN;DE12
-                Buchung;Wertstellungsdatum;Auftraggeber;Buchungstext;Verwendungszweck;Saldo;Währung;Betrag;Währung
+    @Nested
+    class InternalFunctions {
+        private String buildCsv(String ibanLine, String headerLine, boolean addDataHeader) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("H1\nH2\n").append(ibanLine).append('\n');
+            for (int i = 0; i < 10; i++) {
+                sb.append('x').append('\n');
+            }
+            sb.append(headerLine);
+            if (addDataHeader) {
+                sb.append('\n').append("Buchung;data");
+            }
+            return sb.toString();
+        }
 
-                01.01.2025;01.01.2025;Counter;Text;Purpose;100,00;EUR;5,00;EUR
-                02.01.2025;02.01.2025;Counter;Text
-                """; // malformed
-        IngV1CsvParser parser = new IngV1CsvParser();
+        @Test
+        void validatesHeaderLines() throws IOException {
+            String header =
+                    "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv("IBAN;DE12", header, false);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+            assertThat(parser.isValid()).isTrue();
+        }
 
-        List<IngV1TransactionDTO> result = parser.parse(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)));
+        @ParameterizedTest
+        @CsvSource({"WRONG;DE12,false", "IBAN;DE12,true"})
+        void invalidCombinationsReturnFalse(String ibanLine, boolean wrongHeader) throws IOException {
+            String header = wrongHeader
+                    ? "WRONG"
+                    : "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv(ibanLine, header, false);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+            assertThat(parser.isValid()).isFalse();
+        }
 
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getBookingDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        @Test
+        void extractsHeaderAndFindsDataStart() throws IOException {
+            String header =
+                    "\"Buchung;Wertstellungsdatum;Auftraggeber/Empf\uFFFDnger;Buchungstext;Verwendungszweck;Saldo;W\uFFFDhrung;Betrag;W\uFFFDhrung\"";
+            String csv = buildCsv("IBAN;DE55", header, true);
+            IngV1CsvParser parser = new IngV1CsvParser(new MockMultipartFile("f", csv.getBytes()));
+
+            assertThat(parser.extractHeader()).containsEntry("IBAN", "DE55");
+            assertThat(parser.getDataStartLineIndex()).isEqualTo(15);
+        }
     }
 }
