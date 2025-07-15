@@ -1,6 +1,6 @@
 package com.lennartmoeller.finance.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,6 +10,7 @@ import com.lennartmoeller.finance.model.Account;
 import com.lennartmoeller.finance.model.BankTransaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.BankTransactionRepository;
+import com.lennartmoeller.finance.testbuilder.BankTransactionBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,13 @@ class BankCsvImportServiceTest {
     private TransactionLinkSuggestionService suggestionService;
     private BankCsvImportService service;
 
+    private static Account account(long id) {
+        Account a = new Account();
+        a.setId(id);
+        a.setIban("DE" + id);
+        return a;
+    }
+
     @BeforeEach
     void setUp() {
         repository = Mockito.mock(BankTransactionRepository.class);
@@ -33,33 +41,69 @@ class BankCsvImportServiceTest {
         service = new BankCsvImportService(accountRepository, repository, suggestionService);
     }
 
-    @Test
-    void savesNewTransactionsAndCountsDuplicates() throws IOException {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.MethodSource("duplicateTransactions")
+    void countsDuplicates(BankTransaction existing, BankTransaction incoming) throws IOException {
         MultipartFile file = Mockito.mock(MultipartFile.class);
-        Account account = new Account();
-        account.setId(1L);
-        account.setIban("DE");
+        Account account = existing.getAccount();
         when(accountRepository.findByIbanIsNotNull()).thenReturn(List.of(account));
-        BankTransaction t1 = new BankTransaction();
-        t1.setAccount(account);
-        t1.setBookingDate(java.time.LocalDate.now());
-        t1.setPurpose("p");
-        t1.setCounterparty("c");
-        t1.setAmount(1L);
-        t1.setData("d1");
         try (MockedStatic<BankCsvParser> mock = Mockito.mockStatic(BankCsvParser.class)) {
-            mock.when(() -> BankCsvParser.parse(file, Map.of("DE", account))).thenReturn(List.of(t1));
-            when(repository.findAll()).thenReturn(List.of(t1));
+            mock.when(() -> BankCsvParser.parse(file, Map.of(account.getIban(), account)))
+                    .thenReturn(List.of(incoming));
+            when(repository.findAll()).thenReturn(List.of(existing));
             when(repository.saveAll(List.of())).thenReturn(List.of());
 
             BankCsvImportStatsDTO stats = service.importCsv(file);
 
-            assertEquals(0, stats.getImports());
-            assertEquals(1, stats.getDuplicates());
-            assertEquals(0, stats.getErrors());
+            assertThat(stats.getImports()).isZero();
+            assertThat(stats.getDuplicates()).isEqualTo(1);
+            assertThat(stats.getErrors()).isZero();
             verify(repository).saveAll(List.of());
             verify(suggestionService).updateAllFor(List.of(), null);
         }
+    }
+
+    private static java.util.stream.Stream<org.junit.jupiter.params.provider.Arguments> duplicateTransactions() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        Account a1 = account(1L);
+        BankTransaction existingSameData = BankTransactionBuilder.aBankTransaction()
+                .withAccount(a1)
+                .withBookingDate(today)
+                .withPurpose("p")
+                .withCounterparty("c")
+                .withAmount(1L)
+                .withData("d1")
+                .build();
+        BankTransaction incomingSameData = BankTransactionBuilder.aBankTransaction()
+                .withAccount(a1)
+                .withBookingDate(today.plusDays(1))
+                .withPurpose("other")
+                .withCounterparty("other")
+                .withAmount(2L)
+                .withData("d1")
+                .build();
+
+        Account a2 = account(2L);
+        BankTransaction existingFields = BankTransactionBuilder.aBankTransaction()
+                .withAccount(a2)
+                .withBookingDate(today)
+                .withPurpose("p1")
+                .withCounterparty("c1")
+                .withAmount(1L)
+                .withData("old")
+                .build();
+        BankTransaction incomingFields = BankTransactionBuilder.aBankTransaction()
+                .withAccount(a2)
+                .withBookingDate(today)
+                .withPurpose("p1")
+                .withCounterparty("c1")
+                .withAmount(1L)
+                .withData("newData")
+                .build();
+
+        return java.util.stream.Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(existingSameData, incomingSameData),
+                org.junit.jupiter.params.provider.Arguments.of(existingFields, incomingFields));
     }
 
     @Test
@@ -74,79 +118,46 @@ class BankCsvImportServiceTest {
 
             BankCsvImportStatsDTO stats = service.importCsv(file);
 
-            assertEquals(0, stats.getImports());
-            assertEquals(0, stats.getDuplicates());
-            assertEquals(1, stats.getErrors());
+            assertThat(stats.getImports()).isZero();
+            assertThat(stats.getDuplicates()).isZero();
+            assertThat(stats.getErrors()).isEqualTo(1);
         }
     }
 
     @Test
     void importsNewTransactions() throws IOException {
         MultipartFile file = Mockito.mock(MultipartFile.class);
-        Account account = new Account();
-        account.setId(1L);
-        account.setIban("DE");
+        Account account = account(1L);
         when(accountRepository.findByIbanIsNotNull()).thenReturn(List.of(account));
-        BankTransaction t1 = new BankTransaction();
-        t1.setAccount(account);
-        t1.setBookingDate(java.time.LocalDate.now());
-        t1.setPurpose("p1");
-        t1.setCounterparty("c1");
-        t1.setAmount(1L);
-        t1.setData("d1");
-        BankTransaction t2 = new BankTransaction();
-        t2.setAccount(account);
-        t2.setBookingDate(java.time.LocalDate.now());
-        t2.setPurpose("p2");
-        t2.setCounterparty("c2");
-        t2.setAmount(2L);
-        t2.setData("d2");
+        BankTransaction t1 = BankTransactionBuilder.aBankTransaction()
+                .withAccount(account)
+                .withBookingDate(java.time.LocalDate.now())
+                .withPurpose("p1")
+                .withCounterparty("c1")
+                .withAmount(1L)
+                .withData("d1")
+                .build();
+        BankTransaction t2 = BankTransactionBuilder.aBankTransaction()
+                .withAccount(account)
+                .withBookingDate(java.time.LocalDate.now())
+                .withPurpose("p2")
+                .withCounterparty("c2")
+                .withAmount(2L)
+                .withData("d2")
+                .build();
         try (MockedStatic<BankCsvParser> mock = Mockito.mockStatic(BankCsvParser.class)) {
-            mock.when(() -> BankCsvParser.parse(file, Map.of("DE", account))).thenReturn(List.of(t1, t2));
+            mock.when(() -> BankCsvParser.parse(file, Map.of(account.getIban(), account)))
+                    .thenReturn(List.of(t1, t2));
             when(repository.findAll()).thenReturn(List.of());
             when(repository.saveAll(List.of(t1, t2))).thenReturn(List.of(t1, t2));
 
             BankCsvImportStatsDTO stats = service.importCsv(file);
 
-            assertEquals(2, stats.getImports());
-            assertEquals(0, stats.getDuplicates());
-            assertEquals(0, stats.getErrors());
+            assertThat(stats.getImports()).isEqualTo(2);
+            assertThat(stats.getDuplicates()).isZero();
+            assertThat(stats.getErrors()).isZero();
             verify(repository).saveAll(List.of(t1, t2));
             verify(suggestionService).updateAllFor(List.of(t1, t2), null);
-        }
-    }
-
-    @Test
-    void detectsDuplicatesByFieldsWithoutSameData() throws IOException {
-        MultipartFile file = Mockito.mock(MultipartFile.class);
-        Account account = new Account();
-        account.setId(1L);
-        account.setIban("DE");
-        when(accountRepository.findByIbanIsNotNull()).thenReturn(List.of(account));
-        BankTransaction existing = new BankTransaction();
-        existing.setAccount(account);
-        existing.setBookingDate(java.time.LocalDate.now());
-        existing.setPurpose("p1");
-        existing.setCounterparty("c1");
-        existing.setAmount(1L);
-        existing.setData("old");
-        BankTransaction incoming = new BankTransaction();
-        incoming.setAccount(account);
-        incoming.setBookingDate(existing.getBookingDate());
-        incoming.setPurpose("p1");
-        incoming.setCounterparty("c1");
-        incoming.setAmount(1L);
-        incoming.setData("newData");
-        try (MockedStatic<BankCsvParser> mock = Mockito.mockStatic(BankCsvParser.class)) {
-            mock.when(() -> BankCsvParser.parse(file, Map.of("DE", account))).thenReturn(List.of(incoming));
-            when(repository.findAll()).thenReturn(List.of(existing));
-            when(repository.saveAll(List.of())).thenReturn(List.of());
-
-            BankCsvImportStatsDTO stats = service.importCsv(file);
-
-            assertEquals(0, stats.getImports());
-            assertEquals(1, stats.getDuplicates());
-            assertEquals(0, stats.getErrors());
         }
     }
 
