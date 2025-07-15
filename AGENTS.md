@@ -32,7 +32,6 @@ This Agents.md file provides comprehensive guidance for AI agents working with t
 
 - **Other Files**
   - `Makefile` contains a task to enable git hooks.
-  - `backend/src/main/resources/import.sql` seeds sample data on startup.
 
 ## Coding Guidelines
 
