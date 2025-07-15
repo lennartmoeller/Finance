@@ -23,8 +23,12 @@ import com.lennartmoeller.finance.repository.TransactionLinkSuggestionRepository
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 class TransactionLinkSuggestionServiceTest {
@@ -65,27 +69,10 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testGenerateSuggestions() {
-        Account account = new Account();
-        account.setId(10L);
-        account.setIban("DE");
-
-        BankTransaction bank = new BankTransaction();
-        bank.setId(1L);
-        bank.setAccount(account);
-        bank.setAmount(100L);
-        bank.setBookingDate(LocalDate.of(2024, 1, 2));
-
-        Transaction t1 = new Transaction();
-        t1.setId(2L);
-        t1.setAccount(account);
-        t1.setAmount(100L);
-        t1.setDate(LocalDate.of(2024, 1, 2));
-
-        Transaction t2 = new Transaction();
-        t2.setId(3L);
-        t2.setAccount(account);
-        t2.setAmount(100L);
-        t2.setDate(LocalDate.of(2024, 1, 5));
+        Account account = account(10L);
+        BankTransaction bank = bankTransaction(1L, account, 100L, LocalDate.of(2024, 1, 2));
+        Transaction t1 = transaction(2L, account, 100L, LocalDate.of(2024, 1, 2));
+        Transaction t2 = transaction(3L, account, 100L, LocalDate.of(2024, 1, 5));
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
         when(transactionRepository.findAll()).thenReturn(List.of(t1, t2));
@@ -117,21 +104,9 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testUpdateAllForSkipsExisting() {
-        Account account = new Account();
-        account.setId(20L);
-        account.setIban("DE");
-
-        BankTransaction bank = new BankTransaction();
-        bank.setId(21L);
-        bank.setAccount(account);
-        bank.setAmount(50L);
-        bank.setBookingDate(LocalDate.of(2024, 2, 2));
-
-        Transaction transaction = new Transaction();
-        transaction.setId(22L);
-        transaction.setAccount(account);
-        transaction.setAmount(50L);
-        transaction.setDate(LocalDate.of(2024, 2, 3));
+        Account account = account(20L);
+        BankTransaction bank = bankTransaction(21L, account, 50L, LocalDate.of(2024, 2, 2));
+        Transaction transaction = transaction(22L, account, 50L, LocalDate.of(2024, 2, 3));
 
         when(bankTransactionRepository.findAll()).thenReturn(List.of(bank));
         when(transactionRepository.findAll()).thenReturn(List.of(transaction));
@@ -185,19 +160,10 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testUpdateAllForTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(40L);
-
-        BankTransaction bt = new BankTransaction();
-        bt.setId(41L);
-        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
-        undecided.setLinkState(TransactionLinkState.UNDECIDED);
-        undecided.setBankTransaction(bt);
-        undecided.setTransaction(transaction);
-        TransactionLinkSuggestion confirmed = new TransactionLinkSuggestion();
-        confirmed.setLinkState(TransactionLinkState.CONFIRMED);
-        confirmed.setBankTransaction(bt);
-        confirmed.setTransaction(transaction);
+        Transaction transaction = transaction(40L, null, 0L, LocalDate.now());
+        BankTransaction bt = bankTransaction(41L, null, 0L, LocalDate.now());
+        TransactionLinkSuggestion undecided = suggestion(TransactionLinkState.UNDECIDED, bt, transaction);
+        TransactionLinkSuggestion confirmed = suggestion(TransactionLinkState.CONFIRMED, bt, transaction);
 
         when(repository.findAllByBankTransactionIdsOrTransactionIds(null, List.of(40L)))
                 .thenReturn(new java.util.ArrayList<>(List.of(undecided, confirmed)));
@@ -212,22 +178,13 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testUpdateAllForBankTransaction() {
-        BankTransaction bankTransaction = new BankTransaction();
-        bankTransaction.setId(50L);
-        bankTransaction.setBookingDate(LocalDate.now());
-        bankTransaction.setAmount(1L);
-        Account account = new Account();
-        account.setId(1L);
-        bankTransaction.setAccount(account);
+        Account account = account(1L);
+        BankTransaction bankTransaction = bankTransaction(50L, account, 1L, LocalDate.now());
 
-        TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
-        auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
-        auto.setBankTransaction(bankTransaction);
-        auto.setTransaction(new Transaction());
-        TransactionLinkSuggestion rejected = new TransactionLinkSuggestion();
-        rejected.setLinkState(TransactionLinkState.REJECTED);
-        rejected.setBankTransaction(bankTransaction);
-        rejected.setTransaction(new Transaction());
+        TransactionLinkSuggestion auto =
+                suggestion(TransactionLinkState.AUTO_CONFIRMED, bankTransaction, new Transaction());
+        TransactionLinkSuggestion rejected =
+                suggestion(TransactionLinkState.REJECTED, bankTransaction, new Transaction());
 
         when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(50L), null))
                 .thenReturn(new java.util.ArrayList<>(List.of(auto, rejected)));
@@ -242,20 +199,9 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testGenerateSuggestionsUsesProvidedLists() {
-        Account account = new Account();
-        account.setId(1L);
-
-        Transaction t = new Transaction();
-        t.setId(1L);
-        t.setAccount(account);
-        t.setAmount(5L);
-        t.setDate(LocalDate.now());
-
-        BankTransaction b = new BankTransaction();
-        b.setId(2L);
-        b.setAccount(account);
-        b.setAmount(5L);
-        b.setBookingDate(LocalDate.now());
+        Account account = account(1L);
+        Transaction t = transaction(1L, account, 5L, LocalDate.now());
+        BankTransaction b = bankTransaction(2L, account, 5L, LocalDate.now());
         when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(2L), List.of(1L)))
                 .thenReturn(new java.util.ArrayList<>());
         when(bankTransactionRepository.findAll()).thenReturn(List.of(b));
@@ -268,18 +214,19 @@ class TransactionLinkSuggestionServiceTest {
         assertEquals(1, result.size());
     }
 
-    @Test
-    void testUpdateAllForTransactionsNoInput() {
-        service.updateAllFor(null, null);
-        service.updateAllFor(null, List.of());
+    @ParameterizedTest
+    @MethodSource("emptyUpdateInputs")
+    void testUpdateAllForNoInput(List<BankTransaction> bankTransactions, List<Transaction> transactions) {
+        service.updateAllFor(bankTransactions, transactions);
         verifyNoInteractions(repository);
     }
 
-    @Test
-    void testUpdateAllForBankTransactionsNoInput() {
-        service.updateAllFor(null, null);
-        service.updateAllFor(List.of(), null);
-        verifyNoInteractions(repository);
+    private static Stream<org.junit.jupiter.params.provider.Arguments> emptyUpdateInputs() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(null, null),
+                org.junit.jupiter.params.provider.Arguments.of(null, List.of()),
+                org.junit.jupiter.params.provider.Arguments.of(List.of(), null),
+                org.junit.jupiter.params.provider.Arguments.of(List.of(), List.of()));
     }
 
     @Test
@@ -313,20 +260,14 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void testUpdateLinkState() {
-        TransactionLinkSuggestion suggestion = new TransactionLinkSuggestion();
-        BankTransaction sbt = new BankTransaction();
-        sbt.setId(1L);
-        suggestion.setBankTransaction(sbt);
-        Transaction st = new Transaction();
-        st.setId(1L);
-        suggestion.setTransaction(st);
-        TransactionLinkSuggestion saved = new TransactionLinkSuggestion();
-        BankTransaction dbt = new BankTransaction();
-        dbt.setId(1L);
-        saved.setBankTransaction(dbt);
-        Transaction dt = new Transaction();
-        dt.setId(1L);
-        saved.setTransaction(dt);
+        TransactionLinkSuggestion suggestion = suggestion(
+                TransactionLinkState.UNDECIDED,
+                bankTransaction(1L, null, 0L, LocalDate.now()),
+                transaction(1L, null, 0L, LocalDate.now()));
+        TransactionLinkSuggestion saved = suggestion(
+                TransactionLinkState.UNDECIDED,
+                bankTransaction(1L, null, 0L, LocalDate.now()),
+                transaction(1L, null, 0L, LocalDate.now()));
         TransactionLinkSuggestionDTO dto = new TransactionLinkSuggestionDTO();
         when(repository.findById(12L)).thenReturn(java.util.Optional.of(suggestion));
         when(repository.save(suggestion)).thenReturn(saved);
@@ -338,38 +279,28 @@ class TransactionLinkSuggestionServiceTest {
         assertEquals(TransactionLinkState.CONFIRMED, suggestion.getLinkState());
     }
 
-    @Test
-    void testUpdateLinkStateRejectsAutoStates() {
-        assertThrows(
-                IllegalArgumentException.class, () -> service.updateLinkState(1L, TransactionLinkState.AUTO_CONFIRMED));
+    @ParameterizedTest
+    @EnumSource(
+            value = TransactionLinkState.class,
+            names = {"AUTO_CONFIRMED", "AUTO_REJECTED"})
+    void testUpdateLinkStateRejectsAutoStates(TransactionLinkState state) {
+        assertThrows(IllegalArgumentException.class, () -> service.updateLinkState(1L, state));
     }
 
     @Test
     void updateLinkStateRejectsOtherSuggestionsWhenOneConfirmedExists() {
-        BankTransaction bankTransaction = new BankTransaction();
-        bankTransaction.setId(1L);
-        Transaction t1 = new Transaction();
-        t1.setId(1L);
-        Transaction t2 = new Transaction();
-        t2.setId(2L);
+        BankTransaction bankTransaction = bankTransaction(1L, null, 0L, LocalDate.now());
+        Transaction t1 = transaction(1L, null, 0L, LocalDate.now());
+        Transaction t2 = transaction(2L, null, 0L, LocalDate.now());
 
-        TransactionLinkSuggestion toUpdate = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion toUpdate = suggestion(TransactionLinkState.UNDECIDED, bankTransaction, t1);
         toUpdate.setId(10L);
-        toUpdate.setBankTransaction(bankTransaction);
-        toUpdate.setTransaction(t1);
-        toUpdate.setLinkState(TransactionLinkState.UNDECIDED);
 
-        TransactionLinkSuggestion alreadyConfirmed = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion alreadyConfirmed = suggestion(TransactionLinkState.CONFIRMED, bankTransaction, t2);
         alreadyConfirmed.setId(11L);
-        alreadyConfirmed.setBankTransaction(bankTransaction);
-        alreadyConfirmed.setTransaction(t2);
-        alreadyConfirmed.setLinkState(TransactionLinkState.CONFIRMED);
 
-        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion undecided = suggestion(TransactionLinkState.UNDECIDED, bankTransaction, t2);
         undecided.setId(12L);
-        undecided.setBankTransaction(bankTransaction);
-        undecided.setTransaction(t2);
-        undecided.setLinkState(TransactionLinkState.UNDECIDED);
 
         when(repository.findById(10L)).thenReturn(java.util.Optional.of(toUpdate));
         when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(1L), List.of(1L)))
@@ -395,30 +326,18 @@ class TransactionLinkSuggestionServiceTest {
 
     @Test
     void updateLinkStateAutoConfirmedDominatesWhenNoConfirmedSuggestions() {
-        BankTransaction bankTransaction = new BankTransaction();
-        bankTransaction.setId(2L);
-        Transaction t1 = new Transaction();
-        t1.setId(3L);
-        Transaction t2 = new Transaction();
-        t2.setId(4L);
+        BankTransaction bankTransaction = bankTransaction(2L, null, 0L, LocalDate.now());
+        Transaction t1 = transaction(3L, null, 0L, LocalDate.now());
+        Transaction t2 = transaction(4L, null, 0L, LocalDate.now());
 
-        TransactionLinkSuggestion toUpdate = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion toUpdate = suggestion(TransactionLinkState.CONFIRMED, bankTransaction, t1);
         toUpdate.setId(20L);
-        toUpdate.setBankTransaction(bankTransaction);
-        toUpdate.setTransaction(t1);
-        toUpdate.setLinkState(TransactionLinkState.CONFIRMED);
 
-        TransactionLinkSuggestion auto = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion auto = suggestion(TransactionLinkState.AUTO_CONFIRMED, bankTransaction, t2);
         auto.setId(21L);
-        auto.setBankTransaction(bankTransaction);
-        auto.setTransaction(t2);
-        auto.setLinkState(TransactionLinkState.AUTO_CONFIRMED);
 
-        TransactionLinkSuggestion undecided = new TransactionLinkSuggestion();
+        TransactionLinkSuggestion undecided = suggestion(TransactionLinkState.UNDECIDED, bankTransaction, t2);
         undecided.setId(22L);
-        undecided.setBankTransaction(bankTransaction);
-        undecided.setTransaction(t2);
-        undecided.setLinkState(TransactionLinkState.UNDECIDED);
 
         when(repository.findById(20L)).thenReturn(java.util.Optional.of(toUpdate));
         when(repository.findAllByBankTransactionIdsOrTransactionIds(List.of(2L), List.of(3L)))
@@ -457,11 +376,36 @@ class TransactionLinkSuggestionServiceTest {
         verify(repository, never()).save(any());
     }
 
-    @Test
-    void testUpdateAllForEmptyLists() {
-        List<TransactionLinkSuggestionDTO> result = service.updateAllFor(null, null);
+    private static Account account(long id) {
+        Account a = new Account();
+        a.setId(id);
+        a.setIban("DE" + id);
+        return a;
+    }
 
-        assertTrue(result.isEmpty());
-        verifyNoInteractions(repository);
+    private static BankTransaction bankTransaction(long id, Account account, long amount, LocalDate date) {
+        BankTransaction bt = new BankTransaction();
+        bt.setId(id);
+        bt.setAccount(account);
+        bt.setAmount(amount);
+        bt.setBookingDate(date);
+        return bt;
+    }
+
+    private static Transaction transaction(long id, Account account, long amount, LocalDate date) {
+        Transaction t = new Transaction();
+        t.setId(id);
+        t.setAccount(account);
+        t.setAmount(amount);
+        t.setDate(date);
+        return t;
+    }
+
+    private static TransactionLinkSuggestion suggestion(TransactionLinkState state, BankTransaction bt, Transaction t) {
+        TransactionLinkSuggestion s = new TransactionLinkSuggestion();
+        s.setLinkState(state);
+        s.setBankTransaction(bt);
+        s.setTransaction(t);
+        return s;
     }
 }
