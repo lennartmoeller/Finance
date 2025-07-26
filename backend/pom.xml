@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.4</version>
         <relativePath/>
     </parent>
     <groupId>com.lennartmoeller</groupId>
@@ -28,7 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
-        <spring.boot.version>3.5.3</spring.boot.version>
+        <spring.boot.version>3.5.4</spring.boot.version>
         <mariadb.version>3.5.4</mariadb.version>
         <lombok.version>1.18.38</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -41,7 +41,7 @@
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
         <h2database.version>2.3.232</h2database.version>
         <jacoco.version>0.8.13</jacoco.version>
-        <spotless.version>2.46.0</spotless.version>
+        <spotless.version>2.46.1</spotless.version>
         <google.code.findbugs.version>3.0.2</google.code.findbugs.version>
     </properties>
     <dependencies>
