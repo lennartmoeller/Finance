@@ -9,6 +9,7 @@ interface Transaction {
     date: Date;
     amount: number;
     description: string;
+    pinned: boolean;
 }
 
 export interface TransactionDTO {
@@ -18,6 +19,7 @@ export interface TransactionDTO {
     date: string;
     amount: number;
     description: string;
+    pinned: boolean;
 }
 
 export const emptyTransaction: Nullable<Transaction> = {
@@ -27,6 +29,7 @@ export const emptyTransaction: Nullable<Transaction> = {
     date: null,
     amount: null,
     description: null,
+    pinned: false,
 };
 
 export const transactionMapper: TypeMapper<Transaction, TransactionDTO> = {
