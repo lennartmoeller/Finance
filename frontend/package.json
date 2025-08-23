@@ -10,7 +10,7 @@
     "update": "npx ncu -u"
   },
   "dependencies": {
-    "@floating-ui/react": "0.27.13",
+    "@floating-ui/react": "0.27.16",
     "@tanstack/query-sync-storage-persister": "5.83.1",
     "@tanstack/react-query": "5.83.0",
     "@tanstack/react-query-persist-client": "5.83.0",
