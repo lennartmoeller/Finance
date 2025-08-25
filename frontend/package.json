@@ -24,7 +24,7 @@
     "react-fast-compare": "3.2.2",
     "styled-components": "6.1.19",
     "ts-deepmerge": "7.0.3",
-    "zustand": "5.0.6"
+    "zustand": "5.0.8"
   },
   "devDependencies": {
     "@babel/core": "7.28.0",
