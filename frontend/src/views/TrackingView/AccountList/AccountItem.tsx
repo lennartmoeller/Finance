@@ -9,12 +9,13 @@ import StyledAccountItemLabel from "@/views/TrackingView/AccountList/styles/Styl
 interface AccountProps {
     account: Account;
     balance: number;
+    isSelected: boolean;
 }
 
-const AccountItem: React.FC<AccountProps> = ({account, balance}: AccountProps) => {
+const AccountItem: React.FC<AccountProps> = ({account, balance, isSelected}: AccountProps) => {
 
     return (
-        <StyledAccountItem>
+        <StyledAccountItem $isSelected={isSelected}>
             <StyledAccountItemLabel>
                 {account.label}
             </StyledAccountItemLabel>

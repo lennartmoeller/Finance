@@ -7,6 +7,7 @@ const general = {
     },
     colors: {
         accent: "#3a53c0",
+        accentBackground: "#3a53c00d",
     },
 };
 
