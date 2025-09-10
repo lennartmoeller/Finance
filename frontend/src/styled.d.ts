@@ -9,6 +9,7 @@ interface Border {
 
 interface Colors {
     accent: string;
+    accentBackground: string;
 }
 
 declare module 'styled-components' {
