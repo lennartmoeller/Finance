@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
+        <version>3.5.6</version>
         <relativePath/>
     </parent>
     <groupId>com.lennartmoeller</groupId>
@@ -32,7 +32,7 @@
         <mariadb.version>3.5.6</mariadb.version>
         <lombok.version>1.18.42</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <guava.version>33.4.8-jre</guava.version>
+        <guava.version>33.5.0-jre</guava.version>
         <apache.commons.lang3.version>3.18.0</apache.commons.lang3.version>
         <apache.commons.collections4.version>4.5.0</apache.commons.collections4.version>
         <apache.commons.math3.version>3.6.1</apache.commons.math3.version>
