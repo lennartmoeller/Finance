@@ -1,4 +1,5 @@
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { type AsyncStorage } from "@tanstack/query-persist-client-core";
 import { QueryClient } from "@tanstack/react-query";
 
 export const queryClient = new QueryClient({
@@ -9,8 +10,23 @@ export const queryClient = new QueryClient({
         },
     },
 });
+const createBrowserStorage = (): AsyncStorage | undefined => {
+    if (typeof window === "undefined") {
+        return undefined;
+    }
 
-export const persister = createSyncStoragePersister({
-    storage: window.localStorage,
+    const { localStorage } = window;
+
+    return {
+        getItem: (key) => localStorage.getItem(key),
+        setItem: (key, value) => localStorage.setItem(key, value),
+        removeItem: (key) => localStorage.removeItem(key),
+    };
+};
+
+const storage = createBrowserStorage();
+
+export const persister = createAsyncStoragePersister({
+    storage,
     key: "serverStore",
 });
