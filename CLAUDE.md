@@ -17,9 +17,12 @@ This file provides comprehensive guidance for AI agents working with this codeba
 - Node 24+
 - React 19+ with TypeScript
 - styled-components for styling
-- React Query for API state management
+- TanStack Query (React Query) for server state management
+- Zustand for client-side state management
 - Webpack for bundling
 - Chart.js for data visualization
+- Framer Motion for animations
+- Fuse.js for fuzzy search
 
 ## Project Structure
 
@@ -52,9 +55,9 @@ UI structure is organized into:
 - `components/` – reusable UI elements (buttons, forms, tables).
 - `skeleton/` – layout shell and route definitions (see `routes.tsx`).
 - `views/` – feature pages such as DashboardView, TrackingView, and StatsView.
-- `services/` – API hooks built on axios and React Query.
+- `services/` – API hooks built on axios and TanStack Query.
 - `types/` – TypeScript models mirroring backend DTOs.
-- `config/` – React Query client and other runtime configuration.
+- `config/` – TanStack Query client and other runtime configuration.
 - `hooks/` – shared React hooks such as DOM measurement helpers.
 - `mapper/` – client-side mappers that reshape API payloads.
 - `styles/` – global styles, theming, and scrollbar utilities for styled-components. The theme shape is typed via `styled.d.ts`, so changes to the theme should update that declaration file as well.
@@ -74,7 +77,7 @@ e2e-tests/* can be ignored.
 
 ### Data Flow
 
-1. React Query hooks in `frontend/src/services/` call backend APIs.
+1. TanStack Query hooks in `frontend/src/services/` call backend APIs.
 2. Spring controllers receive the request and delegate to services.
 3. Services orchestrate business logic and repository access.
 4. MapStruct mappers translate between JPA entities and DTOs.
@@ -111,7 +114,6 @@ There are no coding guidelines yet. Please follow common best practices.
 
 ### React
 
-There are no coding guidelines yet. Please follow common best practices.
 
 ## Pull Request Guidelines
 
