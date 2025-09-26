@@ -8,33 +8,46 @@ This Agents.md file provides comprehensive guidance for AI agents working with t
 
 This is a Spring Boot project using Maven. Key settings appear in `pom.xml`. Source code resides in `src/main/java/com/lennartmoeller/finance/`, organized into layers:
 
+- `FinanceApplication.java` – application entry point that bootstraps Spring.
 - `controller/` – REST endpoints. Example: `AccountController` exposes CRUD routes for accounts.
 - `service/` – business logic. `TransactionService` fetches filtered transactions and performs persistence operations.
 - `repository/` – Spring Data repositories for JPA entities.
 - `dto/` and `mapper/` – Data transfer objects and MapStruct mappers.
 - `model/` – JPA entities representing accounts, transactions, categories, etc.
+- `converter/` – JPA attribute converters.
+- `csv/` – bank statement parsers that import external CSV formats.
+- `projection/` – Spring Data projections for aggregated read models.
+- `util/` – shared helpers such as date ranges and smoothing utilities.
 
-Tests are under `src/test/java` and use JUnit and Mockito. Example tests verify controller behavior and model defaults.
+Tests are under `src/test/java` and use JUnit and Mockito. Shared fixtures live in `src/test/java/.../testbuilder/`, and additional resources sit in `src/test/resources`.
 
-The `mvnw` wrapper is included to run Maven commands.
+Configuration defaults are defined in `src/main/resources/application.properties`. The `mvnw` wrapper is included to run Maven commands.
 
 ### Frontend (`frontend/`)
 
-A React + TypeScript application built with Webpack. Key settings appear in `package.json` and `webpack.config.js`.
-
-The main entry point (`src/index.tsx`) renders the React app with routing and global styling.  
+A React + TypeScript application built with Webpack. Key settings appear in `package.json` and `webpack.config.cjs` alongside `tsconfig.json`.
 
 UI structure is organized into:
 
+- `index.tsx` – app entry point that renders the React app with routing and global styling.
 - `components/` – reusable UI elements (buttons, forms, tables).
 - `skeleton/` – the overall layout; `routes.tsx` defines dashboard, transactions, and stats pages.
 - `views/` – feature pages (DashboardView, TrackingView, StatsView). For example, `TrackingView` loads data via custom hooks and shows account lists and transaction tables.
 - `services/` – wrappers around axios and React Query for API calls. Example: `useAccounts` fetches account data from `/api/accounts`.
 - `types/` – TypeScript models mirroring backend DTOs.
+- `config/` – React Query client and other runtime configuration.
+- `hooks/` – shared React hooks such as DOM measurement helpers.
+- `mapper/` – client-side mappers that reshape API payloads.
+- `styles/` – global styles, theming, and scrollbar utilities for styled-components.
+- `utils/` – date, money, and formatting helpers shared across the UI.
 
 Styling uses styled-components with a central `theme.ts`.
 
 ### Other Files
+
+Deployment and runtime support lives in `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` and `frontend/nginx.conf`.
+
+Static assets reside in `frontend/assets/`.
 
 .git-hooks, .github, e2e-tests/*, .gitignore, Makefile can be ignored.
 
