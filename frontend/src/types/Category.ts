@@ -1,6 +1,6 @@
 import TypeMapper from "@/mapper/TypeMapper";
 import CategorySmoothType from "@/types/CategorySmoothType";
-import Target, {TargetDTO, targetMapper} from "@/types/Target";
+import Target, { TargetDTO, targetMapper } from "@/types/Target";
 import TransactionType from "@/types/TransactionType";
 
 interface Category {

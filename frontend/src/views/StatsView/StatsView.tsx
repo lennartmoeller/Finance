@@ -1,16 +1,16 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 
 import Icon from "@/components/Icon/Icon";
 import Switch from "@/components/Switch/Switch";
-import {useMonthlyCategoryBalanceStats} from "@/services/monthlyCategoryBalanceStats";
+import { useMonthlyCategoryBalanceStats } from "@/services/monthlyCategoryBalanceStats";
 import useHeader from "@/skeleton/Header/stores/useHeader";
 import useStatsMode from "@/views/StatsView/stores/useStatsMode";
 import StyledStatsView from "@/views/StatsView/styles/StyledStatsView";
 import StatsTable from "@/views/StatsView/Table/StatsTable";
 
 const StatsView: React.FC = () => {
-    const {setHeader} = useHeader();
-    const {smoothed, setSmoothed, merged, setMerged,} = useStatsMode();
+    const { setHeader } = useHeader();
+    const { smoothed, setSmoothed, merged, setMerged } = useStatsMode();
     const stats = useMonthlyCategoryBalanceStats();
 
     useEffect(() => {
@@ -20,9 +20,10 @@ const StatsView: React.FC = () => {
                     {smoothed && (
                         <Switch
                             content={(checked) => (
-                                <Icon id="fa-solid fa-merge"
-                                      opacity={checked ? 1 : 0.5}
-                                      size={30}
+                                <Icon
+                                    id="fa-solid fa-merge"
+                                    opacity={checked ? 1 : 0.5}
+                                    size={30}
                                 />
                             )}
                             initial={merged}
@@ -31,9 +32,10 @@ const StatsView: React.FC = () => {
                     )}
                     <Switch
                         content={(checked) => (
-                            <Icon id="fa-solid fa-blender"
-                                  opacity={checked ? 1 : 0.5}
-                                  size={30}
+                            <Icon
+                                id="fa-solid fa-blender"
+                                opacity={checked ? 1 : 0.5}
+                                size={30}
                             />
                         )}
                         initial={smoothed}

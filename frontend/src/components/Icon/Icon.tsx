@@ -10,17 +10,15 @@ interface IconProps {
     rotation?: number;
 }
 
-const Icon: React.FC<IconProps> = (
-    {
-        id,
-        size = 12,
-        color,
-        opacity,
-        rotation,
-    }
-) => {
+const Icon: React.FC<IconProps> = ({
+    id,
+    size = 12,
+    color,
+    opacity,
+    rotation,
+}) => {
     const dynamicStyle: React.CSSProperties = {
-        transform: `rotate(${rotation ?? 0}deg)`
+        transform: `rotate(${rotation ?? 0}deg)`,
     };
 
     return (
@@ -30,7 +28,7 @@ const Icon: React.FC<IconProps> = (
             $opacity={opacity}
             style={dynamicStyle}
         >
-            <i className={id}/>
+            <i className={id} />
         </IconWrapper>
     );
 };

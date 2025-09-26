@@ -2,7 +2,6 @@ import Half from "@/utils/Half";
 import Year from "@/utils/Year";
 
 class YearHalf {
-
     private readonly year: Year;
     private readonly half: Half;
 
@@ -24,14 +23,16 @@ class YearHalf {
     }
 
     public static fromString(value: string): YearHalf {
-        const parts = value.split('-');
-        return new YearHalf(Year.fromString(parts[0]), Half.fromString(parts[1]));
+        const parts = value.split("-");
+        return new YearHalf(
+            Year.fromString(parts[0]),
+            Half.fromString(parts[1]),
+        );
     }
 
     public static fromDate(date: Date): YearHalf {
         return new YearHalf(Year.fromDate(date), Half.fromDate(date));
     }
-
 }
 
 export default YearHalf;

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
@@ -8,7 +8,7 @@ interface SwitchProps {
     onChange: (checked: boolean) => void;
 }
 
-const Switch: React.FC<SwitchProps> = ({content, initial, onChange,}) => {
+const Switch: React.FC<SwitchProps> = ({ content, initial, onChange }) => {
     const [checked, setChecked] = useState(initial);
 
     const handleChange = () => {
@@ -16,11 +16,7 @@ const Switch: React.FC<SwitchProps> = ({content, initial, onChange,}) => {
         onChange(!checked);
     };
 
-    return (
-        <Button onClick={handleChange}>
-            {content(checked)}
-        </Button>
-    );
+    return <Button onClick={handleChange}>{content(checked)}</Button>;
 };
 
 export default Switch;

@@ -6,7 +6,6 @@ export interface InputFormatterOptions {
 }
 
 abstract class InputFormatter<V> {
-
     private readonly required: boolean;
 
     constructor(options: InputFormatterOptions = {}) {
@@ -49,14 +48,14 @@ abstract class InputFormatter<V> {
     }
 
     public onBlur(state: InputState<V>): InputState<V> {
-        const value: V | null = state.prediction?.value ?? this.stringToValue(state.value);
+        const value: V | null =
+            state.prediction?.value ?? this.stringToValue(state.value);
         return {
             errors: this.validate(value), // validate on blur
             prediction: undefined, // no prediction on blur
             value: this.valueToString(value),
         };
     }
-
 }
 
 export default InputFormatter;

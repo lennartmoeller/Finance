@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import DashboardView from "@/views/DashboardView/DashboardView";
 import StatsView from "@/views/StatsView/StatsView";
@@ -14,17 +14,17 @@ const routes: Record<string, Route> = {
     "/": {
         label: "Dashboard",
         icon: "fa-house",
-        element: <DashboardView/>,
+        element: <DashboardView />,
     },
     "/transactions": {
         label: "Transactions",
         icon: "fa-chart-simple",
-        element: <TrackingView/>,
+        element: <TrackingView />,
     },
     "/stats": {
         label: "Stats",
         icon: "fa-sack-dollar",
-        element: <StatsView/>,
+        element: <StatsView />,
     },
 };
 

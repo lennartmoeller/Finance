@@ -1,5 +1,5 @@
 import TypeMapper from "@/mapper/TypeMapper";
-import {dateToString} from "@/utils/date";
+import { dateToString } from "@/utils/date";
 
 const dateMapper: TypeMapper<Date, string> = {
     fromDTO: (value: string) => new Date(value),

@@ -1,4 +1,4 @@
-import 'styled-components';
+import "styled-components";
 
 interface Border {
     color: string;
@@ -12,7 +12,7 @@ interface Colors {
     accentBackground: string;
 }
 
-declare module 'styled-components' {
+declare module "styled-components" {
     export interface DefaultTheme {
         border: Border;
         colors: Colors;
@@ -27,9 +27,12 @@ declare module 'styled-components' {
                 letterSpacing: string;
             };
         };
-        table: Record<"header1" | "header2" | "body", {
-            backgroundColor: string;
-            fontWeight: string;
-        }>;
+        table: Record<
+            "header1" | "header2" | "body",
+            {
+                backgroundColor: string;
+                fontWeight: string;
+            }
+        >;
     }
 }

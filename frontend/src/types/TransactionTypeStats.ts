@@ -1,6 +1,9 @@
 import TypeMapper from "@/mapper/TypeMapper";
-import CategoryStats, {CategoryStatsDTO, categoryStatsMapper} from "@/types/CategoryStats";
-import RowStats, {RowStatsDTO, rowStatsMapper} from "@/types/RowStats";
+import CategoryStats, {
+    CategoryStatsDTO,
+    categoryStatsMapper,
+} from "@/types/CategoryStats";
+import RowStats, { RowStatsDTO, rowStatsMapper } from "@/types/RowStats";
 
 interface TransactionTypeStats {
     categoryStats: Array<CategoryStats>;
@@ -12,7 +15,10 @@ export interface TransactionTypeStatsDTO {
     totalStats: RowStatsDTO;
 }
 
-export const transactionTypeStatsMapper: TypeMapper<TransactionTypeStats, TransactionTypeStatsDTO> = {
+export const transactionTypeStatsMapper: TypeMapper<
+    TransactionTypeStats,
+    TransactionTypeStatsDTO
+> = {
     fromDTO: (dto: TransactionTypeStatsDTO) => ({
         categoryStats: dto.categoryStats.map(categoryStatsMapper.fromDTO),
         totalStats: rowStatsMapper.fromDTO(dto.totalStats),

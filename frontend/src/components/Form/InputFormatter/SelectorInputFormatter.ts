@@ -1,6 +1,8 @@
-import Fuse from 'fuse.js';
+import Fuse from "fuse.js";
 
-import InputFormatter, {InputFormatterOptions} from "@/components/Form/InputFormatter/InputFormatter";
+import InputFormatter, {
+    InputFormatterOptions,
+} from "@/components/Form/InputFormatter/InputFormatter";
 import InputState from "@/components/Form/types/InputState";
 
 interface SelectorInputFormatterOptions<T, K, L> extends InputFormatterOptions {
@@ -17,7 +19,6 @@ class SelectorInputFormatter<
     K extends keyof T & string,
     L extends keyof T & string,
 > extends InputFormatter<T[K]> {
-
     private readonly options: Array<T>;
     private readonly idProperty: K;
     private readonly labelProperty: L;
@@ -28,18 +29,17 @@ class SelectorInputFormatter<
         this.options = options.options;
         this.idProperty = options.idProperty;
         this.labelProperty = options.labelProperty;
-        this.fuse = new Fuse(
-            this.options,
-            {
-                keys: [this.labelProperty],
-                includeScore: true,
-            }
-        );
+        this.fuse = new Fuse(this.options, {
+            keys: [this.labelProperty],
+            includeScore: true,
+        });
     }
 
     public valueToString(value: T[K] | null): string {
-        const option: T | undefined = this.options.find(option => option[this.idProperty] === value);
-        return option ? option[this.labelProperty] : '';
+        const option: T | undefined = this.options.find(
+            (option) => option[this.idProperty] === value,
+        );
+        return option ? option[this.labelProperty] : "";
     }
 
     public stringToValue(string: string): T[K] | null {
@@ -63,7 +63,10 @@ class SelectorInputFormatter<
         if (prediction) {
             return {
                 ...result,
-                value: (prediction[this.labelProperty] as string).slice(0, after.length),
+                value: (prediction[this.labelProperty] as string).slice(
+                    0,
+                    after.length,
+                ),
                 prediction: {
                     label: prediction[this.labelProperty],
                     value: prediction[this.idProperty],
@@ -75,7 +78,7 @@ class SelectorInputFormatter<
     }
 
     private getPrediction = (search: string): T | null => {
-        const prediction = this.fuse.search(search).find(result => {
+        const prediction = this.fuse.search(search).find((result) => {
             if (result.score! > 0.5) {
                 return false;
             }
@@ -91,7 +94,6 @@ class SelectorInputFormatter<
 
         return prediction.item;
     };
-
 }
 
 export default SelectorInputFormatter;

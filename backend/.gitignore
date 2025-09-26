@@ -1,6 +1,2 @@
 # Maven
 /target/
-
-# Environment files
-*.env
-/env/

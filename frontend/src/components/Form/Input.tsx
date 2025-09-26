@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 
-import {FormFieldState} from "@/components/Form/hooks/useForm";
+import { FormFieldState } from "@/components/Form/hooks/useForm";
 import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
 import StyledInput from "@/components/Form/styles/StyledInput";
 import StyledInputField from "@/components/Form/styles/StyledInputField";
@@ -18,22 +18,22 @@ export interface InputProps<T> {
     initial?: T | null;
     onChange?: () => Promise<void>;
     register?: (getFormFieldState: () => FormFieldState<T | null>) => void;
-    textAlign?: 'left' | 'center' | 'right';
+    textAlign?: "left" | "center" | "right";
 }
 
-const Input = <T, >(
-    {
-        property,
-        inputFormatter,
-        autoFocus = false,
-        initial = null,
-        onChange,
-        register,
-        textAlign,
-    }: InputProps<T>
-) => {
+const Input = <T,>({
+    property,
+    inputFormatter,
+    autoFocus = false,
+    initial = null,
+    onChange,
+    register,
+    textAlign,
+}: InputProps<T>) => {
     const input = useRef<HTMLInputElement>(null);
-    const [inputState, setInputState] = useState<InputState<T>>(inputFormatter.valueToInputState(initial));
+    const [inputState, setInputState] = useState<InputState<T>>(
+        inputFormatter.valueToInputState(initial),
+    );
     const [isRegistered, setIsRegistered] = useState(false);
 
     useEffect(() => {
@@ -41,31 +41,31 @@ const Input = <T, >(
             return;
         }
         setIsRegistered(true);
-        register?.(
-            () => {
-                if (!input.current) {
-                    throw new Error('Input not registered');
-                }
-                const value: T | null = inputFormatter.stringToValue(input.current.value);
-                return {
-                    value: value,
-                    setValue: (value: T | null) => {
-                        setInputState((previous) => ({
-                            ...previous,
-                            value: inputFormatter.valueToString(value),
-                        }));
-                    },
-                    errors: inputFormatter.validate(value),
-                    hasFocus: document.activeElement === input.current,
-                    reset: () => {
-                        setInputState(inputFormatter.valueToInputState(initial));
-                        if (autoFocus) {
-                            input.current!.focus();
-                        }
-                    }
-                };
+        register?.(() => {
+            if (!input.current) {
+                throw new Error("Input not registered");
             }
-        );
+            const value: T | null = inputFormatter.stringToValue(
+                input.current.value,
+            );
+            return {
+                value: value,
+                setValue: (value: T | null) => {
+                    setInputState((previous) => ({
+                        ...previous,
+                        value: inputFormatter.valueToString(value),
+                    }));
+                },
+                errors: inputFormatter.validate(value),
+                hasFocus: document.activeElement === input.current,
+                reset: () => {
+                    setInputState(inputFormatter.valueToInputState(initial));
+                    if (autoFocus) {
+                        input.current!.focus();
+                    }
+                },
+            };
+        });
     }, [autoFocus, initial, inputFormatter, isRegistered, register]);
 
     return (
@@ -76,14 +76,19 @@ const Input = <T, >(
                     name={String(property)}
                     value={inputState.value}
                     onFocus={() => {
-                        setInputState((previous: InputState<T>) => inputFormatter.onFocus(previous));
+                        setInputState((previous: InputState<T>) =>
+                            inputFormatter.onFocus(previous),
+                        );
                     }}
                     onChange={(event) => {
                         const stringValue: string = event.target.value;
-                        const newInputState: InputState<T> = inputFormatter.onChange(inputState, stringValue);
+                        const newInputState: InputState<T> =
+                            inputFormatter.onChange(inputState, stringValue);
                         setInputState(newInputState);
                     }}
-                    onKeyDown={async (event: React.KeyboardEvent<HTMLInputElement>) => {
+                    onKeyDown={async (
+                        event: React.KeyboardEvent<HTMLInputElement>,
+                    ) => {
                         if (event.key === "Enter") {
                             input.current?.blur();
                             await new Promise(requestAnimationFrame); // wait until new element is focused
@@ -91,7 +96,9 @@ const Input = <T, >(
                         }
                     }}
                     onBlur={async () => {
-                        setInputState((previous: InputState<T>) => inputFormatter.onBlur(previous));
+                        setInputState((previous: InputState<T>) =>
+                            inputFormatter.onBlur(previous),
+                        );
                         await new Promise(requestAnimationFrame); // wait until new element is focused
                         await onChange?.();
                     }}
@@ -102,17 +109,21 @@ const Input = <T, >(
                 {inputState.prediction && (
                     <StyledInputFieldPlaceholder
                         as={motion.div}
-                        initial={{opacity: 0}}
-                        animate={{opacity: .5}}
-                        exit={{opacity: 0}}
-                        transition={{duration: .25}}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.5 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
                     >
                         {inputState.prediction.label}
                     </StyledInputFieldPlaceholder>
                 )}
             </StyledInputFieldWrapper>
             {inputState.errors.length > 0 && (
-                <Icon id="fa-regular fa-circle-exclamation" size={18} color="red"/>
+                <Icon
+                    id="fa-regular fa-circle-exclamation"
+                    size={18}
+                    color="red"
+                />
             )}
         </StyledInput>
     );

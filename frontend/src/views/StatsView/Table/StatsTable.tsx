@@ -1,4 +1,4 @@
-import React, {ReactElement} from "react";
+import React, { ReactElement } from "react";
 
 import Icon from "@/components/Icon/Icon";
 import Table from "@/components/Table/Table";
@@ -10,7 +10,7 @@ import CategorySmoothType from "@/types/CategorySmoothType";
 import CategoryStats from "@/types/CategoryStats";
 import MonthlyCategoryStats from "@/types/MonthlyCategoryStats";
 import RowStats from "@/types/RowStats";
-import {getMonths} from "@/utils/date";
+import { getMonths } from "@/utils/date";
 import YearMonth from "@/utils/YearMonth";
 import MoneyTableCell from "@/views/StatsView/Table/MoneyTableCell/MoneyTableCell";
 
@@ -31,20 +31,27 @@ interface StatsTableProps {
     merged: boolean;
 }
 
-const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
-    const months: Array<YearMonth> = stats.startDate === null || stats.endDate === null ? [] : getMonths(stats.startDate, stats.endDate);
+const StatsTable: React.FC<StatsTableProps> = ({ smoothed, merged, stats }) => {
+    const months: Array<YearMonth> =
+        stats.startDate === null || stats.endDate === null
+            ? []
+            : getMonths(stats.startDate, stats.endDate);
 
-    const categoryStatsNodesToStatsTableRows = (categoryStatsNodes: Array<CategoryStats>): Array<StatsTableRow> =>
-        categoryStatsNodes.map((categoryStatsNode: CategoryStats): StatsTableRow =>
-            ({
+    const categoryStatsNodesToStatsTableRows = (
+        categoryStatsNodes: Array<CategoryStats>,
+    ): Array<StatsTableRow> =>
+        categoryStatsNodes.map(
+            (categoryStatsNode: CategoryStats): StatsTableRow => ({
                 id: String(categoryStatsNode.category.id),
                 label: categoryStatsNode.category.label,
                 icon: categoryStatsNode.category.icon ?? undefined,
                 stats: categoryStatsNode.stats,
                 smoothType: categoryStatsNode.category.smoothType,
                 open: true,
-                children: categoryStatsNodesToStatsTableRows(categoryStatsNode.children),
-            })
+                children: categoryStatsNodesToStatsTableRows(
+                    categoryStatsNode.children,
+                ),
+            }),
         );
 
     const tableData: Array<StatsTableRow> = [
@@ -52,44 +59,44 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
             id: "incomes",
             label: "Incomes",
             headerLevel: 2,
-            stats: stats.stats['INCOME'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(stats.stats['INCOME'].categoryStats)
+            stats: stats.stats["INCOME"].totalStats,
+            children: categoryStatsNodesToStatsTableRows(
+                stats.stats["INCOME"].categoryStats,
+            ),
         },
         {
             id: "investments",
             label: "Investments",
             headerLevel: 2,
-            stats: stats.stats['INVESTMENT'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(stats.stats['INVESTMENT'].categoryStats)
+            stats: stats.stats["INVESTMENT"].totalStats,
+            children: categoryStatsNodesToStatsTableRows(
+                stats.stats["INVESTMENT"].categoryStats,
+            ),
         },
         {
             id: "expenses",
             label: "Expenses",
             headerLevel: 2,
-            stats: stats.stats['EXPENSE'].totalStats,
-            children: categoryStatsNodesToStatsTableRows(stats.stats['EXPENSE'].categoryStats)
+            stats: stats.stats["EXPENSE"].totalStats,
+            children: categoryStatsNodesToStatsTableRows(
+                stats.stats["EXPENSE"].categoryStats,
+            ),
         },
         {
             id: "surplus",
             label: "Surplus",
             headerLevel: 2,
             stats: stats.totalStats,
-            children: []
-        }
+            children: [],
+        },
     ];
 
-    const tableHeader: ReactElement =
+    const tableHeader: ReactElement = (
         <TableRow>
-            <TableHeaderCell
-                sticky="topAndLeft"
-                width={220}
-                zIndex={3}>
+            <TableHeaderCell sticky="topAndLeft" width={220} zIndex={3}>
                 Category
             </TableHeaderCell>
-            <TableHeaderCell
-                horAlign="center"
-                sticky="top"
-                width={120}>
+            <TableHeaderCell horAlign="center" sticky="top" width={120}>
                 Average
             </TableHeaderCell>
             {months.map((month: YearMonth) => {
@@ -101,28 +108,24 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
                         key={monthString}
                         horAlign="center"
                         sticky="top"
-                        width={width}>
+                        width={width}
+                    >
                         {monthLabel}
                     </TableHeaderCell>
                 );
             })}
-        </TableRow>;
+        </TableRow>
+    );
 
-    const getTableBodyRowGroup = (rowData: StatsTableRow): ReactElement =>
-        <TableHierarchyLevel
-            key={rowData.id}
-            initiallyOpen={rowData.open}
-        >
+    const getTableBodyRowGroup = (rowData: StatsTableRow): ReactElement => (
+        <TableHierarchyLevel key={rowData.id} initiallyOpen={rowData.open}>
             <TableRow>
                 <TableBodyHierarchyCell
                     headerLevel={rowData.headerLevel}
-                    sticky="left">
+                    sticky="left"
+                >
                     {rowData.icon && (
-                        <Icon
-                            id={rowData.icon}
-                            size={16}
-                            opacity={.6}
-                        />
+                        <Icon id={rowData.icon} size={16} opacity={0.6} />
                     )}
                     {rowData.label}
                 </TableBodyHierarchyCell>
@@ -132,8 +135,13 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
                     smoothed={smoothed}
                 />
                 {months.map((month: YearMonth) => {
-                    const getBodyCellColumnCount = (smoothType: CategorySmoothType, month: YearMonth): number => {
-                        const endMonth: YearMonth = YearMonth.fromDate(stats.endDate!);
+                    const getBodyCellColumnCount = (
+                        smoothType: CategorySmoothType,
+                        month: YearMonth,
+                    ): number => {
+                        const endMonth: YearMonth = YearMonth.fromDate(
+                            stats.endDate!,
+                        );
                         const max: number = month.monthsTo(endMonth) + 1;
 
                         const output: number = (() => {
@@ -142,17 +150,26 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
                                 case CategorySmoothType.MONTHLY:
                                     return 1;
                                 case CategorySmoothType.QUARTER_YEARLY:
-                                    return month.getMonth().getValue() % 3 === 1 ? 3 : 0;
+                                    return month.getMonth().getValue() % 3 === 1
+                                        ? 3
+                                        : 0;
                                 case CategorySmoothType.HALF_YEARLY:
-                                    return month.getMonth().getValue() % 6 === 1 ? 6 : 0;
+                                    return month.getMonth().getValue() % 6 === 1
+                                        ? 6
+                                        : 0;
                                 case CategorySmoothType.YEARLY:
-                                    return month.getMonth().getValue() === 1 ? 12 : 0;
+                                    return month.getMonth().getValue() === 1
+                                        ? 12
+                                        : 0;
                             }
                         })();
 
                         return Math.max(0, Math.min(max, output));
                     };
-                    const columnCount: number = merged && rowData.smoothType ? getBodyCellColumnCount(rowData.smoothType, month) : 1;
+                    const columnCount: number =
+                        merged && rowData.smoothType
+                            ? getBodyCellColumnCount(rowData.smoothType, month)
+                            : 1;
                     if (columnCount < 1) return <></>;
 
                     const monthString: string = month.toString();
@@ -168,7 +185,8 @@ const StatsTable: React.FC<StatsTableProps> = ({smoothed, merged, stats,}) => {
                 })}
             </TableRow>
             {rowData.children.map(getTableBodyRowGroup)}
-        </TableHierarchyLevel>;
+        </TableHierarchyLevel>
+    );
 
     return (
         <Table

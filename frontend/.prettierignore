@@ -1,0 +1,7 @@
+*
+!src/
+!src/**
+!assets/index.html
+!eslint.config.js
+!tsconfig.json
+!webpack.config.cjs

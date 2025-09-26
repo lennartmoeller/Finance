@@ -5,7 +5,7 @@ const StyledMoneyString = styled.div<{
 }>`
     font-family: monospace;
     font-size: 11px;
-    opacity: ${({$zero}) => $zero ? 0.2 : 1};
+    opacity: ${({ $zero }) => ($zero ? 0.2 : 1)};
 `;
 
 export default StyledMoneyString;

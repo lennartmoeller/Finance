@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react";
+import React, { ReactNode } from "react";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
 
@@ -10,16 +10,14 @@ interface TableProps<T> {
     postRow?: ReactNode;
 }
 
-const Table = <T, >({data, header, body, preRow, postRow}: TableProps<T>) => {
+const Table = <T,>({ data, header, body, preRow, postRow }: TableProps<T>) => {
     return (
         <StyledTable>
-            <thead>
-            {header}
-            </thead>
+            <thead>{header}</thead>
             <tbody>
-            {preRow}
-            {data.map((element: T, index: number) => body(element, index))}
-            {postRow}
+                {preRow}
+                {data.map((element: T, index: number) => body(element, index))}
+                {postRow}
             </tbody>
         </StyledTable>
     );

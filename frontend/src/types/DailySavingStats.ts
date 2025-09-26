@@ -1,6 +1,9 @@
 import dateMapper from "@/mapper/dateMapper";
 import TypeMapper from "@/mapper/TypeMapper";
-import StatsMetric, {StatsMetricDTO, statsMetricMapper} from "@/types/StatsMetric";
+import StatsMetric, {
+    StatsMetricDTO,
+    statsMetricMapper,
+} from "@/types/StatsMetric";
 
 interface DailySavingStats {
     date: Date;
@@ -14,7 +17,10 @@ export interface DailySavingStatsDTO {
     target: StatsMetricDTO;
 }
 
-export const dailySavingStatsMapper: TypeMapper<DailySavingStats, DailySavingStatsDTO> = {
+export const dailySavingStatsMapper: TypeMapper<
+    DailySavingStats,
+    DailySavingStatsDTO
+> = {
     fromDTO: (dto: DailySavingStatsDTO) => ({
         date: dateMapper.fromDTO(dto.date),
         balance: statsMetricMapper.fromDTO(dto.balance),

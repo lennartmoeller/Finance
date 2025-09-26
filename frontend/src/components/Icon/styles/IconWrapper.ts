@@ -7,11 +7,11 @@ const IconWrapper = styled.div<{
 }>`
     display: grid;
     place-content: center;
-    width: ${({$size}) => `${$size}px`};
-    height: ${({$size}) => `${$size}px`};
-    font-size: ${({$size}) => `${$size}px`};
-    color: ${({$color}) => $color ?? 'inherit'};
-    opacity: ${({$opacity}) => $opacity ?? 1};
+    width: ${({ $size }) => `${$size}px`};
+    height: ${({ $size }) => `${$size}px`};
+    font-size: ${({ $size }) => `${$size}px`};
+    color: ${({ $color }) => $color ?? "inherit"};
+    opacity: ${({ $opacity }) => $opacity ?? 1};
 `;
 
 export default IconWrapper;

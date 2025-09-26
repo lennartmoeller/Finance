@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 
 import useHeader from "@/skeleton/Header/stores/useHeader";
 import BalanceChangeDeviationChart from "@/views/DashboardView/Charts/BalanceChangeDeviationChart";
@@ -11,7 +11,7 @@ import StyledDiagramContainer from "@/views/DashboardView/styles/StyledDiagramCo
 import StyledDiagramGrid from "@/views/DashboardView/styles/StyledDiagramGrid";
 
 const DashboardView: React.FC = () => {
-    const {setHeader} = useHeader();
+    const { setHeader } = useHeader();
 
     useEffect(() => {
         setHeader({});
@@ -20,22 +20,22 @@ const DashboardView: React.FC = () => {
     return (
         <StyledDiagramGrid>
             <StyledDiagramContainer>
-                <TotalAssetsChart/>
+                <TotalAssetsChart />
             </StyledDiagramContainer>
             <StyledDiagramContainer>
-                <InflationCompensationChart/>
+                <InflationCompensationChart />
             </StyledDiagramContainer>
             <StyledDiagramContainer>
-                <TotalDepositsChart/>
+                <TotalDepositsChart />
             </StyledDiagramContainer>
             <StyledDiagramContainer>
-                <MonthStats/>
+                <MonthStats />
             </StyledDiagramContainer>
             <StyledDiagramContainer>
-                <InvestmentRevenueChart/>
+                <InvestmentRevenueChart />
             </StyledDiagramContainer>
             <StyledDiagramContainer>
-                <BalanceChangeDeviationChart/>
+                <BalanceChangeDeviationChart />
             </StyledDiagramContainer>
         </StyledDiagramGrid>
     );

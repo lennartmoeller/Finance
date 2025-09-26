@@ -9,3 +9,7 @@
 
 # VSCode
 .vscode/settings.json
+
+# Environment files
+*.env
+/env/

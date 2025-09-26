@@ -1,7 +1,7 @@
-import {useQuery} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import axios from "@/services/util/axios";
-import {ExtURL} from "@/utils/ExtURL";
+import { ExtURL } from "@/utils/ExtURL";
 
 export interface UseItemsOptions<Body, Data> {
     url: ExtURL;
@@ -14,7 +14,9 @@ export interface UseItemsResult<Data> {
     isLoading: boolean;
 }
 
-const useItems = <Body, Data>(options: UseItemsOptions<Body, Data>): UseItemsResult<Data> => {
+const useItems = <Body, Data>(
+    options: UseItemsOptions<Body, Data>,
+): UseItemsResult<Data> => {
     const urlString: string = options.url.toString();
 
     const useQueryResult = useQuery({
@@ -26,11 +28,12 @@ const useItems = <Body, Data>(options: UseItemsOptions<Body, Data>): UseItemsRes
     });
 
     return {
-        data: useQueryResult.data ? options.converter(useQueryResult.data) : undefined,
+        data: useQueryResult.data
+            ? options.converter(useQueryResult.data)
+            : undefined,
         error: useQueryResult.error ?? undefined,
         isLoading: useQueryResult.isLoading,
     };
-
 };
 
 export default useItems;

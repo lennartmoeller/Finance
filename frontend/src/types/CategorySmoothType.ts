@@ -3,7 +3,7 @@ enum CategorySmoothType {
     MONTHLY = "MONTHLY",
     QUARTER_YEARLY = "QUARTER_YEARLY",
     HALF_YEARLY = "HALF_YEARLY",
-    YEARLY = "YEARLY"
+    YEARLY = "YEARLY",
 }
 
 export default CategorySmoothType;

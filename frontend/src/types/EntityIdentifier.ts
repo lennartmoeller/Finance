@@ -1,3 +1,3 @@
-type EntityIdentifier = 'accounts' | 'categories' | 'stats' | 'transactions';
+type EntityIdentifier = "accounts" | "categories" | "stats" | "transactions";
 
 export default EntityIdentifier;

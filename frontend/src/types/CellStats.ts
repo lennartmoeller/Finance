@@ -1,5 +1,8 @@
 import TypeMapper from "@/mapper/TypeMapper";
-import StatsMetric, {StatsMetricDTO, statsMetricMapper} from "@/types/StatsMetric";
+import StatsMetric, {
+    StatsMetricDTO,
+    statsMetricMapper,
+} from "@/types/StatsMetric";
 
 interface CellStats {
     surplus: StatsMetric;
@@ -20,13 +23,19 @@ export const cellStatsMapper: TypeMapper<CellStats, CellStatsDTO> = {
         ...dto,
         surplus: statsMetricMapper.fromDTO(dto.surplus),
         deviation: statsMetricMapper.fromDTO(dto.deviation),
-        performance: dto.performance === null ? null : statsMetricMapper.fromDTO(dto.performance),
+        performance:
+            dto.performance === null
+                ? null
+                : statsMetricMapper.fromDTO(dto.performance),
     }),
     toDTO: (model: CellStats) => ({
         ...model,
         surplus: statsMetricMapper.toDTO(model.surplus),
         deviation: statsMetricMapper.toDTO(model.deviation),
-        performance: model.performance === null ? null : statsMetricMapper.toDTO(model.performance),
+        performance:
+            model.performance === null
+                ? null
+                : statsMetricMapper.toDTO(model.performance),
     }),
 };
 

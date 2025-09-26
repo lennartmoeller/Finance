@@ -2,8 +2,12 @@ export class ExtURL {
     private readonly url: URL;
 
     constructor(url?: string | URL | ExtURL, base?: string | URL | ExtURL) {
-        const urlAsString: string = typeof url === 'string' ? url : url?.toString() ?? window.location.href;
-        const baseAsString: string | undefined = typeof base === 'string' ? base : base?.toString();
+        const urlAsString: string =
+            typeof url === "string"
+                ? url
+                : (url?.toString() ?? window.location.href);
+        const baseAsString: string | undefined =
+            typeof base === "string" ? base : base?.toString();
         this.url = new URL(urlAsString, baseAsString);
     }
 
@@ -22,7 +26,9 @@ export class ExtURL {
     }
 
     setSearchParams(searchParams: Record<string, string>): void {
-        Object.entries(searchParams).forEach(([key, value]) => this.setSearchParam(key, value));
+        Object.entries(searchParams).forEach(([key, value]) =>
+            this.setSearchParam(key, value),
+        );
     }
 
     deleteSearchParam(key: string): void {
@@ -48,7 +54,10 @@ export class ExtURL {
         return result;
     }
 
-    setSearchParamMap(key: string, values: Record<string, string | null>): void {
+    setSearchParamMap(
+        key: string,
+        values: Record<string, string | null>,
+    ): void {
         Object.entries(values).forEach(([subKey, value]) => {
             if (!value) {
                 this.url.searchParams.delete(`${key}.${subKey}`);
@@ -68,12 +77,11 @@ export class ExtURL {
 
     toCurrent(): void {
         if (window.location.href !== this.url.toString()) {
-            window.history.pushState(null, '', this.url.toString());
+            window.history.pushState(null, "", this.url.toString());
         }
     }
 
     toString(): string {
         return this.url.toString();
     }
-
 }

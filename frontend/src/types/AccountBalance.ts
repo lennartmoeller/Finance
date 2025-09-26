@@ -10,7 +10,10 @@ export interface AccountBalanceDTO {
     balance: number;
 }
 
-export const accountBalanceMapper: TypeMapper<AccountBalance, AccountBalanceDTO> = {
+export const accountBalanceMapper: TypeMapper<
+    AccountBalance,
+    AccountBalanceDTO
+> = {
     fromDTO: (dto: AccountBalanceDTO) => dto,
     toDTO: (model: AccountBalance) => model,
 };

@@ -4,8 +4,8 @@ export type Nullable<T> = {
 
 export type Optional<T> = {
     [P in keyof T]?: T[P];
-}
+};
 
 export type NullableAndOptional<T> = {
     [P in keyof T]?: T[P] | null;
-}
+};

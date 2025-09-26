@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Icon from "@/components/Icon/Icon";
 import routes from "@/skeleton/routes";
@@ -13,14 +13,14 @@ import StyledSidebarLinks from "@/skeleton/Sidebar/styles/StyledSidebarLinks";
 const Sidebar: React.FC = () => {
     return (
         <StyledSidebar>
-            <StyledSidebarLogo/>
+            <StyledSidebarLogo />
             <StyledSidebarLinks>
-                {Object.entries(routes).map(([path, {icon, label}]) => (
+                {Object.entries(routes).map(([path, { icon, label }]) => (
                     <Link key={path} to={path}>
                         <StyledSidebarButton>
                             <Icon
                                 id={`fa-light ${icon}`}
-                                opacity={.7}
+                                opacity={0.7}
                                 size={24}
                             />
                             <StyledSidebarButtonLabel>

@@ -1,39 +1,41 @@
 import styled from "styled-components";
 
 const StyledCellContent = styled.div<{
-    $headerLevel?: 1 | 2,
+    $headerLevel?: 1 | 2;
     $padding?: string;
-    $horAlign?: 'left' | 'center' | 'right',
-    $vertAlign?: 'top' | 'center' | 'bottom',
+    $horAlign?: "left" | "center" | "right";
+    $vertAlign?: "top" | "center" | "bottom";
 }>`
-    padding: ${({$padding}) => $padding ?? "4px 8px"};
+    padding: ${({ $padding }) => $padding ?? "4px 8px"};
     display: flex;
-    justify-content: ${({$horAlign}) => {
+    justify-content: ${({ $horAlign }) => {
         switch ($horAlign) {
-            case 'center':
-                return 'center';
-            case 'right':
-                return 'flex-end';
+            case "center":
+                return "center";
+            case "right":
+                return "flex-end";
             default:
-                return 'flex-start';
+                return "flex-start";
         }
     }};
-    align-items: ${({$vertAlign}) => {
+    align-items: ${({ $vertAlign }) => {
         switch ($vertAlign) {
-            case 'center':
-                return 'center';
-            case 'bottom':
-                return 'flex-end';
+            case "center":
+                return "center";
+            case "bottom":
+                return "flex-end";
             default:
-                return 'flex-start';
+                return "flex-start";
         }
     }};
     width: 100%;
-    font-weight: ${props => {
-        const cellType: "header1" | "header2" | "body" = props.$headerLevel ? `header${props.$headerLevel}` : 'body';
+    font-weight: ${(props) => {
+        const cellType: "header1" | "header2" | "body" = props.$headerLevel
+            ? `header${props.$headerLevel}`
+            : "body";
         return props.theme.table[cellType].fontWeight;
     }};
-    font-size: ${props => `${props.theme.fontSize}px`};
+    font-size: ${(props) => `${props.theme.fontSize}px`};
 `;
 
 export default StyledCellContent;
