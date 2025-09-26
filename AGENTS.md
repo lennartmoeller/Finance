@@ -51,14 +51,14 @@ Deployment and runtime support lives in `docker-compose.yml`, `backend/Dockerfil
 
 Static assets reside in `frontend/assets/`.
 
-.git-hooks, .github, e2e-tests/*, .gitignore, Makefile can be ignored.
+e2e-tests/* can be ignored.
 
 ## Coding Guidelines
 
 To ensure consistency and maintainability in the codebase, please adhere to the following guidelines:
 
 - Follow common coding best practices.
-- Follow clean code principals.
+- Follow clean code principles.
 - Coding style and code architecture should be as consistent as possible over the whole codebase.
 - Solutions should be code-efficient. Avoid unnecessary redundancy. Better refactor existing code instead of adding new code.
 - Use the latest available releases of Java 21 and Node.js 24 when running build or test tooling locally or in CI.
@@ -96,7 +96,7 @@ When an AI agent helps create a PR, please ensure it:
 2. Includes a clear description of the changes
 3. References any related issues that the PR addresses
 4. Ensures all tests pass for generated code
-6. Keeps PRs focused on a single concern
+5. Keeps PRs focused on a single concern
 
 ## Programmatic Checks
 
