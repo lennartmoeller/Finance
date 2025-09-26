@@ -4,12 +4,14 @@ import { useAccountBalances } from "@/services/accountBalances";
 import { useAccounts } from "@/services/accounts";
 import AccountItem from "@/views/TrackingView/AccountList/AccountItem";
 import StyledAccountList from "@/views/TrackingView/AccountList/styles/StyledAccountList";
+import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 
 const AccountList: React.FC = () => {
     const accounts = useAccounts();
     const accountBalances = useAccountBalances();
     const { accountIds } = useTransactionFilter();
+    const { focusedTransaction } = useFocusedTransaction();
 
     if (accounts.isLoading || accountBalances.isLoading)
         return <div>Loading...</div>;
@@ -31,7 +33,9 @@ const AccountList: React.FC = () => {
         <StyledAccountList>
             {accountBalances.data.map(({ accountId, balance }) => {
                 const account = accountMap.get(accountId)!;
-                const isSelected = accountIds.includes(accountId);
+                const isSelected = focusedTransaction
+                    ? focusedTransaction.accountId === accountId
+                    : accountIds.includes(accountId);
                 return (
                     <AccountItem
                         key={account.id}

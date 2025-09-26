@@ -18,6 +18,7 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
 import { Nullable } from "@/utils/types";
+import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 
 interface TransactionsTableRowProps {
@@ -35,6 +36,7 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 }) => {
     const saveTransaction = useSaveTransaction();
     const deleteTransaction = useDeleteTransaction();
+    const { setFocusedTransaction } = useFocusedTransaction();
 
     const register = useForm({
         initial: transaction,
@@ -59,7 +61,10 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
     const amountInputFormatter = new CentInputFormatter({ required: true });
 
     return (
-        <TableRow>
+        <TableRow
+            onFocus={() => setFocusedTransaction(transaction as Transaction)}
+            onBlur={() => setFocusedTransaction(null)}
+        >
             <TableBodyCell width={98}>
                 <Input
                     {...register("date")}
