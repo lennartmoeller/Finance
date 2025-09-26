@@ -61,6 +61,7 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 - Follow clean code principals.
 - Coding style and code architecture should be as consistent as possible over the whole codebase.
 - Solutions should be code-efficient. Avoid unnecessary redundancy. Better refactor existing code instead of adding new code.
+- Use the latest available releases of Java 21 and Node.js 24 when running build or test tooling locally or in CI.
 
 ### Java
 
