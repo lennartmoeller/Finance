@@ -1,6 +1,6 @@
 import React from "react";
 
-import { create } from "zustand/index";
+import { create } from "zustand";
 
 interface HeaderStateData {
     headline: string | null;
