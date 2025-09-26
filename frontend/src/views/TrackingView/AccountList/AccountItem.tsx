@@ -12,7 +12,7 @@ interface AccountProps {
     isSelected: boolean;
 }
 
-const AccountItem: React.FC<AccountProps> = ({
+const AccountItem: React.FC<AccountProps> = React.memo(({
     account,
     balance,
     isSelected,
@@ -25,6 +25,8 @@ const AccountItem: React.FC<AccountProps> = ({
             </StyledAccountItemBalance>
         </StyledAccountItem>
     );
-};
+});
+
+AccountItem.displayName = 'AccountItem';
 
 export default AccountItem;
