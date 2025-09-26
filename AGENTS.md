@@ -79,6 +79,14 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 - Aim for 100% test coverage
 - Make sure that the tests are testing functions completely and covering all edge cases
 
+### TypeScript
+
+There are no coding guidelines yet. Please follow common best practices.
+
+### React
+
+There are no coding guidelines yet. Please follow common best practices.
+
 ## Pull Request Guidelines
 
 When an AI agent helps create a PR, please ensure it:
@@ -91,7 +99,7 @@ When an AI agent helps create a PR, please ensure it:
 
 ## Programmatic Checks
 
-Before submitting generated changes, the following checks must pass before generated code can be merged:
+After generating code changes, run the following checks to ensure code quality and correctness:
 
 ### Backend
 
