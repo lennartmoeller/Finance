@@ -1,15 +1,17 @@
 import React from "react";
 
-import {useMonthlySavingStats} from "@/services/monthlySavingStats";
-import LineChart, {LineChartDataPoint} from "@/views/DashboardView/Charts/LineChart";
+import { useMonthlySavingStats } from "@/services/monthlySavingStats";
+import LineChart, {
+    LineChartDataPoint,
+} from "@/views/DashboardView/Charts/LineChart";
 
 const InflationCompensationChart: React.FC = () => {
-    const {data: statsData} = useMonthlySavingStats();
+    const { data: statsData } = useMonthlySavingStats();
 
     if (!statsData) return null;
 
     let value = 0;
-    const chartData: Array<LineChartDataPoint> = statsData.map(stat => {
+    const chartData: Array<LineChartDataPoint> = statsData.map((stat) => {
         value += stat.inflationImpact;
         return {
             label: stat.yearMonth.toLabel(),
@@ -18,9 +20,7 @@ const InflationCompensationChart: React.FC = () => {
         };
     });
 
-    return (
-        <LineChart data={chartData} title="Inflation Compensation"/>
-    );
+    return <LineChart data={chartData} title="Inflation Compensation" />;
 };
 
 export default InflationCompensationChart;

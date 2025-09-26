@@ -1,8 +1,10 @@
-import {ComponentType} from 'react';
+import { ComponentType } from "react";
 
-import styled from 'styled-components';
+import styled from "styled-components";
 
-const withHiddenScrollbar = <P extends Record<string, unknown>>(Component: ComponentType<P>) => styled(Component)`
+const withHiddenScrollbar = <P extends Record<string, unknown>>(
+    Component: ComponentType<P>,
+) => styled(Component)`
     ::-webkit-scrollbar {
         display: none;
     }

@@ -1,13 +1,13 @@
 import React from "react";
 
-import {Outlet} from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import StyledMainArea from "@/skeleton/MainArea/styles/StyledMainArea";
 
 const Sidebar: React.FC = () => {
     return (
         <StyledMainArea>
-            <Outlet/>
+            <Outlet />
         </StyledMainArea>
     );
 };

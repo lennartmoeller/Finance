@@ -12,10 +12,10 @@ interface GoalProps {
     sublabel: string;
 }
 
-const Goal: React.FC<GoalProps> = ({performance, label, sublabel}) => {
+const Goal: React.FC<GoalProps> = ({ performance, label, sublabel }) => {
     return (
         <StyledGoalContainer>
-            <PerformanceCircle performance={performance}/>
+            <PerformanceCircle performance={performance} />
             <StyledGoalLabels>
                 <StyledGoalLabel>{label}</StyledGoalLabel>
                 <StyledGoalSublabel>{sublabel}</StyledGoalSublabel>

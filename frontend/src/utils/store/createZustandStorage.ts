@@ -1,24 +1,25 @@
-import {PersistStorage, StorageValue} from "zustand/middleware";
+import { PersistStorage, StorageValue } from "zustand/middleware";
 
-import {ExtURL} from "@/utils/ExtURL";
+import { ExtURL } from "@/utils/ExtURL";
 
 export type Serialized = string | Record<string, string>;
 
-export interface CreateZustandStorageOptions<STATE, SERIALIZED extends Serialized> {
-    storeInUrl?: boolean,
-    storeInLocalStorage?: boolean,
-    serialize?: (state: STATE) => SERIALIZED,
-    parse?: (stringValue: SERIALIZED) => STATE,
+export interface CreateZustandStorageOptions<
+    STATE,
+    SERIALIZED extends Serialized,
+> {
+    storeInUrl?: boolean;
+    storeInLocalStorage?: boolean;
+    serialize?: (state: STATE) => SERIALIZED;
+    parse?: (stringValue: SERIALIZED) => STATE;
 }
 
-const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
-    {
-        storeInLocalStorage = false,
-        storeInUrl = false,
-        serialize = (state: STATE): SERIALIZED => state as unknown as SERIALIZED,
-        parse = (serialized: SERIALIZED): STATE => serialized as unknown as STATE,
-    }: CreateZustandStorageOptions<STATE, SERIALIZED>
-): PersistStorage<STATE> => ({
+const createZustandStorage = <STATE, SERIALIZED extends Serialized>({
+    storeInLocalStorage = false,
+    storeInUrl = false,
+    serialize = (state: STATE): SERIALIZED => state as unknown as SERIALIZED,
+    parse = (serialized: SERIALIZED): STATE => serialized as unknown as STATE,
+}: CreateZustandStorageOptions<STATE, SERIALIZED>): PersistStorage<STATE> => ({
     getItem: (name: string): StorageValue<STATE> | null => {
         const getSerialized = (): SERIALIZED | null => {
             if (storeInUrl) {
@@ -43,7 +44,7 @@ const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
             return null;
         }
         const state: STATE = parse(serialized);
-        return {state};
+        return { state };
     },
     setItem: (name: string, value: StorageValue<STATE>): void => {
         const serialized: SERIALIZED = serialize(value.state);
@@ -51,7 +52,7 @@ const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
             const url = new ExtURL();
             if (serialized === null) {
                 url.deleteSearchParam(name);
-            } else if (typeof serialized === 'string') {
+            } else if (typeof serialized === "string") {
                 url.setSearchParam(name, serialized);
             } else {
                 url.setSearchParamMap(name, serialized);
@@ -61,7 +62,7 @@ const createZustandStorage = <STATE, SERIALIZED extends Serialized>(
         if (storeInLocalStorage) {
             if (serialized === null) {
                 localStorage.removeItem(name);
-            } else if (typeof serialized === 'string') {
+            } else if (typeof serialized === "string") {
                 localStorage.setItem(name, serialized);
             } else {
                 const stringValue: string = JSON.stringify(serialized);

@@ -6,8 +6,8 @@ const StyledSkeleton = styled.div`
     width: 100vw;
     height: 100vh;
     grid-template:
-    "sidebar header"
-    "sidebar main";
+        "sidebar header"
+        "sidebar main";
     grid-template-columns: min-content 1fr;
     grid-template-rows: min-content 1fr;
 `;

@@ -8,9 +8,9 @@ import StyledSkeleton from "@/skeleton/styles/StyledSkeleton";
 const Skeleton: React.FC = () => {
     return (
         <StyledSkeleton>
-            <Sidebar/>
-            <Header/>
-            <MainArea/>
+            <Sidebar />
+            <Header />
+            <MainArea />
         </StyledSkeleton>
     );
 };

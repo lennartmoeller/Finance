@@ -10,19 +10,27 @@ interface PerformanceCircleProps {
     size?: number;
 }
 
-const PerformanceCircle: React.FC<PerformanceCircleProps> = ({performance, size = 50}) => {
+const PerformanceCircle: React.FC<PerformanceCircleProps> = ({
+    performance,
+    size = 50,
+}) => {
     const lineHeight = size / 8;
     const lineWidth = 2;
-    const totalLines = Math.ceil((Math.PI * (size - lineHeight)) / (2 * lineWidth));
+    const totalLines = Math.ceil(
+        (Math.PI * (size - lineHeight)) / (2 * lineWidth),
+    );
     const translateY = size / 2 - lineHeight / 2;
     const percentage = Math.round(performance * 100);
     const activeColor = getPerformanceColor(performance);
 
     return (
         <StyledPerformanceCircleContainer $size={size}>
-            {Array.from({length: totalLines}).map((_, index) => {
+            {Array.from({ length: totalLines }).map((_, index) => {
                 const rotation = (360 / totalLines) * index;
-                const backgroundColor = index < totalLines * performance ? activeColor : "rgba(0, 0, 0, 0.1)";
+                const backgroundColor =
+                    index < totalLines * performance
+                        ? activeColor
+                        : "rgba(0, 0, 0, 0.1)";
                 return (
                     <StyledPerformanceCircleLine
                         key={index}
@@ -35,7 +43,9 @@ const PerformanceCircle: React.FC<PerformanceCircleProps> = ({performance, size 
                     />
                 );
             })}
-            <StyledPerformanceCircleNumber>{percentage}</StyledPerformanceCircleNumber>
+            <StyledPerformanceCircleNumber>
+                {percentage}
+            </StyledPerformanceCircleNumber>
         </StyledPerformanceCircleContainer>
     );
 };

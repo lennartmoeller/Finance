@@ -12,12 +12,11 @@ const general = {
 };
 
 const theme = {
-
     ...general,
 
     fontSize: 15,
     mainPadding: 30,
-    header : {
+    header: {
         height: 120,
     },
     inputField: {
@@ -38,7 +37,7 @@ const theme = {
         body: {
             backgroundColor: "white",
             fontWeight: "normal",
-        }
+        },
     },
 };
 

@@ -8,20 +8,17 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import YearMonth from "@/utils/YearMonth";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
-import StyledTransactionsTableFilters
-    from "@/views/TrackingView/TransactionsTableFilters/styles/StyledTransactionsTableFilters";
+import StyledTransactionsTableFilters from "@/views/TrackingView/TransactionsTableFilters/styles/StyledTransactionsTableFilters";
 
 interface TransactionsTableFiltersProps {
     accounts: Account[];
     categories: Category[];
 }
 
-const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = (
-    {
-        accounts,
-        categories,
-    }: TransactionsTableFiltersProps
-) => {
+const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = ({
+    accounts,
+    categories,
+}: TransactionsTableFiltersProps) => {
     const {
         accountIds,
         categoryIds,
@@ -29,21 +26,31 @@ const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = (
         setAccountIds,
         setCategoryIds,
         setYearMonths,
-        reinit
+        reinit,
     } = useTransactionFilter();
     reinit();
 
-    const register = useForm<{ accountIds: number, categoryIds: number, yearMonths: YearMonth, }>({
+    const register = useForm<{
+        accountIds: number;
+        categoryIds: number;
+        yearMonths: YearMonth;
+    }>({
         initial: {
             accountIds: accountIds.length > 0 ? accountIds[0] : null,
             categoryIds: categoryIds.length > 0 ? categoryIds[0] : null,
             yearMonths: yearMonths.length > 0 ? yearMonths[0] : null,
         },
         onSuccess: async (filters) => {
-            setAccountIds(filters.accountIds === null ? [] : [filters.accountIds]);
-            setCategoryIds(filters.categoryIds === null ? [] : [filters.categoryIds]);
-            setYearMonths(filters.yearMonths === null ? [] : [filters.yearMonths]);
-        }
+            setAccountIds(
+                filters.accountIds === null ? [] : [filters.accountIds],
+            );
+            setCategoryIds(
+                filters.categoryIds === null ? [] : [filters.categoryIds],
+            );
+            setYearMonths(
+                filters.yearMonths === null ? [] : [filters.yearMonths],
+            );
+        },
     });
 
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
@@ -82,7 +89,6 @@ const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = (
             />
         </StyledTransactionsTableFilters>
     );
-
 };
 
 export default TransactionsTableFilters;

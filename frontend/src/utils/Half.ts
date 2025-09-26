@@ -1,5 +1,4 @@
 class Half {
-
     private readonly half: number;
 
     constructor(half: number) {
@@ -28,7 +27,6 @@ class Half {
         const month = date.getMonth() + 1;
         return new Half(Math.ceil(month / 6));
     }
-
 }
 
 export default Half;

@@ -1,5 +1,4 @@
 class Year {
-
     private readonly year: number;
 
     constructor(year: number) {
@@ -33,7 +32,6 @@ class Year {
     public static fromDate(date: Date): Year {
         return new Year(date.getFullYear());
     }
-
 }
 
 export default Year;

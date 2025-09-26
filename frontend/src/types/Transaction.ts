@@ -1,6 +1,6 @@
 import dateMapper from "@/mapper/dateMapper";
 import TypeMapper from "@/mapper/TypeMapper";
-import {Nullable} from "@/utils/types";
+import { Nullable } from "@/utils/types";
 
 interface Transaction {
     id: number;

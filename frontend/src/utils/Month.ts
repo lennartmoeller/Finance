@@ -1,5 +1,4 @@
 class Month {
-
     private readonly month: number;
 
     constructor(month: number) {
@@ -14,7 +13,7 @@ class Month {
     }
 
     public previous(): Month {
-        return new Month((this.month - 2 + 12) % 12 + 1);
+        return new Month(((this.month - 2 + 12) % 12) + 1);
     }
 
     public next(): Month {
@@ -22,11 +21,24 @@ class Month {
     }
 
     public toString(): string {
-        return this.month.toString().padStart(2, '0');
+        return this.month.toString().padStart(2, "0");
     }
 
     public toLabel(): string {
-        const months: Array<string> = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months: Array<string> = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ];
         return months[this.month - 1];
     }
 
@@ -37,7 +49,6 @@ class Month {
     public static fromDate(date: Date): Month {
         return new Month(date.getMonth() + 1);
     }
-
 }
 
 export default Month;

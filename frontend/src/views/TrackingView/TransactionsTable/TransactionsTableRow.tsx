@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import Button from "@/components/Button/Button";
 import useForm from "@/components/Form/hooks/useForm";
@@ -10,11 +10,14 @@ import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFo
 import Icon from "@/components/Icon/Icon";
 import TableBodyCell from "@/components/Table/TableBodyCell";
 import TableRow from "@/components/Table/TableRow";
-import {useDeleteTransaction, useSaveTransaction} from "@/services/transactions";
+import {
+    useDeleteTransaction,
+    useSaveTransaction,
+} from "@/services/transactions";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
-import {Nullable} from "@/utils/types";
+import { Nullable } from "@/utils/types";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 
 interface TransactionsTableRowProps {
@@ -24,15 +27,12 @@ interface TransactionsTableRowProps {
     draft?: boolean;
 }
 
-const TransactionsTableRow: React.FC<TransactionsTableRowProps> = (
-    {
-        transaction,
-        accountInputFormatter,
-        categoryInputFormatter,
-        draft = false,
-    }
-) => {
-
+const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
+    transaction,
+    accountInputFormatter,
+    categoryInputFormatter,
+    draft = false,
+}) => {
     const saveTransaction = useSaveTransaction();
     const deleteTransaction = useDeleteTransaction();
 
@@ -42,15 +42,21 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = (
         resetOnSuccess: draft,
     });
 
-    const {yearMonths} = useTransactionFilter();
+    const { yearMonths } = useTransactionFilter();
 
     const dateInputFormatter = new GermanDateInputFormatter({
-        defaultYear: yearMonths.length !== 1 ? undefined : yearMonths[0].getYear().getValue(),
-        defaultMonth: yearMonths.length !== 1 ? undefined : yearMonths[0].getMonth().getValue(),
-        required: true
+        defaultYear:
+            yearMonths.length !== 1
+                ? undefined
+                : yearMonths[0].getYear().getValue(),
+        defaultMonth:
+            yearMonths.length !== 1
+                ? undefined
+                : yearMonths[0].getMonth().getValue(),
+        required: true,
     });
     const descriptionInputFormatter = new StringInputFormatter();
-    const amountInputFormatter = new CentInputFormatter({required: true});
+    const amountInputFormatter = new CentInputFormatter({ required: true });
 
     return (
         <TableRow>
@@ -88,8 +94,12 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = (
             </TableBodyCell>
             <TableBodyCell horAlign="center" width={31}>
                 {!draft && (
-                    <Button onClick={() => deleteTransaction(transaction as Transaction)}>
-                        <Icon id="fa-solid fa-trash" color="red"/>
+                    <Button
+                        onClick={() =>
+                            deleteTransaction(transaction as Transaction)
+                        }
+                    >
+                        <Icon id="fa-solid fa-trash" color="red" />
                     </Button>
                 )}
             </TableBodyCell>
