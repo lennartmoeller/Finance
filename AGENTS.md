@@ -6,7 +6,7 @@ This file provides comprehensive guidance for AI agents working with this codeba
 
 ### Backend
 
-- Spring Boot 3.5+ with Java 21
+- Spring Boot 3+ with Java 21
 - Spring Data JPA with MariaDB in production and H2 for tests
 - MapStruct for DTO mapping
 - Lombok to reduce boilerplate
@@ -14,12 +14,17 @@ This file provides comprehensive guidance for AI agents working with this codeba
 
 ### Frontend
 
-- Node 24+
-- React 19+ with TypeScript
+- Node.js with npm
+- React 19+ with TypeScript 5+
 - styled-components for styling
-- React Query for API state management
+- TanStack Query for server state management
+- Zustand for client-side state management
+- React Router for client-side routing
 - Webpack for bundling
 - Chart.js for data visualization
+- Framer Motion for animations
+- Fuse.js for fuzzy search
+- ESLint and Prettier for code quality
 
 ## Project Structure
 
@@ -38,7 +43,7 @@ This is a Spring Boot project using Maven. Key settings appear in `pom.xml`. Sou
 - `projection/` – Spring Data projections for aggregated read models.
 - `util/` – shared helpers such as date ranges and smoothing utilities.
 
-Tests are under `src/test/java` and use JUnit and Mockito. Shared fixtures live in `src/test/java/.../testbuilder/`, and additional resources sit in `src/test/resources`.
+Tests are under `src/test/java` and use JUnit and Mockito.
 
 Configuration defaults are defined in `src/main/resources/application.properties`. The `mvnw` wrapper is included to run Maven commands.
 
@@ -52,9 +57,9 @@ UI structure is organized into:
 - `components/` – reusable UI elements (buttons, forms, tables).
 - `skeleton/` – layout shell and route definitions (see `routes.tsx`).
 - `views/` – feature pages such as DashboardView, TrackingView, and StatsView.
-- `services/` – API hooks built on axios and React Query.
+- `services/` – API hooks built on axios and TanStack Query.
 - `types/` – TypeScript models mirroring backend DTOs.
-- `config/` – React Query client and other runtime configuration.
+- `config/` – TanStack Query client and other runtime configuration.
 - `hooks/` – shared React hooks such as DOM measurement helpers.
 - `mapper/` – client-side mappers that reshape API payloads.
 - `styles/` – global styles, theming, and scrollbar utilities for styled-components. The theme shape is typed via `styled.d.ts`, so changes to the theme should update that declaration file as well.
@@ -74,7 +79,7 @@ e2e-tests/* can be ignored.
 
 ### Data Flow
 
-1. React Query hooks in `frontend/src/services/` call backend APIs.
+1. TanStack Query hooks in `frontend/src/services/` call backend APIs.
 2. Spring controllers receive the request and delegate to services.
 3. Services orchestrate business logic and repository access.
 4. MapStruct mappers translate between JPA entities and DTOs.

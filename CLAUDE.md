@@ -6,7 +6,7 @@ This file provides comprehensive guidance for AI agents working with this codeba
 
 ### Backend
 
-- Spring Boot 3.5+ with Java 21
+- Spring Boot 3+ with Java 21
 - Spring Data JPA with MariaDB in production and H2 for tests
 - MapStruct for DTO mapping
 - Lombok to reduce boilerplate
@@ -14,15 +14,17 @@ This file provides comprehensive guidance for AI agents working with this codeba
 
 ### Frontend
 
-- Node 24+
-- React 19+ with TypeScript
+- Node.js with npm
+- React 19+ with TypeScript 5+
 - styled-components for styling
-- TanStack Query (React Query) for server state management
+- TanStack Query for server state management
 - Zustand for client-side state management
+- React Router for client-side routing
 - Webpack for bundling
 - Chart.js for data visualization
 - Framer Motion for animations
 - Fuse.js for fuzzy search
+- ESLint and Prettier for code quality
 
 ## Project Structure
 
@@ -41,7 +43,7 @@ This is a Spring Boot project using Maven. Key settings appear in `pom.xml`. Sou
 - `projection/` – Spring Data projections for aggregated read models.
 - `util/` – shared helpers such as date ranges and smoothing utilities.
 
-Tests are under `src/test/java` and use JUnit and Mockito. Shared fixtures live in `src/test/java/.../testbuilder/`, and additional resources sit in `src/test/resources`.
+Tests are under `src/test/java` and use JUnit and Mockito.
 
 Configuration defaults are defined in `src/main/resources/application.properties`. The `mvnw` wrapper is included to run Maven commands.
 
@@ -114,6 +116,7 @@ There are no coding guidelines yet. Please follow common best practices.
 
 ### React
 
+There are no coding guidelines yet. Please follow common best practices.
 
 ## Pull Request Guidelines
 
