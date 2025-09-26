@@ -12,21 +12,19 @@ interface AccountProps {
     isSelected: boolean;
 }
 
-const AccountItem: React.FC<AccountProps> = React.memo(({
-    account,
-    balance,
-    isSelected,
-}: AccountProps) => {
-    return (
-        <StyledAccountItem $isSelected={isSelected}>
-            <StyledAccountItemLabel>{account.label}</StyledAccountItemLabel>
-            <StyledAccountItemBalance>
-                {getEuroString(balance)}
-            </StyledAccountItemBalance>
-        </StyledAccountItem>
-    );
-});
+const AccountItem: React.FC<AccountProps> = React.memo(
+    ({ account, balance, isSelected }: AccountProps) => {
+        return (
+            <StyledAccountItem $isSelected={isSelected}>
+                <StyledAccountItemLabel>{account.label}</StyledAccountItemLabel>
+                <StyledAccountItemBalance>
+                    {getEuroString(balance)}
+                </StyledAccountItemBalance>
+            </StyledAccountItem>
+        );
+    },
+);
 
-AccountItem.displayName = 'AccountItem';
+AccountItem.displayName = "AccountItem";
 
 export default AccountItem;

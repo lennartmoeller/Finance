@@ -36,7 +36,9 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 }) => {
     const saveTransaction = useSaveTransaction();
     const deleteTransaction = useDeleteTransaction();
-    const setFocusedTransaction = useFocusedTransaction((state) => state.setFocusedTransaction);
+    const setFocusedTransaction = useFocusedTransaction(
+        (state) => state.setFocusedTransaction,
+    );
 
     const register = useForm({
         initial: transaction,
