@@ -1,30 +1,76 @@
 #!/bin/bash
-# Git pre-commit hook to format backend code and run tests with concise output
+# Git pre-commit hook to run backend and frontend programmatic checks with concise output
 
-repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root/backend" || exit 1
-chmod +x ./mvnw
+repo_root="$(git rev-parse --show-toplevel)" || exit 1
 
-# run formatter
-./mvnw spotless:apply >/dev/null 2>&1
-format_status=$?
+backend_dir="$repo_root/backend"
+frontend_dir="$repo_root/frontend"
 
-# run tests
-./mvnw test >/dev/null 2>&1
-test_status=$?
+backend_format_status=0
+backend_test_status=0
+frontend_lint_status=0
+frontend_format_status=0
 
-if [ $format_status -eq 0 ]; then
+if [ -d "$backend_dir" ]; then
+    cd "$backend_dir" || exit 1
+    chmod +x ./mvnw
+
+    ./mvnw spotless:apply >/dev/null 2>&1
+    backend_format_status=$?
+
+    ./mvnw test >/dev/null 2>&1
+    backend_test_status=$?
+else
+    echo "❌ Backend directory not found"
+    backend_format_status=1
+    backend_test_status=1
+fi
+
+cd "$repo_root" || exit 1
+
+if [ -d "$frontend_dir" ]; then
+    cd "$frontend_dir" || exit 1
+
+    npm run lint >/dev/null 2>&1
+    frontend_lint_status=$?
+
+    npm run format >/dev/null 2>&1
+    frontend_format_status=$?
+else
+    echo "❌ Frontend directory not found"
+    frontend_lint_status=1
+    frontend_format_status=1
+fi
+
+cd "$repo_root" || exit 1
+
+if [ $backend_format_status -eq 0 ]; then
     echo "✅ Backend code is formatted"
 else
     echo "❌ Backend code formatting failed"
 fi
 
-if [ $test_status -eq 0 ]; then
+if [ $backend_test_status -eq 0 ]; then
     echo "✅ Backend tests passed"
 else
     echo "❌ Backend tests failed"
 fi
 
-if [ $format_status -ne 0 ] || [ $test_status -ne 0 ]; then
+if [ $frontend_lint_status -eq 0 ]; then
+    echo "✅ Frontend lint passed"
+else
+    echo "❌ Frontend lint failed"
+fi
+
+if [ $frontend_format_status -eq 0 ]; then
+    echo "✅ Frontend formatting succeeded"
+else
+    echo "❌ Frontend formatting failed"
+fi
+
+if [ $backend_format_status -ne 0 ] \
+    || [ $backend_test_status -ne 0 ] \
+    || [ $frontend_lint_status -ne 0 ] \
+    || [ $frontend_format_status -ne 0 ]; then
     exit 1
 fi
