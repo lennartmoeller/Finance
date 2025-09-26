@@ -31,17 +31,19 @@ UI structure is organized into:
 
 - `index.tsx` – app entry point that renders the React app with routing and global styling.
 - `components/` – reusable UI elements (buttons, forms, tables).
-- `skeleton/` – the overall layout; `routes.tsx` defines dashboard, transactions, and stats pages.
+- `skeleton/` – the overall layout; `routes.tsx` defines dashboard, transactions, and stats pages. Header state is coordinated through the Zustand store in `skeleton/Header/stores/useHeader`.
 - `views/` – feature pages (DashboardView, TrackingView, StatsView). For example, `TrackingView` loads data via custom hooks and shows account lists and transaction tables.
 - `services/` – wrappers around axios and React Query for API calls. Example: `useAccounts` fetches account data from `/api/accounts`.
 - `types/` – TypeScript models mirroring backend DTOs.
-- `config/` – React Query client and other runtime configuration.
+- `config/` – React Query client and other runtime configuration; `config/queryClient.ts` defines the TanStack Query client and localStorage persistence used by `PersistQueryClientProvider`.
 - `hooks/` – shared React hooks such as DOM measurement helpers.
 - `mapper/` – client-side mappers that reshape API payloads.
-- `styles/` – global styles, theming, and scrollbar utilities for styled-components.
+- `styles/` – global styles, theming, and scrollbar utilities for styled-components. The theme shape is typed via `styled.d.ts`, so changes to the theme should update that declaration file as well.
 - `utils/` – date, money, and formatting helpers shared across the UI.
 
 Styling uses styled-components with a central `theme.ts`.
+
+Module imports can target the `@` alias configured in both `webpack.config.cjs` and `tsconfig.json`, which points to `frontend/src/`.
 
 ### Other Files
 
@@ -55,19 +57,20 @@ Static assets reside in `frontend/assets/`.
 
 To ensure consistency and maintainability in the codebase, please adhere to the following guidelines:
 
-- Follow common coding best practices
-- Follow clean code principals
-- Coding style should be as consistent as possible over the whole codebase
+- Follow common coding best practices.
+- Follow clean code principals.
+- Coding style and code architecture should be as consistent as possible over the whole codebase.
+- Solutions should be code-efficient. Avoid unnecessary redundancy. Better refactor existing code instead of adding new code.
 
 ### Java
 
 - Use @Nullable annotations to indicate nullable fields. Avoid @NonNull annotations.
 - Use Lombok annotations to reduce boilerplate code:
-  - Use @RequiredArgsConstructor instead of `@NoArgsConstructor` and `@AllArgsConstructor`
+  - Use `@RequiredArgsConstructor` instead of `@NoArgsConstructor` and `@AllArgsConstructor`
   - Don't use field injection like `@Autowired` and use constructor injection instead
 - Use the Stream API in favor of traditional for-loops for better readability and performance
 - Use Optionals to handle potential null values gracefully
-- Do not unnecessarily use fully qualified name, use import statements instead
+- Do not unnecessarily use fully qualified class names, use import statements instead
 - Do not use the var reserved type name, use explicit types instead
 
 ### Java Tests
