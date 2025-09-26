@@ -2,7 +2,7 @@
 
 ## Overview
 
-Finance is a personal finance tracking application with a Spring Boot backend and a React + TypeScript frontend.
+Finance is a personal finance tracking application. It tracks accounts, transactions, categories, and provides various financial statistics and analytics.
 
 ## Tech Stack
 
