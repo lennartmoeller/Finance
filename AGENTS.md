@@ -57,11 +57,9 @@ e2e-tests/* can be ignored.
 
 To ensure consistency and maintainability in the codebase, please adhere to the following guidelines:
 
-- Follow common coding best practices.
-- Follow clean code principles.
-- Coding style and code architecture should be as consistent as possible over the whole codebase.
+- Match the existing coding patterns in this repository; refactor when necessary instead of introducing divergent styles.
+- Otherwise follow SOLID principles, common coding best practices and clean code principles.
 - Solutions should be code-efficient. Avoid unnecessary redundancy. Better refactor existing code instead of adding new code.
-- Use the latest available releases of Java 21 and Node.js 24 when running build or test tooling locally or in CI.
 
 ### Java
 
@@ -119,6 +117,7 @@ chmod +x ./mvnw
 
 ```bash
 cd frontend
+npm ci
 
 # lint and fix the codebase
 npm run lint
