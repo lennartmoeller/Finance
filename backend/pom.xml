@@ -33,15 +33,15 @@
         <lombok.version>1.18.42</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <guava.version>33.5.0-jre</guava.version>
-        <apache.commons.lang3.version>3.18.0</apache.commons.lang3.version>
+        <apache.commons.lang3.version>3.19.0</apache.commons.lang3.version>
         <apache.commons.collections4.version>4.5.0</apache.commons.collections4.version>
         <apache.commons.math3.version>3.6.1</apache.commons.math3.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-        <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
-        <h2database.version>2.3.232</h2database.version>
+        <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
+        <h2database.version>2.4.240</h2database.version>
         <jacoco.version>0.8.13</jacoco.version>
-        <spotless.version>2.46.1</spotless.version>
+        <spotless.version>3.0.0</spotless.version>
         <google.code.findbugs.version>3.0.2</google.code.findbugs.version>
     </properties>
     <dependencies>

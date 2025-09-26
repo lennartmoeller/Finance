@@ -48,3 +48,22 @@ ENV_FILE="dev.env" docker compose up
 ```
 
 Adjust `ENV_FILE` to point to the configuration you need.
+
+## Updating Dependencies
+
+Update backend dependencies with the Maven Versions Plugin tools:
+
+```bash
+cd backend
+chmod +x ./mvnw
+./mvnw versions:update-parent
+./mvnw versions:update-properties
+./mvnw versions:update-child-modules
+```
+
+Update frontend dependencies via the existing npm script:
+
+```bash
+cd frontend
+npm run update
+```
