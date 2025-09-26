@@ -10,7 +10,7 @@ This is a Spring Boot project using Maven. Key settings appear in `pom.xml`. Sou
 
 - `FinanceApplication.java` – application entry point that bootstraps Spring.
 - `controller/` – REST endpoints. Example: `AccountController` exposes CRUD routes for accounts.
-- `service/` – business logic. `TransactionService` fetches filtered transactions and performs persistence operations.
+- `service/` – business logic, e.g., transaction handling and CSV imports.
 - `repository/` – Spring Data repositories for JPA entities.
 - `dto/` and `mapper/` – Data transfer objects and MapStruct mappers.
 - `model/` – JPA entities representing accounts, transactions, categories, etc.
@@ -31,11 +31,11 @@ UI structure is organized into:
 
 - `index.tsx` – app entry point that renders the React app with routing and global styling.
 - `components/` – reusable UI elements (buttons, forms, tables).
-- `skeleton/` – the overall layout; `routes.tsx` defines dashboard, transactions, and stats pages. Header state is coordinated through the Zustand store in `skeleton/Header/stores/useHeader`.
-- `views/` – feature pages (DashboardView, TrackingView, StatsView). For example, `TrackingView` loads data via custom hooks and shows account lists and transaction tables.
-- `services/` – wrappers around axios and React Query for API calls. Example: `useAccounts` fetches account data from `/api/accounts`.
+- `skeleton/` – layout shell and route definitions (see `routes.tsx`).
+- `views/` – feature pages such as DashboardView, TrackingView, and StatsView.
+- `services/` – API hooks built on axios and React Query.
 - `types/` – TypeScript models mirroring backend DTOs.
-- `config/` – React Query client and other runtime configuration; `config/queryClient.ts` defines the TanStack Query client and localStorage persistence used by `PersistQueryClientProvider`.
+- `config/` – React Query client and other runtime configuration.
 - `hooks/` – shared React hooks such as DOM measurement helpers.
 - `mapper/` – client-side mappers that reshape API payloads.
 - `styles/` – global styles, theming, and scrollbar utilities for styled-components. The theme shape is typed via `styled.d.ts`, so changes to the theme should update that declaration file as well.
@@ -104,4 +104,16 @@ chmod +x ./mvnw
 
 # check tests and aim for 100% test coverage
 ./mvnw test
+```
+
+### Frontend
+
+```bash
+cd frontend
+
+# lint and fix the codebase
+npm run lint
+
+# apply code formatting
+npm run format
 ```

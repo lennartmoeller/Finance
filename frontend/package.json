@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "lint": "npx eslint --fix",
+    "format": "npx prettier --write .",
     "start": "npm run clean && webpack --mode development && webpack serve --mode development",
     "build": "npm run clean && webpack --mode production",
     "update": "npx ncu -u"
