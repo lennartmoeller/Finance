@@ -1,21 +1,19 @@
-import React, { ReactNode } from "react";
+import React, { forwardRef, type ReactNode } from "react";
 
-interface TableBodyRowProps {
+type TableRowProps = React.HTMLAttributes<HTMLTableRowElement> & {
     children: ReactNode;
-    onFocus?: () => void;
-    onBlur?: () => void;
-}
-
-const TableRow: React.FC<TableBodyRowProps> = ({
-    children,
-    onFocus,
-    onBlur,
-}) => {
-    return (
-        <tr onFocus={onFocus} onBlur={onBlur}>
-            {children}
-        </tr>
-    );
 };
+
+const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
+    ({ children, ...rest }, ref) => {
+        return (
+            <tr ref={ref} {...rest}>
+                {children}
+            </tr>
+        );
+    },
+);
+
+TableRow.displayName = "TableRow";
 
 export default TableRow;
