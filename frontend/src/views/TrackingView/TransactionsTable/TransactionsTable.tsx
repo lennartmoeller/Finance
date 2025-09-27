@@ -49,7 +49,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <StyledTransactionTable>
             <Table
                 data={transactions}
-                containerHeight={600}
                 header={
                     <TableRow>
                         <TableHeaderCell sticky="top">Date</TableHeaderCell>
