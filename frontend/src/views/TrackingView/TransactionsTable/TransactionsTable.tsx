@@ -8,6 +8,8 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
 import { filterDuplicates } from "@/utils/array";
+import { Nullable } from "@/utils/types";
+import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 
@@ -22,6 +24,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     categories,
     transactions,
 }: TransactionsTableProps) => {
+    const setFocusedTransaction = useFocusedTransaction(
+        (state) => state.setFocusedTransaction,
+    );
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
         options: accounts,
         idProperty: "id",
@@ -48,7 +53,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     return (
         <StyledTransactionTable>
             <Table
-                data={transactions}
                 header={
                     <TableRow>
                         <TableHeaderCell sticky="top">Date</TableHeaderCell>
@@ -63,26 +67,46 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         <TableHeaderCell sticky="top"></TableHeaderCell>
                     </TableRow>
                 }
-                body={(transaction: Transaction) => (
-                    <TransactionsTableRow
-                        key={transaction.id}
-                        transaction={transaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                    />
-                )}
-                postRow={
-                    <TransactionsTableRow
-                        transaction={emptyTransaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                        draft
-                    />
-                }
+                body={{
+                    data: transactions,
+                    key: (transaction: Transaction) => transaction.id,
+                    content: (transaction: Transaction) => (
+                        <TransactionsTableRow
+                            transaction={transaction}
+                            accountInputFormatter={
+                                accountsSelectorInputFormatter
+                            }
+                            categoryInputFormatter={
+                                categoriesSelectorInputFormatter
+                            }
+                        />
+                    ),
+                    properties: (transaction: Transaction) => ({
+                        onFocus: () => {
+                            setFocusedTransaction(transaction);
+                        },
+                        onBlur: () => {
+                            setFocusedTransaction(null);
+                        },
+                    }),
+                }}
+                post={{
+                    data: [emptyTransaction],
+                    key: () => "draft-row",
+                    content: (transaction: Nullable<Transaction>) => (
+                        <TransactionsTableRow
+                            transaction={transaction}
+                            accountInputFormatter={
+                                accountsSelectorInputFormatter
+                            }
+                            categoryInputFormatter={
+                                categoriesSelectorInputFormatter
+                            }
+                            draft
+                        />
+                    ),
+                    properties: () => ({}),
+                }}
             />
         </StyledTransactionTable>
     );

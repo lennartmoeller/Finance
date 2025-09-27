@@ -1,19 +1,11 @@
-import React, { forwardRef, type ReactNode } from "react";
+import React from "react";
 
-type TableRowProps = React.HTMLAttributes<HTMLTableRowElement> & {
-    children: ReactNode;
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+    children: React.ReactNode;
+}
+
+const TableRow: React.FC<TableRowProps> = ({ children, ...props }) => {
+    return <tr {...props}>{children}</tr>;
 };
-
-const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
-    ({ children, ...rest }, ref) => {
-        return (
-            <tr ref={ref} {...rest}>
-                {children}
-            </tr>
-        );
-    },
-);
-
-TableRow.displayName = "TableRow";
 
 export default TableRow;
