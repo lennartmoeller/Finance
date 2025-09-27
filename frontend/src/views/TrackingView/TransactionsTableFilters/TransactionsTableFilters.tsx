@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import useForm from "@/components/Form/hooks/useForm";
 import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
@@ -28,7 +28,10 @@ const TransactionsTableFilters: React.FC<TransactionsTableFiltersProps> = ({
         setYearMonths,
         reinit,
     } = useTransactionFilter();
-    reinit();
+
+    useEffect(() => {
+        reinit();
+    }, [reinit]);
 
     const register = useForm<{
         accountIds: number;
