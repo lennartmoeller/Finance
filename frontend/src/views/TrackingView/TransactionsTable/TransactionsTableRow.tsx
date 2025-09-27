@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import Button from "@/components/Button/Button";
 import useForm from "@/components/Form/hooks/useForm";
@@ -48,19 +48,31 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 
     const { yearMonths } = useTransactionFilter();
 
-    const dateInputFormatter = new GermanDateInputFormatter({
-        defaultYear:
-            yearMonths.length !== 1
-                ? undefined
-                : yearMonths[0].getYear().getValue(),
-        defaultMonth:
-            yearMonths.length !== 1
-                ? undefined
-                : yearMonths[0].getMonth().getValue(),
-        required: true,
-    });
-    const descriptionInputFormatter = new StringInputFormatter();
-    const amountInputFormatter = new CentInputFormatter({ required: true });
+    const dateInputFormatter = useMemo(
+        () =>
+            new GermanDateInputFormatter({
+                defaultYear:
+                    yearMonths.length !== 1
+                        ? undefined
+                        : yearMonths[0].getYear().getValue(),
+                defaultMonth:
+                    yearMonths.length !== 1
+                        ? undefined
+                        : yearMonths[0].getMonth().getValue(),
+                required: true,
+            }),
+        [yearMonths],
+    );
+
+    const descriptionInputFormatter = useMemo(
+        () => new StringInputFormatter(),
+        [],
+    );
+
+    const amountInputFormatter = useMemo(
+        () => new CentInputFormatter({ required: true }),
+        [],
+    );
 
     return (
         <TableRow
