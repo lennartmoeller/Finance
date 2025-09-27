@@ -1,5 +1,6 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = (env, argv) => {
     const isProd = argv.mode === "production";
@@ -9,7 +10,11 @@ module.exports = (env, argv) => {
         entry: "./src/index.tsx",
         output: {
             path: path.resolve(__dirname, "dist"),
-            filename: "bundle.js",
+            filename: isProd ? "[name].[contenthash].js" : "[name].js",
+            chunkFilename: isProd
+                ? "[name].[contenthash].chunk.js"
+                : "[name].chunk.js",
+            clean: true,
         },
         resolve: {
             extensions: [".tsx", ".ts", ".js"],
@@ -46,13 +51,60 @@ module.exports = (env, argv) => {
             ],
         },
         plugins: [
+            new HtmlWebpackPlugin({
+                template: "assets/index.html",
+                filename: "index.html",
+                inject: "body",
+                scriptLoading: "defer",
+            }),
             new CopyWebpackPlugin({
-                patterns: [{ from: "assets", to: "" }],
+                patterns: [
+                    {
+                        from: "assets",
+                        to: "",
+                        globOptions: { ignore: ["**/index.html"] },
+                    },
+                ],
             }),
         ],
         devtool: isProd ? "source-map" : "eval-source-map",
         optimization: {
             minimize: isProd,
+            splitChunks: {
+                chunks: "all",
+                cacheGroups: {
+                    default: false,
+                    defaultVendors: false,
+                    // Vendor chunk for node_modules
+                    vendor: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: "vendors",
+                        chunks: "initial",
+                        priority: 20,
+                        enforce: true,
+                    },
+                    // React and React-DOM in separate chunk
+                    react: {
+                        test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                        name: "react",
+                        chunks: "initial",
+                        priority: 30,
+                        enforce: true,
+                    },
+                    // Chart.js in separate chunk due to its size
+                    charts: {
+                        test: /[\\/]node_modules[\\/](chart\.js|react-chartjs-2)[\\/]/,
+                        name: "charts",
+                        chunks: "initial",
+                        priority: 25,
+                        enforce: true,
+                    },
+                },
+            },
+            // Better runtime chunk for long-term caching
+            runtimeChunk: {
+                name: "runtime",
+            },
         },
         devServer: isProd
             ? undefined

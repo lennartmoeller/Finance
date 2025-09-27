@@ -13,3 +13,6 @@
 # Environment files
 *.env
 /env/
+
+# Coding Agents Settings
+.claude/
