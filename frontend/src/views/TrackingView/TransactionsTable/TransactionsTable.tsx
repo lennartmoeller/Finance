@@ -55,21 +55,33 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             <Table
                 header={
                     <TableRow>
-                        <TableHeaderCell sticky="top">Date</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Account</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Category</TableHeaderCell>
-                        <TableHeaderCell sticky="top">
+                        <TableHeaderCell width={98} sticky="top">
+                            Date
+                        </TableHeaderCell>
+                        <TableHeaderCell width={140} sticky="top">
+                            Account
+                        </TableHeaderCell>
+                        <TableHeaderCell width={200} sticky="top">
+                            Category
+                        </TableHeaderCell>
+                        <TableHeaderCell width={350} sticky="top">
                             Description
                         </TableHeaderCell>
-                        <TableHeaderCell sticky="top" horAlign="center">
+                        <TableHeaderCell
+                            width={100}
+                            sticky="top"
+                            horAlign="center"
+                        >
                             Amount
                         </TableHeaderCell>
-                        <TableHeaderCell sticky="top"></TableHeaderCell>
+                        <TableHeaderCell
+                            width={31}
+                            sticky="top"
+                        ></TableHeaderCell>
                     </TableRow>
                 }
                 body={{
                     data: transactions,
-                    key: (transaction: Transaction) => transaction.id,
                     content: (transaction: Transaction) => (
                         <TransactionsTableRow
                             transaction={transaction}
@@ -92,7 +104,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 }}
                 post={{
                     data: [emptyTransaction],
-                    key: () => "draft-row",
                     content: (transaction: Nullable<Transaction>) => (
                         <TransactionsTableRow
                             transaction={transaction}

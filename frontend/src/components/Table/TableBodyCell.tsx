@@ -16,7 +16,6 @@ const TableBodyCell: React.FC<TableCellProps> = ({
     backgroundColor,
     colspan,
     sticky,
-    width,
     zIndex,
     children,
 }) => {
@@ -26,7 +25,6 @@ const TableBodyCell: React.FC<TableCellProps> = ({
             $backgroundColor={backgroundColor}
             $headerLevel={headerLevel}
             $sticky={sticky}
-            $width={width}
             $zIndex={zIndex}
         >
             <StyledCellContent

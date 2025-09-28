@@ -1,11 +1,11 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useRef } from "react";
+
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
-import TableRow from "@/components/Table/TableRow";
 
 interface TableRowGroup<T> {
     data: Array<T>;
-    key: (element: T, index: number) => React.Key;
     content: (element: T, index: number) => ReactNode;
     properties: (
         element: T,
@@ -26,36 +26,55 @@ const Table = <TBody, TPre, TPost>({
     pre,
     post,
 }: TableProps<TBody, TPre, TPost>) => {
+    const parentRef = useRef<HTMLDivElement>(null);
+
+    const mapGroup = <T,>(group?: TableRowGroup<T>) =>
+        group?.data.map((element, index) => ({
+            content: group.content(element, index),
+            properties: group.properties(element, index),
+        })) ?? [];
+    const rowData = [...mapGroup(pre), ...mapGroup(body), ...mapGroup(post)];
+
+    const virtualizer = useVirtualizer({
+        count: rowData.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 50,
+    });
+
     return (
-        <StyledTable>
-            <thead>{header}</thead>
-            <tbody>
-                {pre?.data.map((element: TPre, index: number) => (
-                    <TableRow
-                        key={pre.key(element, index)}
-                        {...pre.properties(element, index)}
-                    >
-                        {pre.content(element, index)}
-                    </TableRow>
-                ))}
-                {body.data.map((element: TBody, index: number) => (
-                    <TableRow
-                        key={body.key(element, index)}
-                        {...body.properties(element, index)}
-                    >
-                        {body.content(element, index)}
-                    </TableRow>
-                ))}
-                {post?.data.map((element: TPost, index: number) => (
-                    <TableRow
-                        key={post.key(element, index)}
-                        {...post.properties(element, index)}
-                    >
-                        {post.content(element, index)}
-                    </TableRow>
-                ))}
-            </tbody>
-        </StyledTable>
+        <div ref={parentRef} style={{ overflow: "auto", height: "400px" }}>
+            <StyledTable>
+                <thead>{header}</thead>
+                <tbody
+                    style={{
+                        height: `${virtualizer.getTotalSize()}px`,
+                        position: "relative",
+                    }}
+                >
+                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                        const data = rowData[virtualRow.index];
+                        return (
+                            <tr
+                                key={virtualRow.key}
+                                data-index={virtualRow.index}
+                                ref={virtualizer.measureElement}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    transform: `translateY(${virtualRow.start}px)`,
+                                    display: "table-row-group",
+                                }}
+                                {...data.properties}
+                            >
+                                {data.content}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </StyledTable>
+        </div>
     );
 };
 

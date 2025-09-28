@@ -8,7 +8,11 @@ import TableCellProps from "@/components/Table/types/TableCellProps";
 
 const StyledHeaderCell = styled(StyledCell).attrs({ as: "th" })``;
 
-const TableHeaderCell: React.FC<TableCellProps> = ({
+interface TableHeaderCellProps extends TableCellProps {
+    width: number;
+}
+
+const TableHeaderCell: React.FC<TableHeaderCellProps> = ({
     headerLevel = 1,
     padding,
     horAlign,

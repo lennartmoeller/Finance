@@ -71,39 +71,39 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 
     return (
         <>
-            <TableBodyCell width={98}>
+            <TableBodyCell>
                 <Input
                     {...register("date")}
                     inputFormatter={dateInputFormatter}
                     autoFocus={draft}
                 />
             </TableBodyCell>
-            <TableBodyCell width={140}>
+            <TableBodyCell>
                 <Input
                     {...register("accountId")}
                     inputFormatter={accountInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell width={200}>
+            <TableBodyCell>
                 <Input
                     {...register("categoryId")}
                     inputFormatter={categoryInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell width={350}>
+            <TableBodyCell>
                 <Input
                     {...register("description")}
                     inputFormatter={descriptionInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell horAlign="right" width={100}>
+            <TableBodyCell horAlign="right">
                 <Input
                     {...register("amount")}
                     inputFormatter={amountInputFormatter}
                     textAlign="right"
                 />
             </TableBodyCell>
-            <TableBodyCell horAlign="center" width={31}>
+            <TableBodyCell horAlign="center">
                 {!draft && (
                     <Button
                         onClick={() =>
