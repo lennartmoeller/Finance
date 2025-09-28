@@ -43,7 +43,7 @@ const Table = <TBody, TPre, TPost>({
     });
 
     return (
-        <div ref={parentRef} style={{ overflow: "auto", height: "400px" }}>
+        <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
             <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
                 <StyledTable>
                     <thead>{header}</thead>
