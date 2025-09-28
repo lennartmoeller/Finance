@@ -39,41 +39,36 @@ const Table = <TBody, TPre, TPost>({
         count: rowData.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 50,
+        overscan: 20,
     });
 
     return (
         <div ref={parentRef} style={{ overflow: "auto", height: "400px" }}>
-            <StyledTable>
-                <thead>{header}</thead>
-                <tbody
-                    style={{
-                        height: `${virtualizer.getTotalSize()}px`,
-                        position: "relative",
-                    }}
-                >
-                    {virtualizer.getVirtualItems().map((virtualRow) => {
-                        const data = rowData[virtualRow.index];
-                        return (
-                            <tr
-                                key={virtualRow.key}
-                                data-index={virtualRow.index}
-                                ref={virtualizer.measureElement}
-                                style={{
-                                    position: "absolute",
-                                    top: 0,
-                                    left: 0,
-                                    width: "100%",
-                                    transform: `translateY(${virtualRow.start}px)`,
-                                    display: "table-row-group",
-                                }}
-                                {...data.properties}
-                            >
-                                {data.content}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </StyledTable>
+            <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
+                <StyledTable>
+                    <thead>{header}</thead>
+                    <tbody>
+                        {virtualizer
+                            .getVirtualItems()
+                            .map((virtualRow, index) => {
+                                const data = rowData[virtualRow.index];
+                                return (
+                                    <tr
+                                        key={virtualRow.key}
+                                        data-index={virtualRow.index}
+                                        ref={virtualizer.measureElement}
+                                        style={{
+                                            transform: `translateY(${virtualRow.start - index * virtualRow.size}px)`,
+                                        }}
+                                        {...data.properties}
+                                    >
+                                        {data.content}
+                                    </tr>
+                                );
+                            })}
+                    </tbody>
+                </StyledTable>
+            </div>
         </div>
     );
 };
