@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf dist",
+    "check": "npx tsc --noEmit",
     "lint": "npx eslint --fix",
     "format": "npx prettier --write .",
     "start": "npm run clean && webpack --mode development && webpack serve --mode development",

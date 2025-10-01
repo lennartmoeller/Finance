@@ -1,4 +1,4 @@
-# Agents Instructions
+# Coding Agents Instructions
 
 This file provides comprehensive guidance for AI agents working with this codebase.
 
@@ -154,6 +154,9 @@ chmod +x ./mvnw
 ```bash
 cd frontend
 npm ci
+
+# check for TypeScript errors
+npm run check
 
 # lint and fix the codebase
 npm run lint
