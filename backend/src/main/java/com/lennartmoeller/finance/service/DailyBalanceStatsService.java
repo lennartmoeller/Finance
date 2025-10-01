@@ -34,7 +34,7 @@ public class DailyBalanceStatsService {
                 .get(projection.getCategory().getTransactionType())
                 .add(projection.getDate(), projection.getCategory().getSmoothType(), projection.getBalance()));
 
-        DateRange dateRange = new DateRange(dailyBalances.getFirst().getDate().withDayOfMonth(1), LocalDate.now());
+        DateRange dateRange = new DateRange(dailyBalances.getFirst().getDate().withDayOfMonth(1), getCurrentDate());
 
         double initialBalance = accountRepository.getSummedStartBalance();
 
@@ -79,5 +79,9 @@ public class DailyBalanceStatsService {
                         Collectors.collectingAndThen(
                                 Collectors.mapping(DailySavingStatsDTO::getBalance, Collectors.toList()),
                                 StatsMetricDTO::mean)));
+    }
+
+    LocalDate getCurrentDate() {
+        return LocalDate.now();
     }
 }

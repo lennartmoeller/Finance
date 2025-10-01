@@ -35,8 +35,10 @@ class DailyBalanceStatsServiceTest {
 
     @Test
     void testGetStats() {
-        LocalDate now = LocalDate.now();
-        LocalDate first = now.withDayOfMonth(1);
+        DailyBalanceStatsService spy = spy(service);
+        LocalDate first = LocalDate.of(2024, 1, 1);
+        LocalDate now = LocalDate.of(2024, 1, 2);
+        doReturn(now).when(spy).getCurrentDate();
 
         Category incomeCat = new Category();
         incomeCat.setTransactionType(TransactionType.INCOME);
@@ -55,9 +57,9 @@ class DailyBalanceStatsServiceTest {
         when(transactionRepository.getDailyBalances()).thenReturn(projections);
         when(accountRepository.getSummedStartBalance()).thenReturn(1000L);
 
-        List<DailySavingStatsDTO> result = service.getStats();
+        List<DailySavingStatsDTO> result = spy.getStats();
 
-        int expectedDays = (int) java.time.temporal.ChronoUnit.DAYS.between(first, now) + 1;
+        int expectedDays = 2;
         assertEquals(expectedDays, result.size());
 
         DailySavingStatsDTO dayOne = result.getFirst();
