@@ -4,6 +4,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
+import TableCellProps from "@/components/Table/types/TableCellProps";
 import { memo } from "@/utils/react";
 
 interface TableRowGroup<T> {
@@ -21,7 +22,10 @@ interface TableRowGroup<T> {
 interface TableColumn {
     key: React.Key;
     width: number;
-    header?: string;
+    header?: {
+        name: string;
+        props?: Omit<TableCellProps, "children">;
+    };
 }
 
 interface TableProps {
@@ -48,8 +52,11 @@ const Table = memo(
                           content: (
                               <>
                                   {columns.map((column) => (
-                                      <TableHeaderCell key={column.key}>
-                                          {column.header ?? ""}
+                                      <TableHeaderCell
+                                          key={column.key}
+                                          {...column.header?.props}
+                                      >
+                                          {column.header?.name ?? ""}
                                       </TableHeaderCell>
                                   ))}
                               </>
