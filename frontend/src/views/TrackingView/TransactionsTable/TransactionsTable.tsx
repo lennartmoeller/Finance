@@ -2,7 +2,6 @@ import React from "react";
 
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import Table from "@/components/Table/Table";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
@@ -49,28 +48,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     });
 
     const columns = [
-        { key: "date", width: 98 },
-        { key: "account", width: 140 },
-        { key: "category", width: 200 },
-        { key: "description", width: 350 },
-        { key: "amount", width: 100 },
-        { key: "actions", width: 31 },
+        { key: "date", width: 98, header: "Date" },
+        { key: "account", width: 140, header: "Account" },
+        { key: "category", width: 200, header: "Category" },
+        { key: "description", width: 350, header: "Description" },
+        { key: "amount", width: 100, header: "Amount" },
+        { key: "actions", width: 31, header: "" },
     ];
 
     const rows = [
-        {
-            key: "header",
-            content: (
-                <>
-                    <TableHeaderCell>Date</TableHeaderCell>
-                    <TableHeaderCell>Account</TableHeaderCell>
-                    <TableHeaderCell>Category</TableHeaderCell>
-                    <TableHeaderCell>Description</TableHeaderCell>
-                    <TableHeaderCell horAlign="center">Amount</TableHeaderCell>
-                    <TableHeaderCell />
-                </>
-            ),
-        },
         {
             key: (transaction: Transaction) => transaction.id,
             data: transactions,

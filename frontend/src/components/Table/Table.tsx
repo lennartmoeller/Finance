@@ -3,6 +3,7 @@ import React, { ReactNode, useCallback, useMemo, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
+import TableHeaderCell from "@/components/Table/TableHeaderCell";
 import { memo } from "@/utils/react";
 
 interface TableRowGroup<T> {
@@ -20,6 +21,7 @@ interface TableRowGroup<T> {
 interface TableColumn {
     key: React.Key;
     width: number;
+    header?: string;
 }
 
 interface TableProps {
@@ -33,13 +35,39 @@ const Table = memo(
     ({ columns, stickyHeaderRows = 0, rows = [] }: TableProps) => {
         const parentRef = useRef<HTMLDivElement>(null);
 
+        const hasHeaders = useMemo(
+            () => columns?.some((column) => column.header !== undefined),
+            [columns],
+        );
+
+        const headerRow = useMemo(
+            () =>
+                hasHeaders && columns
+                    ? {
+                          key: "header",
+                          content: (
+                              <>
+                                  {columns.map((column) => (
+                                      <TableHeaderCell key={column.key}>
+                                          {column.header ?? ""}
+                                      </TableHeaderCell>
+                                  ))}
+                              </>
+                          ),
+                          properties: {},
+                      }
+                    : null,
+            [hasHeaders, columns],
+        );
+
         const allRows: Array<{
             key: React.Key;
             content: ReactNode;
             properties: React.HTMLAttributes<HTMLTableRowElement>;
         }> = useMemo(
-            () =>
-                rows.flatMap(
+            () => [
+                ...(headerRow ? [headerRow] : []),
+                ...rows.flatMap(
                     (row) =>
                         row.data?.map((element, index) => ({
                             key:
@@ -64,7 +92,8 @@ const Table = memo(
                             },
                         ],
                 ),
-            [rows],
+            ],
+            [headerRow, rows],
         );
 
         const headerRows = useMemo(
