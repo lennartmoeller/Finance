@@ -53,22 +53,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <StyledTransactionTable>
             <Table
                 columnWidths={[98, 140, 200, 350, 100, 31]}
-                stickyHeaderRows={2}
+                stickyHeaderRows={1}
                 rows={[
-                    {
-                        content: (
-                            <>
-                                <TableHeaderCell>Date</TableHeaderCell>
-                                <TableHeaderCell>Account</TableHeaderCell>
-                                <TableHeaderCell>Category</TableHeaderCell>
-                                <TableHeaderCell>Description</TableHeaderCell>
-                                <TableHeaderCell horAlign="center">
-                                    Amount
-                                </TableHeaderCell>
-                                <TableHeaderCell />
-                            </>
-                        ),
-                    },
                     {
                         content: (
                             <>

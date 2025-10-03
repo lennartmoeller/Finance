@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef } from "react";
+import React, { ReactNode, useCallback, useMemo, useRef } from "react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -25,6 +25,12 @@ interface TableProps {
     rows: Array<TableRowGroupWithData<any> | TableRowGroupWithoutData>;
 }
 
+function isWithData<T>(
+    row: TableRowGroupWithData<T> | TableRowGroupWithoutData,
+): row is TableRowGroupWithData<T> {
+    return (row as TableRowGroupWithData<T>).data !== undefined;
+}
+
 const Table = ({
     columnWidths,
     stickyHeaderRows = 0,
@@ -35,32 +41,41 @@ const Table = ({
     const allRows: Array<{
         content: ReactNode;
         properties: React.HTMLAttributes<HTMLTableRowElement>;
-    }> = rows.flatMap((row) => {
-        if (Object.hasOwn(row, "data")) {
+    }> = useMemo(() => {
+        return rows.flatMap((row) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const row2 = row as TableRowGroupWithData<any>;
-            return row2.data.map((element, index) => ({
-                content: row2.content(element, index),
-                properties: row2.properties
-                    ? row2.properties(element, index)
-                    : {},
-            }));
-        } else {
-            const row2 = row as TableRowGroupWithoutData;
-            return {
-                content: row2.content,
-                properties: row2.properties ?? {},
-            };
-        }
-    });
+            if (isWithData<any>(row)) {
+                return row.data.map((element, index) => ({
+                    content: row.content(element, index),
+                    properties: row.properties
+                        ? row.properties(element, index)
+                        : {},
+                }));
+            }
+            return [
+                {
+                    content: row.content,
+                    properties: row.properties ?? {},
+                },
+            ];
+        });
+    }, [rows]);
 
-    const headerRows = allRows.slice(0, stickyHeaderRows);
-    const bodyRows = allRows.slice(stickyHeaderRows);
+    const headerRows = useMemo(
+        () => allRows.slice(0, stickyHeaderRows),
+        [allRows, stickyHeaderRows],
+    );
+    const bodyRows = useMemo(
+        () => allRows.slice(stickyHeaderRows),
+        [allRows, stickyHeaderRows],
+    );
+
+    const estimateSize = useCallback(() => 50, []);
 
     const virtualizer = useVirtualizer({
         count: bodyRows.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => 50,
+        estimateSize,
         overscan: 50,
     });
 
@@ -69,6 +84,8 @@ const Table = ({
     const paddingBottom = items.length
         ? virtualizer.getTotalSize() - items.at(-1)!.end
         : 0;
+
+    const spacerColSpan = columnWidths?.length ?? 9999;
 
     return (
         <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
@@ -80,24 +97,28 @@ const Table = ({
                         ))}
                     </colgroup>
                 )}
-                <thead>
-                    {headerRows.map((rowData, index) => (
-                        <tr key={index} {...rowData.properties}>
-                            {rowData.content}
-                        </tr>
-                    ))}
-                </thead>
+
+                {headerRows.length > 0 && (
+                    <thead>
+                        {headerRows.map((rowData, index) => (
+                            <tr key={index} {...rowData.properties}>
+                                {rowData.content}
+                            </tr>
+                        ))}
+                    </thead>
+                )}
+
                 <tbody>
                     {paddingTop > 0 && (
                         <tr aria-hidden="true">
                             <td
-                                colSpan={9999}
+                                colSpan={spacerColSpan}
                                 style={{ height: paddingTop, padding: 0 }}
                             />
                         </tr>
                     )}
 
-                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                    {items.map((virtualRow) => {
                         const data = bodyRows[virtualRow.index];
                         return (
                             <tr
@@ -114,7 +135,7 @@ const Table = ({
                     {paddingBottom > 0 && (
                         <tr aria-hidden="true">
                             <td
-                                colSpan={9999}
+                                colSpan={spacerColSpan}
                                 style={{ height: paddingBottom, padding: 0 }}
                             />
                         </tr>

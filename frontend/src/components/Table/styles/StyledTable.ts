@@ -6,6 +6,12 @@ const StyledTable = styled.table`
     margin: 0;
     padding: 0;
     border-spacing: 0;
+
+    thead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
 `;
 
 export default StyledTable;
