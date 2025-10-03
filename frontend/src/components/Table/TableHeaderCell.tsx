@@ -8,20 +8,13 @@ import TableCellProps from "@/components/Table/types/TableCellProps";
 
 const StyledHeaderCell = styled(StyledCell).attrs({ as: "th" })``;
 
-interface TableHeaderCellProps extends TableCellProps {
-    width: number;
-}
-
-const TableHeaderCell: React.FC<TableHeaderCellProps> = ({
+const TableHeaderCell: React.FC<TableCellProps> = ({
     headerLevel = 1,
     padding,
     horAlign,
     vertAlign,
     backgroundColor,
     colspan,
-    sticky,
-    width,
-    zIndex,
     children,
 }) => {
     return (
@@ -29,9 +22,6 @@ const TableHeaderCell: React.FC<TableHeaderCellProps> = ({
             colSpan={colspan}
             $backgroundColor={backgroundColor}
             $headerLevel={headerLevel}
-            $sticky={sticky}
-            $width={width}
-            $zIndex={zIndex}
         >
             <StyledCellContent
                 $headerLevel={headerLevel}

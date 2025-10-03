@@ -3,7 +3,6 @@ import React from "react";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import Table from "@/components/Table/Table";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
-import TableRow from "@/components/Table/TableRow";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
@@ -53,71 +52,76 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     return (
         <StyledTransactionTable>
             <Table
-                header={
-                    <TableRow>
-                        <TableHeaderCell width={98} sticky="top">
-                            Date
-                        </TableHeaderCell>
-                        <TableHeaderCell width={140} sticky="top">
-                            Account
-                        </TableHeaderCell>
-                        <TableHeaderCell width={200} sticky="top">
-                            Category
-                        </TableHeaderCell>
-                        <TableHeaderCell width={350} sticky="top">
-                            Description
-                        </TableHeaderCell>
-                        <TableHeaderCell
-                            width={100}
-                            sticky="top"
-                            horAlign="center"
-                        >
-                            Amount
-                        </TableHeaderCell>
-                        <TableHeaderCell
-                            width={31}
-                            sticky="top"
-                        ></TableHeaderCell>
-                    </TableRow>
-                }
-                body={{
-                    data: transactions,
-                    content: (transaction: Transaction) => (
-                        <TransactionsTableRow
-                            transaction={transaction}
-                            accountInputFormatter={
-                                accountsSelectorInputFormatter
-                            }
-                            categoryInputFormatter={
-                                categoriesSelectorInputFormatter
-                            }
-                        />
-                    ),
-                    properties: (transaction: Transaction) => ({
-                        onFocus: () => {
-                            setFocusedTransaction(transaction);
-                        },
-                        onBlur: () => {
-                            setFocusedTransaction(null);
-                        },
-                    }),
-                }}
-                post={{
-                    data: [emptyTransaction],
-                    content: (transaction: Nullable<Transaction>) => (
-                        <TransactionsTableRow
-                            transaction={transaction}
-                            accountInputFormatter={
-                                accountsSelectorInputFormatter
-                            }
-                            categoryInputFormatter={
-                                categoriesSelectorInputFormatter
-                            }
-                            draft
-                        />
-                    ),
-                    properties: () => ({}),
-                }}
+                columnWidths={[98, 140, 200, 350, 100, 31]}
+                stickyHeaderRows={2}
+                rows={[
+                    {
+                        content: (
+                            <>
+                                <TableHeaderCell>Date</TableHeaderCell>
+                                <TableHeaderCell>Account</TableHeaderCell>
+                                <TableHeaderCell>Category</TableHeaderCell>
+                                <TableHeaderCell>Description</TableHeaderCell>
+                                <TableHeaderCell horAlign="center">
+                                    Amount
+                                </TableHeaderCell>
+                                <TableHeaderCell />
+                            </>
+                        ),
+                    },
+                    {
+                        content: (
+                            <>
+                                <TableHeaderCell>Date</TableHeaderCell>
+                                <TableHeaderCell>Account</TableHeaderCell>
+                                <TableHeaderCell>Category</TableHeaderCell>
+                                <TableHeaderCell>Description</TableHeaderCell>
+                                <TableHeaderCell horAlign="center">
+                                    Amount
+                                </TableHeaderCell>
+                                <TableHeaderCell />
+                            </>
+                        ),
+                    },
+                    {
+                        data: transactions,
+                        content: (transaction: Transaction) => (
+                            <TransactionsTableRow
+                                transaction={transaction}
+                                accountInputFormatter={
+                                    accountsSelectorInputFormatter
+                                }
+                                categoryInputFormatter={
+                                    categoriesSelectorInputFormatter
+                                }
+                            />
+                        ),
+                        properties: (transaction: Transaction) => ({
+                            onFocus: () => {
+                                setFocusedTransaction(transaction);
+                            },
+                            onBlur: () => {
+                                setFocusedTransaction(null);
+                            },
+                        }),
+                    },
+                    {
+                        data: [emptyTransaction],
+                        content: (transaction: Nullable<Transaction>) => (
+                            <TransactionsTableRow
+                                transaction={transaction}
+                                accountInputFormatter={
+                                    accountsSelectorInputFormatter
+                                }
+                                categoryInputFormatter={
+                                    categoriesSelectorInputFormatter
+                                }
+                                draft
+                            />
+                        ),
+                        properties: () => ({}),
+                    },
+                ]}
             />
         </StyledTransactionTable>
     );

@@ -7,8 +7,6 @@ interface TableCellProps {
     backgroundColor?: string;
     colspan?: number;
     headerLevel?: 1 | 2;
-    sticky?: "top" | "left" | "topAndLeft";
-    zIndex?: number;
     children?: ReactNode;
 }
 

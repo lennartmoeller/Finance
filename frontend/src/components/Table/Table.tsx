@@ -4,71 +4,123 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
 
-interface TableRowGroup<T> {
+interface TableRowGroupWithData<T> {
     data: Array<T>;
     content: (element: T, index: number) => ReactNode;
-    properties: (
+    properties?: (
         element: T,
         index: number,
     ) => React.HTMLAttributes<HTMLTableRowElement>;
 }
 
-interface TableProps<TBody, TPre, TPost> {
-    header: ReactNode;
-    body: TableRowGroup<TBody>;
-    pre?: TableRowGroup<TPre>;
-    post?: TableRowGroup<TPost>;
+interface TableRowGroupWithoutData {
+    content: ReactNode;
+    properties?: React.HTMLAttributes<HTMLTableRowElement>;
 }
 
-const Table = <TBody, TPre, TPost>({
-    header,
-    body,
-    pre,
-    post,
-}: TableProps<TBody, TPre, TPost>) => {
+interface TableProps {
+    columnWidths?: number[];
+    stickyHeaderRows?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rows: Array<TableRowGroupWithData<any> | TableRowGroupWithoutData>;
+}
+
+const Table = ({
+    columnWidths,
+    stickyHeaderRows = 0,
+    rows = [],
+}: TableProps) => {
     const parentRef = useRef<HTMLDivElement>(null);
 
-    const mapGroup = <T,>(group?: TableRowGroup<T>) =>
-        group?.data.map((element, index) => ({
-            content: group.content(element, index),
-            properties: group.properties(element, index),
-        })) ?? [];
-    const rowData = [...mapGroup(pre), ...mapGroup(body), ...mapGroup(post)];
+    const allRows: Array<{
+        content: ReactNode;
+        properties: React.HTMLAttributes<HTMLTableRowElement>;
+    }> = rows.flatMap((row) => {
+        if (Object.hasOwn(row, "data")) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const row2 = row as TableRowGroupWithData<any>;
+            return row2.data.map((element, index) => ({
+                content: row2.content(element, index),
+                properties: row2.properties
+                    ? row2.properties(element, index)
+                    : {},
+            }));
+        } else {
+            const row2 = row as TableRowGroupWithoutData;
+            return {
+                content: row2.content,
+                properties: row2.properties ?? {},
+            };
+        }
+    });
+
+    const headerRows = allRows.slice(0, stickyHeaderRows);
+    const bodyRows = allRows.slice(stickyHeaderRows);
 
     const virtualizer = useVirtualizer({
-        count: rowData.length,
+        count: bodyRows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 50,
-        overscan: 20,
+        overscan: 50,
     });
+
+    const items = virtualizer.getVirtualItems();
+    const paddingTop = items.length ? items.at(0)!.start : 0;
+    const paddingBottom = items.length
+        ? virtualizer.getTotalSize() - items.at(-1)!.end
+        : 0;
 
     return (
         <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
-            <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-                <StyledTable>
-                    <thead>{header}</thead>
-                    <tbody>
-                        {virtualizer
-                            .getVirtualItems()
-                            .map((virtualRow, index) => {
-                                const data = rowData[virtualRow.index];
-                                return (
-                                    <tr
-                                        key={virtualRow.key}
-                                        data-index={virtualRow.index}
-                                        ref={virtualizer.measureElement}
-                                        style={{
-                                            transform: `translateY(${virtualRow.start - index * virtualRow.size}px)`,
-                                        }}
-                                        {...data.properties}
-                                    >
-                                        {data.content}
-                                    </tr>
-                                );
-                            })}
-                    </tbody>
-                </StyledTable>
-            </div>
+            <StyledTable>
+                {columnWidths && (
+                    <colgroup>
+                        {columnWidths.map((width, index) => (
+                            <col key={index} style={{ width: `${width}px` }} />
+                        ))}
+                    </colgroup>
+                )}
+                <thead>
+                    {headerRows.map((rowData, index) => (
+                        <tr key={index} {...rowData.properties}>
+                            {rowData.content}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody>
+                    {paddingTop > 0 && (
+                        <tr aria-hidden="true">
+                            <td
+                                colSpan={9999}
+                                style={{ height: paddingTop, padding: 0 }}
+                            />
+                        </tr>
+                    )}
+
+                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                        const data = bodyRows[virtualRow.index];
+                        return (
+                            <tr
+                                key={virtualRow.key}
+                                data-index={virtualRow.index}
+                                ref={virtualizer.measureElement}
+                                {...data.properties}
+                            >
+                                {data.content}
+                            </tr>
+                        );
+                    })}
+
+                    {paddingBottom > 0 && (
+                        <tr aria-hidden="true">
+                            <td
+                                colSpan={9999}
+                                style={{ height: paddingBottom, padding: 0 }}
+                            />
+                        </tr>
+                    )}
+                </tbody>
+            </StyledTable>
         </div>
     );
 };
