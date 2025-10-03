@@ -7,7 +7,6 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
 import { filterDuplicates } from "@/utils/array";
-import { Nullable } from "@/utils/types";
 import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
@@ -85,20 +84,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                             />
                         ),
                         properties: (transaction: Transaction) => ({
-                            onFocus: () => {
-                                setFocusedTransaction(transaction);
-                            },
-                            onBlur: () => {
-                                setFocusedTransaction(null);
-                            },
+                            onFocus: () => setFocusedTransaction(transaction),
+                            onBlur: () => setFocusedTransaction(null),
                         }),
                     },
                     {
-                        key: () => "draft",
-                        data: [emptyTransaction],
-                        content: (transaction: Nullable<Transaction>) => (
+                        key: "draft",
+                        content: (
                             <TransactionsTableRow
-                                transaction={transaction}
+                                transaction={emptyTransaction}
                                 accountInputFormatter={
                                     accountsSelectorInputFormatter
                                 }
@@ -108,7 +102,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                                 draft
                             />
                         ),
-                        properties: () => ({}),
                     },
                 ]}
             />
