@@ -48,7 +48,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     });
 
     const columns = [
-        { key: "date", width: 98, header: { name: "Date", props: {horAlign: "center" as const} } },
+        {
+            key: "date",
+            width: 98,
+            header: { name: "Date", props: { horAlign: "center" as const } },
+        },
         { key: "account", width: 140, header: { name: "Account" } },
         { key: "category", width: 200, header: { name: "Category" } },
         { key: "description", width: 350, header: { name: "Description" } },
