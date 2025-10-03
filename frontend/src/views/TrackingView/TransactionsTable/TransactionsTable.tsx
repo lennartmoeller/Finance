@@ -56,6 +56,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 stickyHeaderRows={1}
                 rows={[
                     {
+                        key: "header",
                         content: (
                             <>
                                 <TableHeaderCell>Date</TableHeaderCell>
@@ -70,6 +71,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         ),
                     },
                     {
+                        key: (transaction: Transaction) => transaction.id,
                         data: transactions,
                         content: (transaction: Transaction) => (
                             <TransactionsTableRow
@@ -92,6 +94,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         }),
                     },
                     {
+                        key: () => "draft",
                         data: [emptyTransaction],
                         content: (transaction: Nullable<Transaction>) => (
                             <TransactionsTableRow

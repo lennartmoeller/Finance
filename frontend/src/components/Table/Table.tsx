@@ -4,31 +4,20 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 import StyledTable from "@/components/Table/styles/StyledTable";
 
-interface TableRowGroupWithData<T> {
-    data: Array<T>;
-    content: (element: T, index: number) => ReactNode;
-    properties?: (
-        element: T,
-        index: number,
-    ) => React.HTMLAttributes<HTMLTableRowElement>;
-}
-
-interface TableRowGroupWithoutData {
-    content: ReactNode;
-    properties?: React.HTMLAttributes<HTMLTableRowElement>;
+interface TableRowGroup<T> {
+    data?: Array<T>;
+    key: React.Key | ((element: T, index: number) => React.Key);
+    content: ReactNode | ((element: T, index: number) => ReactNode);
+    properties?:
+        | React.HTMLAttributes<HTMLTableRowElement>
+        | ((element: T, index: number) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
 interface TableProps {
     columnWidths?: number[];
     stickyHeaderRows?: number;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rows: Array<TableRowGroupWithData<any> | TableRowGroupWithoutData>;
-}
-
-function isWithData<T>(
-    row: TableRowGroupWithData<T> | TableRowGroupWithoutData,
-): row is TableRowGroupWithData<T> {
-    return (row as TableRowGroupWithData<T>).data !== undefined;
+    rows: Array<TableRowGroup<any>>;
 }
 
 const Table = ({
@@ -39,27 +28,29 @@ const Table = ({
     const parentRef = useRef<HTMLDivElement>(null);
 
     const allRows: Array<{
+        key: React.Key;
         content: ReactNode;
         properties: React.HTMLAttributes<HTMLTableRowElement>;
-    }> = useMemo(() => {
-        return rows.flatMap((row) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (isWithData<any>(row)) {
-                return row.data.map((element, index) => ({
-                    content: row.content(element, index),
-                    properties: row.properties
-                        ? row.properties(element, index)
-                        : {},
-                }));
-            }
-            return [
-                {
-                    content: row.content,
-                    properties: row.properties ?? {},
-                },
-            ];
-        });
-    }, [rows]);
+    }> = useMemo(
+        () =>
+            rows.flatMap((row) =>
+                    row.data?.map((element, index) => ({
+                        key: typeof row.key === "function" ? row.key(element, index) : row.key,
+                        content: typeof row.content === "function" ? row.content(element, index) : row.content,
+                        properties:
+                            typeof row.properties === "function"
+                                ? row.properties(element, index)
+                                : row.properties ?? {},
+                    })) ?? [
+                        {
+                            key: row.key as React.Key,
+                            content: row.content as ReactNode,
+                            properties: (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ?? {},
+                        },
+                    ]
+            ),
+        [rows]
+    );
 
     const headerRows = useMemo(
         () => allRows.slice(0, stickyHeaderRows),
@@ -100,8 +91,8 @@ const Table = ({
 
                 {headerRows.length > 0 && (
                     <thead>
-                        {headerRows.map((rowData, index) => (
-                            <tr key={index} {...rowData.properties}>
+                        {headerRows.map((rowData) => (
+                            <tr key={rowData.key} {...rowData.properties}>
                                 {rowData.content}
                             </tr>
                         ))}
@@ -122,7 +113,7 @@ const Table = ({
                         const data = bodyRows[virtualRow.index];
                         return (
                             <tr
-                                key={virtualRow.key}
+                                key={data.key}
                                 data-index={virtualRow.index}
                                 ref={virtualizer.measureElement}
                                 {...data.properties}
