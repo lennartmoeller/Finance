@@ -45,6 +45,4 @@ const TableCell: React.FC<TableCellInternalProps> = memo(
     "TableCell",
 );
 
-TableCell.displayName = "TableCell";
-
 export default TableCell;
