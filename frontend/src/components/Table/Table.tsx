@@ -17,15 +17,20 @@ interface TableRowGroup<T> {
           ) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
+interface TableColumn {
+    key: React.Key;
+    width: number;
+}
+
 interface TableProps {
-    columnWidths?: number[];
+    columns?: TableColumn[];
     stickyHeaderRows?: number;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rows: Array<TableRowGroup<any>>;
 }
 
 const Table = memo(
-    ({ columnWidths, stickyHeaderRows = 0, rows = [] }: TableProps) => {
+    ({ columns, stickyHeaderRows = 0, rows = [] }: TableProps) => {
         const parentRef = useRef<HTMLDivElement>(null);
 
         const allRows: Array<{
@@ -86,17 +91,17 @@ const Table = memo(
             ? virtualizer.getTotalSize() - items.at(-1)!.end
             : 0;
 
-        const spacerColSpan = columnWidths?.length ?? 9999;
+        const spacerColSpan = columns?.length ?? 9999;
 
         return (
             <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
                 <StyledTable>
-                    {columnWidths && (
+                    {columns && (
                         <colgroup>
-                            {columnWidths.map((width, index) => (
+                            {columns.map((column) => (
                                 <col
-                                    key={index}
-                                    style={{ width: `${width}px` }}
+                                    key={column.key}
+                                    style={{ width: `${column.width}px` }}
                                 />
                             ))}
                         </colgroup>

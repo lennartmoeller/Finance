@@ -48,63 +48,60 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         required: true,
     });
 
+    const columns = [
+        { key: "date", width: 98 },
+        { key: "account", width: 140 },
+        { key: "category", width: 200 },
+        { key: "description", width: 350 },
+        { key: "amount", width: 100 },
+        { key: "actions", width: 31 },
+    ];
+
+    const rows = [
+        {
+            key: "header",
+            content: (
+                <>
+                    <TableHeaderCell>Date</TableHeaderCell>
+                    <TableHeaderCell>Account</TableHeaderCell>
+                    <TableHeaderCell>Category</TableHeaderCell>
+                    <TableHeaderCell>Description</TableHeaderCell>
+                    <TableHeaderCell horAlign="center">Amount</TableHeaderCell>
+                    <TableHeaderCell />
+                </>
+            ),
+        },
+        {
+            key: (transaction: Transaction) => transaction.id,
+            data: transactions,
+            content: (transaction: Transaction) => (
+                <TransactionsTableRow
+                    transaction={transaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                />
+            ),
+            properties: (transaction: Transaction) => ({
+                onFocus: () => setFocusedTransaction(transaction),
+                onBlur: () => setFocusedTransaction(null),
+            }),
+        },
+        {
+            key: "draft",
+            content: (
+                <TransactionsTableRow
+                    transaction={emptyTransaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                    draft
+                />
+            ),
+        },
+    ];
+
     return (
         <StyledTransactionTable>
-            <Table
-                columnWidths={[98, 140, 200, 350, 100, 31]}
-                stickyHeaderRows={1}
-                rows={[
-                    {
-                        key: "header",
-                        content: (
-                            <>
-                                <TableHeaderCell>Date</TableHeaderCell>
-                                <TableHeaderCell>Account</TableHeaderCell>
-                                <TableHeaderCell>Category</TableHeaderCell>
-                                <TableHeaderCell>Description</TableHeaderCell>
-                                <TableHeaderCell horAlign="center">
-                                    Amount
-                                </TableHeaderCell>
-                                <TableHeaderCell />
-                            </>
-                        ),
-                    },
-                    {
-                        key: (transaction: Transaction) => transaction.id,
-                        data: transactions,
-                        content: (transaction: Transaction) => (
-                            <TransactionsTableRow
-                                transaction={transaction}
-                                accountInputFormatter={
-                                    accountsSelectorInputFormatter
-                                }
-                                categoryInputFormatter={
-                                    categoriesSelectorInputFormatter
-                                }
-                            />
-                        ),
-                        properties: (transaction: Transaction) => ({
-                            onFocus: () => setFocusedTransaction(transaction),
-                            onBlur: () => setFocusedTransaction(null),
-                        }),
-                    },
-                    {
-                        key: "draft",
-                        content: (
-                            <TransactionsTableRow
-                                transaction={emptyTransaction}
-                                accountInputFormatter={
-                                    accountsSelectorInputFormatter
-                                }
-                                categoryInputFormatter={
-                                    categoriesSelectorInputFormatter
-                                }
-                                draft
-                            />
-                        ),
-                    },
-                ]}
-            />
+            <Table columns={columns} stickyHeaderRows={1} rows={rows} />
         </StyledTransactionTable>
     );
 };
