@@ -83,6 +83,7 @@ export default [
                 "error",
                 { "ts-ignore": "allow-with-description" },
             ],
+            "react/prop-types": "off",
             semi: ["error", "always"],
             quotes: ["error", "double"],
         },

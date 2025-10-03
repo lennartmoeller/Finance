@@ -1,38 +1,13 @@
 import React from "react";
 
-import styled from "styled-components";
-
-import StyledCell from "@/components/Table/styles/StyledCell";
-import StyledCellContent from "@/components/Table/styles/StyledCellContent";
+import TableCell from "@/components/Table/TableCell";
 import TableCellProps from "@/components/Table/types/TableCellProps";
-
-const StyledHeaderCell = styled(StyledCell).attrs({ as: "th" })``;
 
 const TableHeaderCell: React.FC<TableCellProps> = ({
     headerLevel = 1,
-    padding,
-    horAlign,
-    vertAlign,
-    backgroundColor,
-    colspan,
-    children,
+    ...props
 }) => {
-    return (
-        <StyledHeaderCell
-            colSpan={colspan}
-            $backgroundColor={backgroundColor}
-            $headerLevel={headerLevel}
-        >
-            <StyledCellContent
-                $headerLevel={headerLevel}
-                $padding={padding}
-                $horAlign={horAlign}
-                $vertAlign={vertAlign}
-            >
-                {children}
-            </StyledCellContent>
-        </StyledHeaderCell>
-    );
+    return <TableCell as="th" headerLevel={headerLevel} {...props} />;
 };
 
 export default TableHeaderCell;
