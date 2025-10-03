@@ -10,7 +10,10 @@ interface TableRowGroup<T> {
     content: ReactNode | ((element: T, index: number) => ReactNode);
     properties?:
         | React.HTMLAttributes<HTMLTableRowElement>
-        | ((element: T, index: number) => React.HTMLAttributes<HTMLTableRowElement>);
+        | ((
+              element: T,
+              index: number,
+          ) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
 interface TableProps {
@@ -33,23 +36,32 @@ const Table = ({
         properties: React.HTMLAttributes<HTMLTableRowElement>;
     }> = useMemo(
         () =>
-            rows.flatMap((row) =>
+            rows.flatMap(
+                (row) =>
                     row.data?.map((element, index) => ({
-                        key: typeof row.key === "function" ? row.key(element, index) : row.key,
-                        content: typeof row.content === "function" ? row.content(element, index) : row.content,
+                        key:
+                            typeof row.key === "function"
+                                ? row.key(element, index)
+                                : row.key,
+                        content:
+                            typeof row.content === "function"
+                                ? row.content(element, index)
+                                : row.content,
                         properties:
                             typeof row.properties === "function"
                                 ? row.properties(element, index)
-                                : row.properties ?? {},
+                                : (row.properties ?? {}),
                     })) ?? [
                         {
                             key: row.key as React.Key,
                             content: row.content as ReactNode,
-                            properties: (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ?? {},
+                            properties:
+                                (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ??
+                                {},
                         },
-                    ]
+                    ],
             ),
-        [rows]
+        [rows],
     );
 
     const headerRows = useMemo(
