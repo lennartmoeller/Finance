@@ -1,4 +1,4 @@
-# Agents Instructions
+# Coding Agents Instructions
 
 This file provides comprehensive guidance for AI agents working with this codebase.
 
@@ -118,6 +118,10 @@ There are no coding guidelines yet. Please follow common best practices.
 
 There are no coding guidelines yet. Please follow common best practices.
 
+## Restrictions 
+
+Code splitting is optimized as far as possible - vendor splitting works, but route-based splitting cannot be implemented further with the current setup.
+
 ## Pull Request Guidelines
 
 When an AI agent helps create a PR, please ensure it:
@@ -150,6 +154,9 @@ chmod +x ./mvnw
 ```bash
 cd frontend
 npm ci
+
+# check for TypeScript errors
+npm run check
 
 # lint and fix the codebase
 npm run lint

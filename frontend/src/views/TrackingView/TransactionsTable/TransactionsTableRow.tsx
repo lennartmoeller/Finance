@@ -9,7 +9,6 @@ import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInp
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Icon from "@/components/Icon/Icon";
 import TableBodyCell from "@/components/Table/TableBodyCell";
-import TableRow from "@/components/Table/TableRow";
 import {
     useDeleteTransaction,
     useSaveTransaction,
@@ -18,7 +17,6 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction from "@/types/Transaction";
 import { Nullable } from "@/utils/types";
-import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 
 interface TransactionsTableRowProps {
@@ -36,9 +34,6 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 }) => {
     const saveTransaction = useSaveTransaction();
     const deleteTransaction = useDeleteTransaction();
-    const setFocusedTransaction = useFocusedTransaction(
-        (state) => state.setFocusedTransaction,
-    );
 
     const register = useForm({
         initial: transaction,
@@ -75,43 +70,40 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
     );
 
     return (
-        <TableRow
-            onFocus={() => setFocusedTransaction(transaction as Transaction)}
-            onBlur={() => setFocusedTransaction(null)}
-        >
-            <TableBodyCell width={98}>
+        <>
+            <TableBodyCell>
                 <Input
                     {...register("date")}
                     inputFormatter={dateInputFormatter}
                     autoFocus={draft}
                 />
             </TableBodyCell>
-            <TableBodyCell width={140}>
+            <TableBodyCell>
                 <Input
                     {...register("accountId")}
                     inputFormatter={accountInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell width={200}>
+            <TableBodyCell>
                 <Input
                     {...register("categoryId")}
                     inputFormatter={categoryInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell width={350}>
+            <TableBodyCell>
                 <Input
                     {...register("description")}
                     inputFormatter={descriptionInputFormatter}
                 />
             </TableBodyCell>
-            <TableBodyCell horAlign="right" width={100}>
+            <TableBodyCell horAlign="right">
                 <Input
                     {...register("amount")}
                     inputFormatter={amountInputFormatter}
                     textAlign="right"
                 />
             </TableBodyCell>
-            <TableBodyCell horAlign="center" width={31}>
+            <TableBodyCell horAlign="center">
                 {!draft && (
                     <Button
                         onClick={() =>
@@ -122,7 +114,7 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
                     </Button>
                 )}
             </TableBodyCell>
-        </TableRow>
+        </>
     );
 };
 

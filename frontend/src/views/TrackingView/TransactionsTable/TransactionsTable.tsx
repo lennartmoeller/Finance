@@ -2,12 +2,11 @@ import React from "react";
 
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import Table from "@/components/Table/Table";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
-import TableRow from "@/components/Table/TableRow";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
 import { filterDuplicates } from "@/utils/array";
+import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 
@@ -22,6 +21,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     categories,
     transactions,
 }: TransactionsTableProps) => {
+    const setFocusedTransaction = useFocusedTransaction(
+        (state) => state.setFocusedTransaction,
+    );
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
         options: accounts,
         idProperty: "id",
@@ -45,45 +47,55 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         required: true,
     });
 
+    const columns = [
+        {
+            key: "date",
+            width: 98,
+            header: { name: "Date", props: { horAlign: "center" as const } },
+        },
+        { key: "account", width: 140, header: { name: "Account" } },
+        { key: "category", width: 200, header: { name: "Category" } },
+        { key: "description", width: 350, header: { name: "Description" } },
+        {
+            key: "amount",
+            width: 100,
+            header: { name: "Amount", props: { horAlign: "center" as const } },
+        },
+        { key: "actions", width: 31, header: { name: "" } },
+    ];
+
+    const rows = [
+        {
+            key: (transaction: Transaction) => transaction.id,
+            data: transactions,
+            content: (transaction: Transaction) => (
+                <TransactionsTableRow
+                    transaction={transaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                />
+            ),
+            properties: (transaction: Transaction) => ({
+                onFocus: () => setFocusedTransaction(transaction),
+                onBlur: () => setFocusedTransaction(null),
+            }),
+        },
+        {
+            key: "draft",
+            content: (
+                <TransactionsTableRow
+                    transaction={emptyTransaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                    draft
+                />
+            ),
+        },
+    ];
+
     return (
         <StyledTransactionTable>
-            <Table
-                data={transactions}
-                header={
-                    <TableRow>
-                        <TableHeaderCell sticky="top">Date</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Account</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Category</TableHeaderCell>
-                        <TableHeaderCell sticky="top">
-                            Description
-                        </TableHeaderCell>
-                        <TableHeaderCell sticky="top" horAlign="center">
-                            Amount
-                        </TableHeaderCell>
-                        <TableHeaderCell sticky="top"></TableHeaderCell>
-                    </TableRow>
-                }
-                body={(transaction: Transaction) => (
-                    <TransactionsTableRow
-                        key={transaction.id}
-                        transaction={transaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                    />
-                )}
-                postRow={
-                    <TransactionsTableRow
-                        transaction={emptyTransaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                        draft
-                    />
-                }
-            />
+            <Table columns={columns} stickyHeaderRows={1} rows={rows} />
         </StyledTransactionTable>
     );
 };

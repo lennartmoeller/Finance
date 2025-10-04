@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 const StyledTransactionsTable = styled.div`
     grid-area: transactionsTable;
-    overflow: scroll;
+    display: flex;
+    min-height: 0;
 `;
 
 export default StyledTransactionsTable;
