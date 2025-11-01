@@ -7,6 +7,8 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
 import { filterDuplicates } from "@/utils/array";
+import { expandCategoryIds } from "@/utils/categoryHierarchy";
+import YearMonth from "@/utils/YearMonth";
 import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
@@ -35,6 +37,41 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         setCategoryIds,
         setYearMonths,
     } = useTransactionFilter();
+
+    // Filter transactions client-side based on selected filters
+    const filteredTransactions = useMemo(() => {
+        let filtered = transactions;
+
+        // Filter by account IDs
+        if (accountIds.length > 0) {
+            filtered = filtered.filter((t) => accountIds.includes(t.accountId));
+        }
+
+        // Filter by category IDs (with hierarchy expansion)
+        if (categoryIds.length > 0) {
+            const expandedCategoryIds = expandCategoryIds(
+                categoryIds,
+                categories,
+            );
+            if (expandedCategoryIds) {
+                filtered = filtered.filter((t) =>
+                    expandedCategoryIds.includes(t.categoryId),
+                );
+            }
+        }
+
+        // Filter by year-months
+        if (yearMonths.length > 0) {
+            filtered = filtered.filter((t) => {
+                const transactionYearMonth = YearMonth.fromDate(t.date);
+                return yearMonths.some(
+                    (ym) => ym.toString() === transactionYearMonth.toString(),
+                );
+            });
+        }
+
+        return filtered;
+    }, [transactions, accountIds, categoryIds, yearMonths, categories]);
 
     // Helper to convert single value or null to array
     const toArrayOrEmpty = <T,>(value: T | null | undefined): T[] =>
@@ -121,7 +158,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     const rows = [
         {
             key: (transaction: Transaction) => transaction.id,
-            data: transactions,
+            data: filteredTransactions,
             content: (transaction: Transaction) => (
                 <TransactionsTableRow
                     transaction={transaction}

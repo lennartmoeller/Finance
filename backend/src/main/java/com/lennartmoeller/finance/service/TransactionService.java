@@ -6,11 +6,9 @@ import com.lennartmoeller.finance.model.Transaction;
 import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
-import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,25 +17,12 @@ import org.springframework.stereotype.Service;
 public class TransactionService {
     private final AccountRepository accountRepository;
     private final CategoryRepository categoryRepository;
-    private final CategoryService categoryService;
     private final TransactionLinkSuggestionService suggestionService;
     private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
 
-    public List<TransactionDTO> findFiltered(
-            @Nullable List<Long> accountIds,
-            @Nullable List<Long> categoryIds,
-            @Nullable List<YearMonth> yearMonths,
-            @Nullable Boolean pinned) {
-        List<Long> extendedCategoryIds = categoryService.collectChildCategoryIdsRecursively(categoryIds);
-
-        List<String> yearMonthStrings = yearMonths == null
-                ? null
-                : yearMonths.stream().map(YearMonth::toString).toList();
-
-        List<Transaction> transactions =
-                transactionRepository.findFiltered(accountIds, extendedCategoryIds, yearMonthStrings, pinned);
-        return transactions.stream()
+    public List<TransactionDTO> findAll() {
+        return transactionRepository.findAll().stream()
                 .sorted(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getId))
                 .map(transactionMapper::toDto)
                 .toList();

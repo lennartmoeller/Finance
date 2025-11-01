@@ -2,7 +2,6 @@ package com.lennartmoeller.finance.controller;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.service.TransactionService;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,12 +21,8 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public List<TransactionDTO> getTransactions(
-            @RequestParam(required = false) List<Long> accountIds,
-            @RequestParam(required = false) List<Long> categoryIds,
-            @RequestParam(required = false) List<YearMonth> yearMonths,
-            @RequestParam(required = false) Boolean pinned) {
-        return transactionService.findFiltered(accountIds, categoryIds, yearMonths, pinned);
+    public List<TransactionDTO> getTransactions() {
+        return transactionService.findAll();
     }
 
     @GetMapping("/{id}")
