@@ -28,10 +28,10 @@ declare module "styled-components" {
             };
         };
         table: Record<
-            "header1" | "header2" | "body",
+            "header1" | "header2" | "filter" | "body",
             {
                 backgroundColor: string;
-                fontWeight: string;
+                fontWeight?: string;
             }
         >;
     }

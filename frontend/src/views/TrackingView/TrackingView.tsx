@@ -7,7 +7,6 @@ import useHeader from "@/skeleton/Header/stores/useHeader";
 import AccountList from "@/views/TrackingView/AccountList/AccountList";
 import StyledTrackingView from "@/views/TrackingView/styles/StyledTrackingView";
 import TransactionsTable from "@/views/TrackingView/TransactionsTable/TransactionsTable";
-import TransactionsTableFilters from "@/views/TrackingView/TransactionsTableFilters/TransactionsTableFilters";
 
 const TrackingView: React.FC = () => {
     const { setHeader } = useHeader();
@@ -32,10 +31,6 @@ const TrackingView: React.FC = () => {
 
     return (
         <StyledTrackingView>
-            <TransactionsTableFilters
-                accounts={accounts.data}
-                categories={categories.data}
-            />
             <TransactionsTable
                 accounts={accounts.data}
                 categories={categories.data}
