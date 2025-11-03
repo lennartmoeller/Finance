@@ -93,6 +93,13 @@ To ensure consistency and maintainability in the codebase, please adhere to the 
 - Otherwise follow SOLID principles, common coding best practices and clean code principles.
 - Solutions should be code-efficient. Avoid unnecessary redundancy. Better refactor existing code instead of adding new code.
 
+### Documentation and Comments
+
+- Avoid excessive documentation and comments for code that is self-explanatory
+- Only add comments when they provide genuinely useful hints that significantly improve code comprehension
+- Do not add function documentation (e.g., JSDoc, Javadoc) unless the function's purpose cannot be understood from its name and implementation
+- Prefer writing clear, self-documenting code over adding comments to explain unclear code
+
 ### Java
 
 - Use @Nullable annotations to indicate nullable fields. Avoid @NonNull annotations.
