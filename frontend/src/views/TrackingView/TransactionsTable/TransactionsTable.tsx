@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 
 import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
+import MultiSelectorInputFormatter from "@/components/Form/InputFormatter/MultiSelectorInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import Table from "@/components/Table/Table";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
-import { filterDuplicates } from "@/utils/array";
+import { ensureArray, filterDuplicates } from "@/utils/array";
 import { expandCategoryIds } from "@/utils/categoryHierarchy";
 import YearMonth from "@/utils/YearMonth";
 import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
@@ -73,10 +74,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         return filtered;
     }, [transactions, accountIds, categoryIds, yearMonths, categories]);
 
-    // Helper to convert single value or null to array
-    const toArrayOrEmpty = <T,>(value: T | null | undefined): T[] =>
-        value === null || value === undefined ? [] : [value];
-
     // Find non-leaf categories for filtering
     const leafCategories = useMemo(() => {
         const nonLeaf = categories
@@ -107,12 +104,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     const yearMonthFilterInputFormatter = new GermanYearMonthInputFormatter({
         defaultYear: currentYear,
     });
-    const accountsFilterInputFormatter = new SelectorInputFormatter({
+    const accountsFilterInputFormatter = new MultiSelectorInputFormatter({
         options: accounts,
         idProperty: "id",
         labelProperty: "label",
     });
-    const categoriesFilterInputFormatter = new SelectorInputFormatter({
+    const categoriesFilterInputFormatter = new MultiSelectorInputFormatter({
         options: leafCategories,
         idProperty: "id",
         labelProperty: "label",
@@ -185,16 +182,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     ];
 
     const handleFilterChange = (filters: TransactionFilters) => {
-        // Update store with typed values
-        setAccountIds(toArrayOrEmpty(filters.accountIds));
-        setCategoryIds(toArrayOrEmpty(filters.categoryIds));
-        setYearMonths(toArrayOrEmpty(filters.yearMonths));
+        setAccountIds(ensureArray(filters.accountIds));
+        setCategoryIds(ensureArray(filters.categoryIds));
+        setYearMonths(ensureArray(filters.yearMonths));
     };
 
     const initialFilters = useMemo(
         () => ({
-            accountIds: accountIds.length > 0 ? accountIds[0] : null,
-            categoryIds: categoryIds.length > 0 ? categoryIds[0] : null,
+            accountIds: accountIds.length > 0 ? accountIds : null,
+            categoryIds: categoryIds.length > 0 ? categoryIds : null,
             yearMonths: yearMonths.length > 0 ? yearMonths[0] : null,
         }),
         [accountIds, categoryIds, yearMonths],

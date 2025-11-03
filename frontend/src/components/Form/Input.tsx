@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { motion } from "framer-motion";
 
@@ -10,6 +10,7 @@ import StyledInputFieldPlaceholder from "@/components/Form/styles/StyledInputFie
 import StyledInputFieldWrapper from "@/components/Form/styles/StyledInputFieldWrapper";
 import InputState from "@/components/Form/types/InputState";
 import Icon from "@/components/Icon/Icon";
+import { measureTextWidth } from "@/utils/dom";
 
 export interface InputProps<T> {
     property: string | number | symbol;
@@ -20,6 +21,20 @@ export interface InputProps<T> {
     register?: (getFormFieldState: () => FormFieldState<T | null>) => void;
     textAlign?: "left" | "center" | "right";
 }
+
+const extractCompletion = (
+    typedValue: string,
+    predictionLabel: string,
+): string | null => {
+    const typedLower = typedValue.toLowerCase();
+    const predictionLower = predictionLabel.toLowerCase();
+
+    if (!predictionLower.startsWith(typedLower)) {
+        return null;
+    }
+
+    return predictionLabel.slice(typedValue.length);
+};
 
 const Input = <T,>({
     property,
@@ -35,6 +50,33 @@ const Input = <T,>({
         inputFormatter.valueToInputState(initial),
     );
     const [isRegistered, setIsRegistered] = useState(false);
+
+    const completionPositioning = useMemo(() => {
+        if (!inputState.prediction || !input.current) {
+            return null;
+        }
+
+        const completion = extractCompletion(
+            inputState.value,
+            inputState.prediction.label,
+        );
+
+        if (!completion) {
+            return null;
+        }
+
+        const typedWidth = measureTextWidth(inputState.value, input.current);
+        const completionWidth = measureTextWidth(completion, input.current);
+        const containerWidth = input.current.offsetWidth;
+
+        const fitsInContainer = typedWidth + completionWidth <= containerWidth;
+
+        return {
+            completion,
+            leftOffset: fitsInContainer ? typedWidth : undefined,
+            reducedWidth: fitsInContainer ? undefined : completionWidth,
+        };
+    }, [inputState.prediction, inputState.value]);
 
     useEffect(() => {
         if (!input.current || isRegistered) {
@@ -75,6 +117,7 @@ const Input = <T,>({
                     ref={input}
                     name={String(property)}
                     value={inputState.value}
+                    $reducedWidth={completionPositioning?.reducedWidth}
                     onFocus={() => {
                         setInputState((previous: InputState<T>) =>
                             inputFormatter.onFocus(previous),
@@ -106,15 +149,16 @@ const Input = <T,>({
                     type="text"
                     $textAlign={textAlign}
                 />
-                {inputState.prediction && (
+                {completionPositioning && (
                     <StyledInputFieldPlaceholder
                         as={motion.div}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.5 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.25 }}
+                        $leftOffset={completionPositioning.leftOffset}
                     >
-                        {inputState.prediction.label}
+                        {completionPositioning.completion}
                     </StyledInputFieldPlaceholder>
                 )}
             </StyledInputFieldWrapper>
