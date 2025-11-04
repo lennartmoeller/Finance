@@ -7,10 +7,10 @@ import Input from "@/components/Form/Input";
 import {
     TableColumn,
     useTableFilters,
-} from "@/components/Table/hooks/useTableFilters";
-import StyledTable from "@/components/Table/styles/StyledTable";
-import TableCell from "@/components/Table/TableCell";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
+} from "@/components/TableNew/hooks/useTableFilters";
+import StyledTable from "@/components/TableNew/styles/StyledTable";
+import TableCell from "@/components/TableNew/TableCell";
+import TableHeaderCell from "@/components/TableNew/TableHeaderCell";
 import { memo } from "@/utils/react";
 
 interface TableRowGroup<TData> {

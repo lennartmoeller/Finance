@@ -6,7 +6,7 @@ import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/Germ
 import MultiSelectorInputFormatter from "@/components/Form/InputFormatter/MultiSelectorInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
-import Table from "@/components/Table/Table";
+import Table from "@/components/TableNew/Table";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";

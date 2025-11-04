@@ -1,7 +1,7 @@
 import React from "react";
 
-import TableCell from "@/components/Table/TableCell";
-import TableCellProps from "@/components/Table/types/TableCellProps";
+import TableCell from "@/components/TableNew/TableCell";
+import TableCellProps from "@/components/TableNew/types/TableCellProps";
 import { memo } from "@/utils/react";
 
 const TableHeaderCell: React.FC<TableCellProps> = memo(

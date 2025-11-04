@@ -1,6 +1,6 @@
 import React, { ReactNode, useContext, useState } from "react";
 
-import HierarchyContext from "@/components/Table/context/HierarchyContext";
+import HierarchyContext from "@/components/TableNew/context/HierarchyContext";
 
 interface TableBodyRowGroupProps {
     initiallyOpen?: boolean;

@@ -8,7 +8,7 @@ import GermanDateInputFormatter from "@/components/Form/InputFormatter/GermanDat
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Icon from "@/components/Icon/Icon";
-import TableBodyCell from "@/components/Table/TableBodyCell";
+import TableBodyCell from "@/components/TableNew/TableBodyCell";
 import {
     useDeleteTransaction,
     useSaveTransaction,
