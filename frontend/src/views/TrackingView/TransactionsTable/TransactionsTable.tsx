@@ -1,8 +1,11 @@
 import React, { useMemo } from "react";
 
+import Fuse from "fuse.js";
+
 import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
 import MultiSelectorInputFormatter from "@/components/Form/InputFormatter/MultiSelectorInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
+import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Table from "@/components/Table/Table";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
@@ -34,9 +37,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         accountIds,
         categoryIds,
         yearMonths,
+        description,
         setAccountIds,
         setCategoryIds,
         setYearMonths,
+        setDescription,
     } = useTransactionFilter();
 
     // Find non-leaf categories for filtering
@@ -79,6 +84,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         idProperty: "id",
         labelProperty: "label",
     });
+    const descriptionFilterInputFormatter = new StringInputFormatter();
 
     const columns = [
         {
@@ -142,7 +148,32 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 },
             },
         },
-        { key: "description", width: 350, header: { name: "Description" } },
+        {
+            key: "description",
+            width: 350,
+            header: { name: "Description" },
+            filter: {
+                property: "description",
+                inputFormatter: descriptionFilterInputFormatter,
+                filterFunction: (
+                    searchString: string,
+                    transaction: Transaction,
+                ) => {
+                    if (!searchString || searchString.trim().length === 0) {
+                        return true;
+                    }
+
+                    const fuse = new Fuse([transaction], {
+                        keys: ["description"],
+                        includeScore: true,
+                        threshold: 0.3,
+                    });
+
+                    const results = fuse.search(searchString);
+                    return results.length > 0;
+                },
+            },
+        },
         {
             key: "amount",
             width: 100,
@@ -184,6 +215,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         setAccountIds(ensureArray(filters.accountIds));
         setCategoryIds(ensureArray(filters.categoryIds));
         setYearMonths(ensureArray(filters.yearMonths));
+        setDescription(filters.description ?? "");
     };
 
     const initialFilters = useMemo(
@@ -191,8 +223,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             accountIds: accountIds.length > 0 ? accountIds : null,
             categoryIds: categoryIds.length > 0 ? categoryIds : null,
             yearMonths: yearMonths.length > 0 ? yearMonths[0] : null,
+            description: description.length > 0 ? description : null,
         }),
-        [accountIds, categoryIds, yearMonths],
+        [accountIds, categoryIds, yearMonths, description],
     );
 
     return (
