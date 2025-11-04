@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useMemo, useRef } from "react";
+import React, {
+    ReactNode,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "styled-components";
@@ -12,19 +18,19 @@ import TableHeaderCell from "@/components/Table/TableHeaderCell";
 import TableCellProps from "@/components/Table/types/TableCellProps";
 import { memo } from "@/utils/react";
 
-interface TableRowGroup<T> {
-    data?: Array<T>;
-    key: React.Key | ((element: T, index: number) => React.Key);
-    content: ReactNode | ((element: T, index: number) => ReactNode);
+interface TableRowGroup<TData> {
+    data?: Array<TData>;
+    key: React.Key | ((element: TData, index: number) => React.Key);
+    content: ReactNode | ((element: TData, index: number) => ReactNode);
     properties?:
         | React.HTMLAttributes<HTMLTableRowElement>
         | ((
-              element: T,
+              element: TData,
               index: number,
           ) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
-interface TableColumn {
+interface TableColumn<TData = unknown> {
     key: React.Key;
     width: number;
     header?: {
@@ -36,29 +42,36 @@ interface TableColumn {
         property: string;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         inputFormatter: InputFormatter<any>;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        filterFunction?: (filterValue: any, data: TData) => boolean;
     };
 }
 
-interface TableProps<TFilters extends object = Record<string, unknown>> {
-    columns?: TableColumn[];
+interface TableProps<
+    TFilters extends object = Record<string, unknown>,
+    TData = unknown,
+> {
+    columns?: Array<TableColumn<TData>>;
     stickyHeaderRows?: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rows: Array<TableRowGroup<any>>;
+    rows: Array<TableRowGroup<TData>>;
     onFilterChange?: (filters: TFilters) => void;
     initialFilterValues?: Partial<TFilters>;
 }
 
 const Table = memo(
-    <TFilters extends object = Record<string, unknown>>({
+    <TFilters extends object = Record<string, unknown>, TData = unknown>({
         columns,
         stickyHeaderRows = 0,
         rows = [],
         onFilterChange,
         initialFilterValues = {} as TFilters,
-    }: TableProps<TFilters>) => {
+    }: TableProps<TFilters, TData>) => {
         const parentRef = useRef<HTMLDivElement>(null);
         const theme = useTheme();
         const filterBackgroundColor = theme.table.filter.backgroundColor;
+
+        const [currentFilterValues, setCurrentFilterValues] =
+            useState<TFilters>(initialFilterValues as TFilters);
 
         const hasHeaders = useMemo(
             () => columns?.some((column) => column.header !== undefined),
@@ -90,12 +103,13 @@ const Table = memo(
         const registerFilter = useForm<TFilters>({
             initial: filterInitialValues,
             onSuccess: async (filters: TFilters) => {
+                setCurrentFilterValues(filters);
                 onFilterChange?.(filters);
             },
         });
 
         const renderFilterCell = useCallback(
-            (column: TableColumn) => {
+            (column: TableColumn<TData>) => {
                 if (column.filter) {
                     return (
                         <TableCell
@@ -165,9 +179,45 @@ const Table = memo(
             () => [
                 ...(headerRow ? [headerRow] : []),
                 ...(filterRow ? [filterRow] : []),
-                ...rows.flatMap(
-                    (row) =>
-                        row.data?.map((element, index) => ({
+                ...rows.flatMap((row) => {
+                    const dataToRender = row.data
+                        ? row.data.filter((element) => {
+                              if (!columns) return true;
+
+                              return columns.every((column) => {
+                                  if (!column.filter?.filterFunction)
+                                      return true;
+
+                                  const filterValue =
+                                      currentFilterValues[
+                                          column.filter
+                                              .property as keyof TFilters
+                                      ];
+
+                                  if (
+                                      filterValue === null ||
+                                      filterValue === undefined
+                                  ) {
+                                      return true;
+                                  }
+
+                                  if (
+                                      Array.isArray(filterValue) &&
+                                      filterValue.length === 0
+                                  ) {
+                                      return true;
+                                  }
+
+                                  return column.filter.filterFunction(
+                                      filterValue,
+                                      element,
+                                  );
+                              });
+                          })
+                        : undefined;
+
+                    return (
+                        dataToRender?.map((element, index) => ({
                             key:
                                 typeof row.key === "function"
                                     ? row.key(element, index)
@@ -188,10 +238,11 @@ const Table = memo(
                                     (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ??
                                     {},
                             },
-                        ],
-                ),
+                        ]
+                    );
+                }),
             ],
-            [headerRow, filterRow, rows],
+            [headerRow, filterRow, rows, columns, currentFilterValues],
         );
 
         const effectiveStickyHeaderRows = hasFilters

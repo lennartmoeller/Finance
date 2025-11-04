@@ -39,41 +39,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         setYearMonths,
     } = useTransactionFilter();
 
-    // Filter transactions client-side based on selected filters
-    const filteredTransactions = useMemo(() => {
-        let filtered = transactions;
-
-        // Filter by account IDs
-        if (accountIds.length > 0) {
-            filtered = filtered.filter((t) => accountIds.includes(t.accountId));
-        }
-
-        // Filter by category IDs (with hierarchy expansion)
-        if (categoryIds.length > 0) {
-            const expandedCategoryIds = expandCategoryIds(
-                categoryIds,
-                categories,
-            );
-            if (expandedCategoryIds) {
-                filtered = filtered.filter((t) =>
-                    expandedCategoryIds.includes(t.categoryId),
-                );
-            }
-        }
-
-        // Filter by year-months
-        if (yearMonths.length > 0) {
-            filtered = filtered.filter((t) => {
-                const transactionYearMonth = YearMonth.fromDate(t.date);
-                return yearMonths.some(
-                    (ym) => ym.toString() === transactionYearMonth.toString(),
-                );
-            });
-        }
-
-        return filtered;
-    }, [transactions, accountIds, categoryIds, yearMonths, categories]);
-
     // Find non-leaf categories for filtering
     const leafCategories = useMemo(() => {
         const nonLeaf = categories
@@ -123,6 +88,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "yearMonths",
                 inputFormatter: yearMonthFilterInputFormatter,
+                filterFunction: (
+                    yearMonths: YearMonth | YearMonth[],
+                    transaction: Transaction,
+                ) => {
+                    const yearMonthsArray = Array.isArray(yearMonths)
+                        ? yearMonths
+                        : [yearMonths];
+
+                    const transactionYearMonth = YearMonth.fromDate(
+                        transaction.date,
+                    );
+                    return yearMonthsArray.some(
+                        (ym) =>
+                            ym.toString() === transactionYearMonth.toString(),
+                    );
+                },
             },
         },
         {
@@ -132,6 +113,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "accountIds",
                 inputFormatter: accountsFilterInputFormatter,
+                filterFunction: (
+                    accountIds: number[],
+                    transaction: Transaction,
+                ) => {
+                    return accountIds.includes(transaction.accountId);
+                },
             },
         },
         {
@@ -141,6 +128,18 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "categoryIds",
                 inputFormatter: categoriesFilterInputFormatter,
+                filterFunction: (
+                    categoryIds: number[],
+                    transaction: Transaction,
+                ) => {
+                    const expandedCategoryIds = expandCategoryIds(
+                        categoryIds,
+                        categories,
+                    );
+                    if (!expandedCategoryIds) return true;
+
+                    return expandedCategoryIds.includes(transaction.categoryId);
+                },
             },
         },
         { key: "description", width: 350, header: { name: "Description" } },
@@ -155,7 +154,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     const rows = [
         {
             key: (transaction: Transaction) => transaction.id,
-            data: filteredTransactions,
+            data: transactions,
             content: (transaction: Transaction) => (
                 <TransactionsTableRow
                     transaction={transaction}
