@@ -2,9 +2,9 @@ import React from "react";
 
 import styled from "styled-components";
 
-import StyledCell from "@/components/TableNew/styles/StyledCell";
-import StyledCellContent from "@/components/TableNew/styles/StyledCellContent";
-import TableCellProps from "@/components/TableNew/types/TableCellProps";
+import StyledCell from "@/components/Table/styles/StyledCell";
+import StyledCellContent from "@/components/Table/styles/StyledCellContent";
+import TableCellProps from "@/components/Table/types/TableCellProps";
 import { memo } from "@/utils/react";
 
 interface TableCellInternalProps extends TableCellProps {

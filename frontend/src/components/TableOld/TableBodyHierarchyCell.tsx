@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 
 import Button from "@/components/Button/Button";
 import Icon from "@/components/Icon/Icon";
-import HierarchyContext from "@/components/Table/context/HierarchyContext";
-import StyledTableBodyHierarchyCellContent from "@/components/Table/styles/StyledTableBodyHierarchyCellContent";
-import TableBodyCell from "@/components/Table/TableBodyCell";
-import TableCellProps from "@/components/Table/types/TableCellProps";
+import HierarchyContext from "@/components/TableOld/context/HierarchyContext";
+import StyledTableBodyHierarchyCellContent from "@/components/TableOld/styles/StyledTableBodyHierarchyCellContent";
+import TableBodyCell from "@/components/TableOld/TableBodyCell";
+import TableCellProps from "@/components/TableOld/types/TableCellProps";
 
 const TableBodyHierarchyCell: React.FC<TableCellProps> = ({
     children,

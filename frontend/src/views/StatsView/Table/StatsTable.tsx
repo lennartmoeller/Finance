@@ -1,11 +1,11 @@
 import React, { ReactElement } from "react";
 
 import Icon from "@/components/Icon/Icon";
-import Table from "@/components/Table/Table";
-import TableBodyHierarchyCell from "@/components/Table/TableBodyHierarchyCell";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
-import TableHierarchyLevel from "@/components/Table/TableHierarchyLevel";
-import TableRow from "@/components/Table/TableRow";
+import Table from "@/components/TableOld/Table";
+import TableBodyHierarchyCell from "@/components/TableOld/TableBodyHierarchyCell";
+import TableHeaderCell from "@/components/TableOld/TableHeaderCell";
+import TableHierarchyLevel from "@/components/TableOld/TableHierarchyLevel";
+import TableRow from "@/components/TableOld/TableRow";
 import CategorySmoothType from "@/types/CategorySmoothType";
 import CategoryStats from "@/types/CategoryStats";
 import MonthlyCategoryStats from "@/types/MonthlyCategoryStats";

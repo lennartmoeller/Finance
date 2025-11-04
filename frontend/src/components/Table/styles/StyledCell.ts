@@ -3,17 +3,8 @@ import styled from "styled-components";
 const StyledCell = styled.div<{
     $backgroundColor?: string;
     $headerLevel?: 1 | 2;
-    $sticky?: "top" | "left" | "topAndLeft";
-    $width?: number;
-    $zIndex?: number;
 }>`
-    position: ${({ $sticky }) => ($sticky ? "sticky" : "relative")};
-    width: ${({ $width }) => ($width ? `${$width}px` : "auto")};
-    top: ${({ $sticky }) =>
-        $sticky === "top" || $sticky === "topAndLeft" ? "0" : "auto"};
-    left: ${({ $sticky }) =>
-        $sticky === "left" || $sticky === "topAndLeft" ? "0" : "auto"};
-    z-index: ${({ $sticky, $zIndex }) => $zIndex ?? ($sticky ? 2 : "auto")};
+    position: relative;
     background-color: ${(props) => {
         if (props.$backgroundColor) {
             return props.$backgroundColor;
