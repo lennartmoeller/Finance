@@ -1,21 +1,16 @@
-import React, {
-    ReactNode,
-    useCallback,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import React, { ReactNode, useCallback, useMemo, useRef } from "react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "styled-components";
 
-import useForm from "@/components/Form/hooks/useForm";
 import Input from "@/components/Form/Input";
-import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
+import {
+    TableColumn,
+    useTableFilters,
+} from "@/components/Table/hooks/useTableFilters";
 import StyledTable from "@/components/Table/styles/StyledTable";
 import TableCell from "@/components/Table/TableCell";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
-import TableCellProps from "@/components/Table/types/TableCellProps";
 import { memo } from "@/utils/react";
 
 interface TableRowGroup<TData> {
@@ -30,22 +25,7 @@ interface TableRowGroup<TData> {
           ) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
-interface TableColumn<TData = unknown> {
-    key: React.Key;
-    width: number;
-    header?: {
-        name: string;
-        props?: Omit<TableCellProps, "children">;
-    };
-
-    filter?: {
-        property: string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        inputFormatter: InputFormatter<any>;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filterFunction?: (filterValue: any, data: TData) => boolean;
-    };
-}
+export type { TableColumn };
 
 interface TableProps<
     TFilters extends object = Record<string, unknown>,
@@ -70,43 +50,19 @@ const Table = memo(
         const theme = useTheme();
         const filterBackgroundColor = theme.table.filter.backgroundColor;
 
-        const [currentFilterValues, setCurrentFilterValues] =
-            useState<TFilters>(initialFilterValues as TFilters);
+        const { hasFilters, registerFilter, filterData } = useTableFilters<
+            TFilters,
+            TData
+        >({
+            columns,
+            initialFilterValues,
+            onFilterChange,
+        });
 
         const hasHeaders = useMemo(
             () => columns?.some((column) => column.header !== undefined),
             [columns],
         );
-
-        const hasFilters = useMemo(
-            () => columns?.some((column) => column.filter !== undefined),
-            [columns],
-        );
-
-        // Build initial filter values from columns
-        const filterInitialValues = useMemo(
-            () =>
-                columns?.reduce((acc, column) => {
-                    if (column.filter) {
-                        const key = column.filter.property as keyof TFilters;
-                        acc[key] =
-                            (initialFilterValues?.[key] as
-                                | TFilters[keyof TFilters]
-                                | undefined) ??
-                            (null as TFilters[keyof TFilters]);
-                    }
-                    return acc;
-                }, {} as TFilters) ?? ({} as TFilters),
-            [columns, initialFilterValues],
-        );
-
-        const registerFilter = useForm<TFilters>({
-            initial: filterInitialValues,
-            onSuccess: async (filters: TFilters) => {
-                setCurrentFilterValues(filters);
-                onFilterChange?.(filters);
-            },
-        });
 
         const renderFilterCell = useCallback(
             (column: TableColumn<TData>) => {
@@ -181,39 +137,7 @@ const Table = memo(
                 ...(filterRow ? [filterRow] : []),
                 ...rows.flatMap((row) => {
                     const dataToRender = row.data
-                        ? row.data.filter((element) => {
-                              if (!columns) return true;
-
-                              return columns.every((column) => {
-                                  if (!column.filter?.filterFunction)
-                                      return true;
-
-                                  const filterValue =
-                                      currentFilterValues[
-                                          column.filter
-                                              .property as keyof TFilters
-                                      ];
-
-                                  if (
-                                      filterValue === null ||
-                                      filterValue === undefined
-                                  ) {
-                                      return true;
-                                  }
-
-                                  if (
-                                      Array.isArray(filterValue) &&
-                                      filterValue.length === 0
-                                  ) {
-                                      return true;
-                                  }
-
-                                  return column.filter.filterFunction(
-                                      filterValue,
-                                      element,
-                                  );
-                              });
-                          })
+                        ? filterData(row.data)
                         : undefined;
 
                     return (
@@ -242,7 +166,7 @@ const Table = memo(
                     );
                 }),
             ],
-            [headerRow, filterRow, rows, columns, currentFilterValues],
+            [headerRow, filterRow, rows, filterData],
         );
 
         const effectiveStickyHeaderRows = hasFilters
