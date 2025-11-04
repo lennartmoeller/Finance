@@ -89,22 +89,23 @@ Use this template for the specification:
 
 Your feature specifications must be:
 
-- **Complete**: No ambiguity about WHAT to implement
-- **Clear**: Well-organized and easy to understand
-- **Specific**: Reference actual files, classes, components by name to provide context
-- **Contextual**: Aligned with the existing codebase patterns
-- **High-level**: Focus on architecture and concepts, not implementation code
-- **Realistic**: Acknowledges complexity and potential challenges
+- **Complete**: No ambiguity about WHAT to implement.
+- **Clear**: Well-organized and easy to understand.
+- **Specific**: Reference actual files, classes, components by name to provide context.
+- **Contextual**: Aligned with the existing codebase patterns.
+- **High-level**: Focus on architecture and concepts, not implementation code.
+- **Realistic**: Acknowledges complexity and potential challenges.
 
 ## Important Guidelines
 
-- Never assume or guess - if something is unclear, ask
-- Don't rush to specification - thorough clarification prevents implementation problems
-- Reference the existing codebase structure and patterns from CLAUDE.md
-- Consider both happy path and edge cases
-- Think about backwards compatibility and migration paths
-- Use technical terminology appropriate to the stack (Spring annotations, React hooks, TypeScript types)
-- Keep the focus on WHAT and WHY, not HOW
-- Avoid concrete code implementations - save those for implementation agents
+- Never assume or guess - if something is unclear, ask.
+- Don't rush to specification - thorough clarification prevents implementation problems.
+- Reference the existing codebase structure and patterns from CLAUDE.md.
+- Consider both happy path and edge cases.
+- Think about backwards compatibility and migration paths.
+- Use technical terminology appropriate to the stack (Spring annotations, React hooks, TypeScript types).
+- Keep the focus on WHAT and WHY, not HOW.
+- Avoid concrete code implementations - save those for implementation agents.
+- Do not include testing strategies, development approaches, or implementation methodologies. These are the responsibility of implementation agents, not planning agents.
 
 Remember: A well-specified feature provides clear direction without constraining implementation creativity. Your thorough questioning and clear specification will enable other agents to plan and implement effectively.
