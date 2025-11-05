@@ -17,7 +17,6 @@ import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransac
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
-import TransactionFilters from "@/views/TrackingView/types/TransactionFilters";
 
 interface TransactionsTableProps {
     accounts: Account[];
@@ -30,9 +29,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     categories,
     transactions,
 }: TransactionsTableProps) => {
-    const setFocusedTransaction = useFocusedTransaction(
-        (state) => state.setFocusedTransaction,
-    );
+    const setFocusedTransaction = useFocusedTransaction((state) => state.setFocusedTransaction);
     const {
         accountIds,
         categoryIds,
@@ -50,12 +47,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             .map((category) => category.parentId)
             .filter((parentId): parentId is number => parentId !== null);
         const nonLeafUnique = filterDuplicates(nonLeaf);
-        return categories.filter(
-            (category) => !nonLeafUnique.includes(category.id),
-        );
+        return categories.filter((category) => !nonLeafUnique.includes(category.id));
     }, [categories]);
-
-    const currentYear = useMemo(() => new Date().getFullYear(), []);
 
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
         options: accounts,
@@ -72,7 +65,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
     // Filter input formatters (not required)
     const yearMonthFilterInputFormatter = new GermanYearMonthInputFormatter({
-        defaultYear: currentYear,
+        defaultYear: new Date().getFullYear(),
     });
     const accountsFilterInputFormatter = new MultiSelectorInputFormatter({
         options: accounts,
@@ -94,22 +87,14 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "yearMonths",
                 inputFormatter: yearMonthFilterInputFormatter,
-                filterFunction: (
-                    yearMonths: YearMonth | YearMonth[],
-                    transaction: Transaction,
-                ) => {
-                    const yearMonthsArray = Array.isArray(yearMonths)
-                        ? yearMonths
-                        : [yearMonths];
+                filterFunction: (yearMonths: YearMonth | YearMonth[], transaction: Transaction) => {
+                    const yearMonthsArray = Array.isArray(yearMonths) ? yearMonths : [yearMonths];
 
-                    const transactionYearMonth = YearMonth.fromDate(
-                        transaction.date,
-                    );
-                    return yearMonthsArray.some(
-                        (ym) =>
-                            ym.toString() === transactionYearMonth.toString(),
-                    );
+                    const transactionYearMonth = YearMonth.fromDate(transaction.date);
+                    return yearMonthsArray.some((ym) => ym.toString() === transactionYearMonth.toString());
                 },
+                initialValue: yearMonths.length > 0 ? yearMonths[0] : null,
+                onChange: (value: YearMonth | null) => setYearMonths(value ? [value] : []),
             },
         },
         {
@@ -119,12 +104,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "accountIds",
                 inputFormatter: accountsFilterInputFormatter,
-                filterFunction: (
-                    accountIds: number[],
-                    transaction: Transaction,
-                ) => {
+                filterFunction: (accountIds: number[], transaction: Transaction) => {
                     return accountIds.includes(transaction.accountId);
                 },
+                initialValue: accountIds.length > 0 ? accountIds : null,
+                onChange: (value: number[] | null) => setAccountIds(ensureArray(value)),
             },
         },
         {
@@ -134,18 +118,14 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "categoryIds",
                 inputFormatter: categoriesFilterInputFormatter,
-                filterFunction: (
-                    categoryIds: number[],
-                    transaction: Transaction,
-                ) => {
-                    const expandedCategoryIds = expandCategoryIds(
-                        categoryIds,
-                        categories,
-                    );
+                filterFunction: (categoryIds: number[], transaction: Transaction) => {
+                    const expandedCategoryIds = expandCategoryIds(categoryIds, categories);
                     if (!expandedCategoryIds) return true;
 
                     return expandedCategoryIds.includes(transaction.categoryId);
                 },
+                initialValue: categoryIds.length > 0 ? categoryIds : null,
+                onChange: (value: number[] | null) => setCategoryIds(ensureArray(value)),
             },
         },
         {
@@ -155,10 +135,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "description",
                 inputFormatter: descriptionFilterInputFormatter,
-                filterFunction: (
-                    searchString: string,
-                    transaction: Transaction,
-                ) => {
+                filterFunction: (searchString: string, transaction: Transaction) => {
                     if (!searchString || searchString.trim().length === 0) {
                         return true;
                     }
@@ -172,6 +149,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     const results = fuse.search(searchString);
                     return results.length > 0;
                 },
+                initialValue: description.length > 0 ? description : null,
+                onChange: (value: string | null) => setDescription(value ?? ""),
             },
         },
         {
@@ -211,32 +190,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         },
     ];
 
-    const handleFilterChange = (filters: TransactionFilters) => {
-        setAccountIds(ensureArray(filters.accountIds));
-        setCategoryIds(ensureArray(filters.categoryIds));
-        setYearMonths(ensureArray(filters.yearMonths));
-        setDescription(filters.description ?? "");
-    };
-
-    const initialFilters = useMemo(
-        () => ({
-            accountIds: accountIds.length > 0 ? accountIds : null,
-            categoryIds: categoryIds.length > 0 ? categoryIds : null,
-            yearMonths: yearMonths.length > 0 ? yearMonths[0] : null,
-            description: description.length > 0 ? description : null,
-        }),
-        [accountIds, categoryIds, yearMonths, description],
-    );
-
     return (
         <StyledTransactionTable>
-            <Table
-                columns={columns}
-                stickyHeaderRows={1}
-                rows={rows}
-                onFilterChange={handleFilterChange}
-                initialFilterValues={initialFilters}
-            />
+            <Table columns={columns} stickyHeaderRows={1} rows={rows} />
         </StyledTransactionTable>
     );
 };
