@@ -6,19 +6,16 @@ class MultiSelectorInputFormatter<
     K extends keyof T & string,
     L extends keyof T & string,
 > extends BaseSelectorInputFormatter<T, K, L, T[K][]> {
-    private static readonly SEGMENT_SEPARATOR = ", ";
-    private static readonly SEGMENT_SEPARATOR_LENGTH = 2;
-
     public valueToString(value: T[K][] | null): string {
         if (!value || value.length === 0) {
             return "";
         }
 
         return value
-            .map(id => this.options.find((opt) => opt[this.idProperty] === id))
+            .map((id) => this.options.find((opt) => opt[this.idProperty] === id))
             .filter(Boolean)
             .map((option) => option![this.labelProperty])
-            .join(MultiSelectorInputFormatter.SEGMENT_SEPARATOR);
+            .join(", ");
     }
 
     public stringToValue(string: string): T[K][] | null {
@@ -36,13 +33,10 @@ class MultiSelectorInputFormatter<
 
     public onChange(before: InputState<T[K][]>, after: string): InputState<T[K][]> {
         if (after.endsWith(",") && !before.value.endsWith(",") && before.prediction) {
-            const lastSegmentLabel = before.prediction.label.substring(
-                before.prediction.label.lastIndexOf(MultiSelectorInputFormatter.SEGMENT_SEPARATOR) +
-                    MultiSelectorInputFormatter.SEGMENT_SEPARATOR_LENGTH,
-            );
+            const lastSegmentLabel = before.prediction.label.substring(before.prediction.label.lastIndexOf(", ") + 2);
             const confirmedSegments = this.parseSegments(before.value).slice(0, -1);
             after = this.joinSegments([...confirmedSegments, lastSegmentLabel, ""]);
-        } else if (after.endsWith(",") && !after.endsWith(MultiSelectorInputFormatter.SEGMENT_SEPARATOR)) {
+        } else if (after.endsWith(",") && !after.endsWith(", ")) {
             after += " ";
         }
 
@@ -77,17 +71,21 @@ class MultiSelectorInputFormatter<
 
     private parseSegments(input: string): string[] {
         return input
-            .split(MultiSelectorInputFormatter.SEGMENT_SEPARATOR)
+            .split(", ")
             .map((segment) => segment.trim())
             .filter((segment) => segment.length > 0);
     }
 
     private getActiveSegment(input: string): string {
-        const lastCommaIndex = input.lastIndexOf(MultiSelectorInputFormatter.SEGMENT_SEPARATOR);
+        const lastCommaIndex = input.lastIndexOf(", ");
         if (lastCommaIndex === -1) {
             return input.trim();
         }
-        return input.substring(lastCommaIndex + MultiSelectorInputFormatter.SEGMENT_SEPARATOR_LENGTH).trim();
+        return input.substring(lastCommaIndex + 2).trim();
+    }
+
+    private joinSegments(segments: (string | T[L])[]): string {
+        return segments.filter(Boolean).join(", ");
     }
 }
 
