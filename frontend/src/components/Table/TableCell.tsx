@@ -14,23 +14,9 @@ interface TableCellInternalProps extends TableCellProps {
 const StyledTableCell = styled(StyledCell)<{ as: "td" | "th" }>``;
 
 const TableCell: React.FC<TableCellInternalProps> = memo(
-    ({
-        as,
-        headerLevel,
-        padding,
-        horAlign,
-        vertAlign,
-        backgroundColor,
-        colspan,
-        children,
-    }) => {
+    ({ as, headerLevel, padding, horAlign, vertAlign, backgroundColor, colspan, children }) => {
         return (
-            <StyledTableCell
-                as={as}
-                colSpan={colspan}
-                $backgroundColor={backgroundColor}
-                $headerLevel={headerLevel}
-            >
+            <StyledTableCell as={as} colSpan={colspan} $backgroundColor={backgroundColor} $headerLevel={headerLevel}>
                 <StyledCellContent
                     $headerLevel={headerLevel}
                     $padding={padding}

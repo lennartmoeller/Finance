@@ -27,12 +27,7 @@ function TableHeaderComponent({ header }: Readonly<TableHeaderProps>) {
 }
 const TableHeader = memo(TableHeaderComponent, "TableHeader");
 
-function TableBodyComponent<T>({
-    data,
-    body,
-    preRow,
-    postRow,
-}: Readonly<TableBodyProps<T>>) {
+function TableBodyComponent<T>({ data, body, preRow, postRow }: Readonly<TableBodyProps<T>>) {
     return (
         <tbody>
             {preRow}
@@ -43,22 +38,11 @@ function TableBodyComponent<T>({
 }
 const TableBody = memo(TableBodyComponent, "TableBody");
 
-function TableComponent<T>({
-    data,
-    header,
-    body,
-    preRow,
-    postRow,
-}: Readonly<TableProps<T>>) {
+function TableComponent<T>({ data, header, body, preRow, postRow }: Readonly<TableProps<T>>) {
     return (
         <StyledTable>
             <TableHeader header={header} />
-            <TableBody
-                data={data}
-                body={body}
-                preRow={preRow}
-                postRow={postRow}
-            />
+            <TableBody data={data} body={body} preRow={preRow} postRow={postRow} />
         </StyledTable>
     );
 }

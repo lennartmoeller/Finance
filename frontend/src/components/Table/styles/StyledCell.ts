@@ -9,13 +9,10 @@ const StyledCell = styled.div<{
         if (props.$backgroundColor) {
             return props.$backgroundColor;
         }
-        const cellType: "header1" | "header2" | "body" = props.$headerLevel
-            ? `header${props.$headerLevel}`
-            : "body";
+        const cellType: "header1" | "header2" | "body" = props.$headerLevel ? `header${props.$headerLevel}` : "body";
         return props.theme.table[cellType].backgroundColor;
     }};
-    border: ${(props) =>
-        `${props.theme.border.width}px solid ${props.theme.border.color}`};
+    border: ${(props) => `${props.theme.border.width}px solid ${props.theme.border.color}`};
 
     &::before {
         // border to make sticky cells look good
@@ -25,8 +22,7 @@ const StyledCell = styled.div<{
         right: ${(props) => `${-props.theme.border.width}px`};
         bottom: ${(props) => `${-props.theme.border.width}px`};
         left: ${(props) => `${-props.theme.border.width}px`};
-        border: ${(props) =>
-            `${props.theme.border.width}px solid ${props.theme.border.color}`};
+        border: ${(props) => `${props.theme.border.width}px solid ${props.theme.border.color}`};
     }
 `;
 

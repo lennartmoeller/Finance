@@ -4,13 +4,11 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "styled-components";
 
 import Input from "@/components/Form/Input";
-import {
-    TableColumn,
-    useTableFilters,
-} from "@/components/Table/hooks/useTableFilters";
+import useTableFilters from "@/components/Table/hooks/useTableFilters";
 import StyledTable from "@/components/Table/styles/StyledTable";
 import TableCell from "@/components/Table/TableCell";
 import TableHeaderCell from "@/components/Table/TableHeaderCell";
+import TableColumn from "@/components/Table/types/TableColumn";
 import { memo } from "@/utils/react";
 
 interface TableRowGroup<TData> {
@@ -19,251 +17,184 @@ interface TableRowGroup<TData> {
     content: ReactNode | ((element: TData, index: number) => ReactNode);
     properties?:
         | React.HTMLAttributes<HTMLTableRowElement>
-        | ((
-              element: TData,
-              index: number,
-          ) => React.HTMLAttributes<HTMLTableRowElement>);
+        | ((element: TData, index: number) => React.HTMLAttributes<HTMLTableRowElement>);
 }
 
-export type { TableColumn };
-
-interface TableProps<
-    TFilters extends object = Record<string, unknown>,
-    TData = unknown,
-> {
+interface TableProps<TData = unknown> {
     columns?: Array<TableColumn<TData>>;
     stickyHeaderRows?: number;
     rows: Array<TableRowGroup<TData>>;
-    onFilterChange?: (filters: TFilters) => void;
-    initialFilterValues?: Partial<TFilters>;
 }
 
-const Table = memo(
-    <TFilters extends object = Record<string, unknown>, TData = unknown>({
+const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = [] }: TableProps<TData>) => {
+    const parentRef = useRef<HTMLDivElement>(null);
+    const theme = useTheme();
+    const filterBackgroundColor = theme.table.filter.backgroundColor;
+
+    const { hasFilters, registerFilter, filterData } = useTableFilters<TData>({
         columns,
-        stickyHeaderRows = 0,
-        rows = [],
-        onFilterChange,
-        initialFilterValues = {} as TFilters,
-    }: TableProps<TFilters, TData>) => {
-        const parentRef = useRef<HTMLDivElement>(null);
-        const theme = useTheme();
-        const filterBackgroundColor = theme.table.filter.backgroundColor;
+    });
 
-        const { hasFilters, registerFilter, filterData } = useTableFilters<
-            TFilters,
-            TData
-        >({
-            columns,
-            initialFilterValues,
-            onFilterChange,
-        });
+    const hasHeaders = useMemo(() => columns?.some((column) => column.header !== undefined), [columns]);
 
-        const hasHeaders = useMemo(
-            () => columns?.some((column) => column.header !== undefined),
-            [columns],
-        );
-
-        const renderFilterCell = useCallback(
-            (column: TableColumn<TData>) => {
-                if (column.filter) {
-                    return (
-                        <TableCell
-                            key={column.key}
-                            as="td"
-                            backgroundColor={filterBackgroundColor}
-                        >
-                            <Input
-                                {...registerFilter(
-                                    column.filter.property as keyof TFilters,
-                                )}
-                                inputFormatter={column.filter.inputFormatter}
-                            />
-                        </TableCell>
-                    );
-                }
+    const renderFilterCell = useCallback(
+        (column: TableColumn<TData>) => {
+            if (column.filter) {
                 return (
-                    <TableHeaderCell
-                        key={column.key}
-                        backgroundColor={filterBackgroundColor}
-                    />
+                    <TableCell key={column.key} as="td" backgroundColor={filterBackgroundColor}>
+                        <Input
+                            {...registerFilter(column.filter.property)}
+                            inputFormatter={column.filter.inputFormatter}
+                        />
+                    </TableCell>
                 );
-            },
-            [filterBackgroundColor, registerFilter],
-        );
+            }
+            return <TableHeaderCell key={column.key} backgroundColor={filterBackgroundColor} />;
+        },
+        [filterBackgroundColor, registerFilter],
+    );
 
-        const headerRow = useMemo(
-            () =>
-                hasHeaders && columns
-                    ? {
-                          key: "header",
-                          content: (
-                              <>
-                                  {columns.map((column) => (
-                                      <TableHeaderCell
-                                          key={column.key}
-                                          {...column.header?.props}
-                                      >
-                                          {column.header?.name ?? ""}
-                                      </TableHeaderCell>
-                                  ))}
-                              </>
-                          ),
-                          properties: {},
-                      }
-                    : null,
-            [hasHeaders, columns],
-        );
+    const headerRow = useMemo(
+        () =>
+            hasHeaders && columns
+                ? {
+                      key: "header",
+                      content: (
+                          <>
+                              {columns.map((column) => (
+                                  <TableHeaderCell key={column.key} {...column.header?.props}>
+                                      {column.header?.name ?? ""}
+                                  </TableHeaderCell>
+                              ))}
+                          </>
+                      ),
+                      properties: {},
+                  }
+                : null,
+        [hasHeaders, columns],
+    );
 
-        const filterRow = useMemo(
-            () =>
-                hasFilters && columns
-                    ? {
-                          key: "filters",
-                          content: <>{columns.map(renderFilterCell)}</>,
-                          properties: {},
-                      }
-                    : null,
-            [hasFilters, columns, renderFilterCell],
-        );
+    const filterRow = useMemo(
+        () =>
+            hasFilters && columns
+                ? {
+                      key: "filters",
+                      content: <>{columns.map(renderFilterCell)}</>,
+                      properties: {},
+                  }
+                : null,
+        [hasFilters, columns, renderFilterCell],
+    );
 
-        const allRows: Array<{
-            key: React.Key;
-            content: ReactNode;
-            properties: React.HTMLAttributes<HTMLTableRowElement>;
-        }> = useMemo(
-            () => [
-                ...(headerRow ? [headerRow] : []),
-                ...(filterRow ? [filterRow] : []),
-                ...rows.flatMap((row) => {
-                    const dataToRender = row.data
-                        ? filterData(row.data)
-                        : undefined;
+    const allRows: Array<{
+        key: React.Key;
+        content: ReactNode;
+        properties: React.HTMLAttributes<HTMLTableRowElement>;
+    }> = useMemo(
+        () => [
+            ...(headerRow ? [headerRow] : []),
+            ...(filterRow ? [filterRow] : []),
+            ...rows.flatMap((row) => {
+                const dataToRender = row.data ? filterData(row.data) : undefined;
 
-                    return (
-                        dataToRender?.map((element, index) => ({
-                            key:
-                                typeof row.key === "function"
-                                    ? row.key(element, index)
-                                    : row.key,
-                            content:
-                                typeof row.content === "function"
-                                    ? row.content(element, index)
-                                    : row.content,
-                            properties:
-                                typeof row.properties === "function"
-                                    ? row.properties(element, index)
-                                    : (row.properties ?? {}),
-                        })) ?? [
-                            {
-                                key: row.key as React.Key,
-                                content: row.content as ReactNode,
-                                properties:
-                                    (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ??
-                                    {},
-                            },
-                        ]
-                    );
-                }),
-            ],
-            [headerRow, filterRow, rows, filterData],
-        );
+                return (
+                    dataToRender?.map((element, index) => ({
+                        key: typeof row.key === "function" ? row.key(element, index) : row.key,
+                        content: typeof row.content === "function" ? row.content(element, index) : row.content,
+                        properties:
+                            typeof row.properties === "function"
+                                ? row.properties(element, index)
+                                : (row.properties ?? {}),
+                    })) ?? [
+                        {
+                            key: row.key as React.Key,
+                            content: row.content as ReactNode,
+                            properties: (row.properties as React.HTMLAttributes<HTMLTableRowElement>) ?? {},
+                        },
+                    ]
+                );
+            }),
+        ],
+        [headerRow, filterRow, rows, filterData],
+    );
 
-        const effectiveStickyHeaderRows = hasFilters
-            ? stickyHeaderRows + 1
-            : stickyHeaderRows;
+    const effectiveStickyHeaderRows = hasFilters ? stickyHeaderRows + 1 : stickyHeaderRows;
 
-        const headerRows = useMemo(
-            () => allRows.slice(0, effectiveStickyHeaderRows),
-            [allRows, effectiveStickyHeaderRows],
-        );
-        const bodyRows = useMemo(
-            () => allRows.slice(effectiveStickyHeaderRows),
-            [allRows, effectiveStickyHeaderRows],
-        );
+    const headerRows = useMemo(() => allRows.slice(0, effectiveStickyHeaderRows), [allRows, effectiveStickyHeaderRows]);
+    const bodyRows = useMemo(() => allRows.slice(effectiveStickyHeaderRows), [allRows, effectiveStickyHeaderRows]);
 
-        const estimateSize = useCallback(() => 50, []);
+    const estimateSize = useCallback(() => 50, []);
 
-        const virtualizer = useVirtualizer({
-            count: bodyRows.length,
-            getScrollElement: () => parentRef.current,
-            estimateSize,
-            overscan: 50,
-        });
+    const virtualizer = useVirtualizer({
+        count: bodyRows.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize,
+        overscan: 50,
+    });
 
-        const items = virtualizer.getVirtualItems();
-        const paddingTop = items.length ? items.at(0)!.start : 0;
-        const paddingBottom = items.length
-            ? virtualizer.getTotalSize() - items.at(-1)!.end
-            : 0;
+    const items = virtualizer.getVirtualItems();
+    const paddingTop = items.length ? items.at(0)!.start : 0;
+    const paddingBottom = items.length ? virtualizer.getTotalSize() - items.at(-1)!.end : 0;
 
-        const spacerColSpan = columns?.length ?? 9999;
+    const spacerColSpan = columns?.length ?? 9999;
 
-        return (
-            <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
-                <StyledTable>
-                    {columns && (
-                        <colgroup>
-                            {columns.map((column) => (
-                                <col
-                                    key={column.key}
-                                    style={{ width: `${column.width}px` }}
-                                />
-                            ))}
-                        </colgroup>
+    return (
+        <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
+            <StyledTable>
+                {columns && (
+                    <colgroup>
+                        {columns.map((column) => (
+                            <col key={column.key} style={{ width: `${column.width}px` }} />
+                        ))}
+                    </colgroup>
+                )}
+
+                {headerRows.length > 0 && (
+                    <thead>
+                        {headerRows.map((rowData) => (
+                            <tr key={rowData.key} {...rowData.properties}>
+                                {rowData.content}
+                            </tr>
+                        ))}
+                    </thead>
+                )}
+
+                <tbody>
+                    {paddingTop > 0 && (
+                        <tr aria-hidden="true">
+                            <td colSpan={spacerColSpan} style={{ height: paddingTop, padding: 0 }} />
+                        </tr>
                     )}
 
-                    {headerRows.length > 0 && (
-                        <thead>
-                            {headerRows.map((rowData) => (
-                                <tr key={rowData.key} {...rowData.properties}>
-                                    {rowData.content}
-                                </tr>
-                            ))}
-                        </thead>
+                    {items.map((virtualRow) => {
+                        const data = bodyRows[virtualRow.index];
+                        return (
+                            <tr
+                                key={data.key}
+                                data-index={virtualRow.index}
+                                ref={virtualizer.measureElement}
+                                {...data.properties}
+                            >
+                                {data.content}
+                            </tr>
+                        );
+                    })}
+
+                    {paddingBottom > 0 && (
+                        <tr aria-hidden="true">
+                            <td
+                                colSpan={spacerColSpan}
+                                style={{
+                                    height: paddingBottom,
+                                    padding: 0,
+                                }}
+                            />
+                        </tr>
                     )}
-
-                    <tbody>
-                        {paddingTop > 0 && (
-                            <tr aria-hidden="true">
-                                <td
-                                    colSpan={spacerColSpan}
-                                    style={{ height: paddingTop, padding: 0 }}
-                                />
-                            </tr>
-                        )}
-
-                        {items.map((virtualRow) => {
-                            const data = bodyRows[virtualRow.index];
-                            return (
-                                <tr
-                                    key={data.key}
-                                    data-index={virtualRow.index}
-                                    ref={virtualizer.measureElement}
-                                    {...data.properties}
-                                >
-                                    {data.content}
-                                </tr>
-                            );
-                        })}
-
-                        {paddingBottom > 0 && (
-                            <tr aria-hidden="true">
-                                <td
-                                    colSpan={spacerColSpan}
-                                    style={{
-                                        height: paddingBottom,
-                                        padding: 0,
-                                    }}
-                                />
-                            </tr>
-                        )}
-                    </tbody>
-                </StyledTable>
-            </div>
-        );
-    },
-    "Table",
-);
+                </tbody>
+            </StyledTable>
+        </div>
+    );
+}, "Table");
 
 export default Table;

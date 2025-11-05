@@ -1,67 +1,57 @@
 import { useCallback, useMemo, useState } from "react";
 
 import useForm from "@/components/Form/hooks/useForm";
-import InputFormatter from "@/components/Form/InputFormatter/InputFormatter";
+import TableColumn from "@/components/Table/types/TableColumn";
 
-export interface TableColumn<TData = unknown> {
-    key: React.Key;
-    width: number;
-    header?: {
-        name: string;
-        props?: Record<string, unknown>;
-    };
-    filter?: {
-        property: string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        inputFormatter: InputFormatter<any>;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filterFunction?: (filterValue: any, data: TData) => boolean;
-    };
-}
-
-interface UseTableFiltersOptions<TFilters extends object, TData> {
+interface UseTableFiltersOptions<TData> {
     columns?: Array<TableColumn<TData>>;
-    initialFilterValues?: Partial<TFilters>;
-    onFilterChange?: (filters: TFilters) => void;
 }
 
-export const useTableFilters = <
-    TFilters extends object = Record<string, unknown>,
-    TData = unknown,
->({
-    columns,
-    initialFilterValues = {} as TFilters,
-    onFilterChange,
-}: UseTableFiltersOptions<TFilters, TData>) => {
-    const [currentFilterValues, setCurrentFilterValues] = useState<TFilters>(
-        initialFilterValues as TFilters,
-    );
-
-    const hasFilters = useMemo(
-        () => columns?.some((column) => column.filter !== undefined),
-        [columns],
-    );
+const useTableFilters = <TData = unknown>({ columns }: UseTableFiltersOptions<TData>) => {
+    const hasFilters = useMemo(() => columns?.some((column) => column.filter !== undefined), [columns]);
 
     const filterInitialValues = useMemo(
         () =>
-            columns?.reduce((acc, column) => {
-                if (column.filter) {
-                    const key = column.filter.property as keyof TFilters;
-                    acc[key] =
-                        (initialFilterValues?.[key] as
-                            | TFilters[keyof TFilters]
-                            | undefined) ?? (null as TFilters[keyof TFilters]);
-                }
-                return acc;
-            }, {} as TFilters) ?? ({} as TFilters),
-        [columns, initialFilterValues],
+            columns?.reduce(
+                (acc, column) => {
+                    if (column.filter) {
+                        const key = column.filter.property;
+                        acc[key] = column.filter.initialValue ?? null;
+                    }
+                    return acc;
+                },
+                {} as Record<string, unknown>,
+            ) ?? {},
+        [columns],
     );
 
-    const registerFilter = useForm<TFilters>({
+    const [currentFilterValues, setCurrentFilterValues] = useState<Record<string, unknown>>(filterInitialValues);
+
+    const onChangeCallbacks = useMemo(
+        () =>
+            columns?.reduce(
+                (acc, column) => {
+                    if (column.filter) {
+                        const key = column.filter.property;
+                        acc[key] = column.filter.onChange;
+                    }
+                    return acc;
+                },
+                {} as Record<string, ((value: unknown) => void) | undefined>,
+            ),
+        [columns],
+    );
+
+    const registerFilter = useForm<Record<string, unknown>>({
         initial: filterInitialValues,
-        onSuccess: async (filters: TFilters) => {
+        onSuccess: async (filters: Record<string, unknown>) => {
             setCurrentFilterValues(filters);
-            onFilterChange?.(filters);
+
+            // Call individual onChange callbacks for each filter
+            Object.entries(filters).forEach(([key, value]) => {
+                const callback = onChangeCallbacks?.[key];
+                callback?.(value);
+            });
         },
     });
 
@@ -73,19 +63,13 @@ export const useTableFilters = <
                 return columns.every((column) => {
                     if (!column.filter?.filterFunction) return true;
 
-                    const filterValue =
-                        currentFilterValues[
-                            column.filter.property as keyof TFilters
-                        ];
+                    const filterValue = currentFilterValues[column.filter.property];
 
                     if (filterValue === null || filterValue === undefined) {
                         return true;
                     }
 
-                    if (
-                        Array.isArray(filterValue) &&
-                        filterValue.length === 0
-                    ) {
+                    if (Array.isArray(filterValue) && filterValue.length === 0) {
                         return true;
                     }
 
@@ -103,3 +87,5 @@ export const useTableFilters = <
         currentFilterValues,
     };
 };
+
+export default useTableFilters;

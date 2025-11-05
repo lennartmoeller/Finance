@@ -6,11 +6,7 @@ interface TableBodyRowProps {
     onBlur?: () => void;
 }
 
-const TableRow: React.FC<TableBodyRowProps> = ({
-    children,
-    onFocus,
-    onBlur,
-}) => {
+const TableRow: React.FC<TableBodyRowProps> = ({ children, onFocus, onBlur }) => {
     return (
         <tr onFocus={onFocus} onBlur={onBlur}>
             {children}
