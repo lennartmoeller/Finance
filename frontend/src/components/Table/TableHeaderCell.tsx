@@ -1,44 +1,11 @@
 import React from "react";
 
-import styled from "styled-components";
-
-import StyledCell from "@/components/Table/styles/StyledCell";
-import StyledCellContent from "@/components/Table/styles/StyledCellContent";
+import TableCell from "@/components/Table/TableCell";
 import TableCellProps from "@/components/Table/types/TableCellProps";
+import { memo } from "@/utils/react";
 
-const StyledHeaderCell = styled(StyledCell).attrs({ as: "th" })``;
-
-const TableHeaderCell: React.FC<TableCellProps> = ({
-    headerLevel = 1,
-    padding,
-    horAlign,
-    vertAlign,
-    backgroundColor,
-    colspan,
-    sticky,
-    width,
-    zIndex,
-    children,
-}) => {
-    return (
-        <StyledHeaderCell
-            colSpan={colspan}
-            $backgroundColor={backgroundColor}
-            $headerLevel={headerLevel}
-            $sticky={sticky}
-            $width={width}
-            $zIndex={zIndex}
-        >
-            <StyledCellContent
-                $headerLevel={headerLevel}
-                $padding={padding}
-                $horAlign={horAlign}
-                $vertAlign={vertAlign}
-            >
-                {children}
-            </StyledCellContent>
-        </StyledHeaderCell>
-    );
-};
+const TableHeaderCell: React.FC<TableCellProps> = memo(({ headerLevel = 1, ...props }) => {
+    return <TableCell as="th" headerLevel={headerLevel} {...props} />;
+}, "TableHeaderCell");
 
 export default TableHeaderCell;

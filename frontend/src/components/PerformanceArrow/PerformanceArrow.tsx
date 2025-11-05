@@ -10,20 +10,12 @@ interface PerformanceArrowProps {
 
 const PerformanceArrow: React.FC<PerformanceArrowProps> = ({ performance }) => {
     return (
-        <StyledPerformanceArrow
-            $color={
-                performance !== undefined
-                    ? getPerformanceColor(performance)
-                    : undefined
-            }
-        >
+        <StyledPerformanceArrow $color={performance !== undefined ? getPerformanceColor(performance) : undefined}>
             <Icon
                 id="fa-solid fa-arrow-down"
                 color="white"
                 opacity={performance !== undefined ? undefined : 0}
-                rotation={
-                    performance !== undefined ? performance * -180 : undefined
-                }
+                rotation={performance !== undefined ? performance * -180 : undefined}
                 size={10}
             />
         </StyledPerformanceArrow>

@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 
+import Fuse from "fuse.js";
+
+import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
+import MultiSelectorInputFormatter from "@/components/Form/InputFormatter/MultiSelectorInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
+import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Table from "@/components/Table/Table";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
-import TableRow from "@/components/Table/TableRow";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
-import { filterDuplicates } from "@/utils/array";
+import { ensureArray, filterDuplicates } from "@/utils/array";
+import YearMonth from "@/utils/YearMonth";
+import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
+import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
 import StyledTransactionTable from "@/views/TrackingView/TransactionsTable/styles/StyledTransactionTable";
 import TransactionsTableRow from "@/views/TrackingView/TransactionsTable/TransactionsTableRow";
 
@@ -22,6 +28,27 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     categories,
     transactions,
 }: TransactionsTableProps) => {
+    const setFocusedTransaction = useFocusedTransaction((state) => state.setFocusedTransaction);
+    const {
+        accountIds,
+        categoryIds,
+        yearMonths,
+        description,
+        setAccountIds,
+        setCategoryIds,
+        setYearMonths,
+        setDescription,
+    } = useTransactionFilter();
+
+    // Find non-leaf categories for filtering
+    const leafCategories = useMemo(() => {
+        const nonLeaf = categories
+            .map((category) => category.parentId)
+            .filter((parentId): parentId is number => parentId !== null);
+        const nonLeafUnique = filterDuplicates(nonLeaf);
+        return categories.filter((category) => !nonLeafUnique.includes(category.id));
+    }, [categories]);
+
     const accountsSelectorInputFormatter = new SelectorInputFormatter({
         options: accounts,
         idProperty: "id",
@@ -29,61 +56,155 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         required: true,
     });
     const categoriesSelectorInputFormatter = new SelectorInputFormatter({
-        options: (() => {
-            // find non-leaf nodes
-            const nonLeaf: number[] = categories
-                .map((category: Category) => category.parentId)
-                .filter((parentId: number | null) => parentId !== null);
-            const nonLeafUnique: number[] = filterDuplicates(nonLeaf);
-            // return only leaf nodes as options
-            return categories.filter(
-                (category: Category) => !nonLeafUnique.includes(category.id),
-            );
-        })(),
+        options: leafCategories,
         idProperty: "id",
         labelProperty: "label",
         required: true,
     });
 
+    // Filter input formatters (not required)
+    const yearMonthFilterInputFormatter = new GermanYearMonthInputFormatter({
+        defaultYear: new Date().getFullYear(),
+    });
+    const accountsFilterInputFormatter = new MultiSelectorInputFormatter({
+        options: accounts,
+        idProperty: "id",
+        labelProperty: "label",
+    });
+    const categoriesFilterInputFormatter = new MultiSelectorInputFormatter({
+        options: leafCategories,
+        idProperty: "id",
+        labelProperty: "label",
+    });
+    const descriptionFilterInputFormatter = new StringInputFormatter();
+
+    const columns = [
+        {
+            key: "date",
+            width: 98,
+            header: { name: "Date", props: { horAlign: "center" as const } },
+            filter: {
+                property: "yearMonths",
+                inputFormatter: yearMonthFilterInputFormatter,
+                filterFunction: (yearMonths: YearMonth | YearMonth[], transaction: Transaction) => {
+                    const yearMonthsArray = Array.isArray(yearMonths) ? yearMonths : [yearMonths];
+
+                    const transactionYearMonth = YearMonth.fromDate(transaction.date);
+                    return yearMonthsArray.some((ym) => ym.toString() === transactionYearMonth.toString());
+                },
+                initialValue: yearMonths.length > 0 ? yearMonths[0] : null,
+                onChange: (value: YearMonth | null) => setYearMonths(value ? [value] : []),
+            },
+        },
+        {
+            key: "account",
+            width: 140,
+            header: { name: "Account" },
+            filter: {
+                property: "accountIds",
+                inputFormatter: accountsFilterInputFormatter,
+                filterFunction: (accountIds: number[], transaction: Transaction) => {
+                    return accountIds.includes(transaction.accountId);
+                },
+                initialValue: accountIds.length > 0 ? accountIds : null,
+                onChange: (value: number[] | null) => setAccountIds(ensureArray(value)),
+            },
+        },
+        {
+            key: "category",
+            width: 200,
+            header: { name: "Category" },
+            filter: {
+                property: "categoryIds",
+                inputFormatter: categoriesFilterInputFormatter,
+                filterFunction: (categoryIds: number[], transaction: Transaction) => {
+                    if (categoryIds.length === 0) {
+                        return true;
+                    }
+                    const result = new Set<number>(categoryIds);
+                    const addChildrenRecursively = (parentId: number): void => {
+                        const children = categories.filter((cat) => cat.parentId === parentId);
+                        for (const child of children) {
+                            result.add(child.id);
+                            addChildrenRecursively(child.id);
+                        }
+                    };
+                    for (const id of categoryIds) {
+                        addChildrenRecursively(id);
+                    }
+                    const expandedCategoryIds = Array.from(result);
+                    if (!expandedCategoryIds) return true;
+                    return expandedCategoryIds.includes(transaction.categoryId);
+                },
+                initialValue: categoryIds.length > 0 ? categoryIds : null,
+                onChange: (value: number[] | null) => setCategoryIds(ensureArray(value)),
+            },
+        },
+        {
+            key: "description",
+            width: 350,
+            header: { name: "Description" },
+            filter: {
+                property: "description",
+                inputFormatter: descriptionFilterInputFormatter,
+                filterFunction: (searchString: string, transaction: Transaction) => {
+                    if (!searchString || searchString.trim().length === 0) {
+                        return true;
+                    }
+
+                    const fuse = new Fuse([transaction], {
+                        keys: ["description"],
+                        includeScore: true,
+                        threshold: 0.3,
+                    });
+
+                    const results = fuse.search(searchString);
+                    return results.length > 0;
+                },
+                initialValue: description.length > 0 ? description : null,
+                onChange: (value: string | null) => setDescription(value ?? ""),
+            },
+        },
+        {
+            key: "amount",
+            width: 100,
+            header: { name: "Amount", props: { horAlign: "center" as const } },
+        },
+        { key: "actions", width: 31, header: { name: "" } },
+    ];
+
+    const rows = [
+        {
+            key: (transaction: Transaction) => transaction.id,
+            data: transactions,
+            content: (transaction: Transaction) => (
+                <TransactionsTableRow
+                    transaction={transaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                />
+            ),
+            properties: (transaction: Transaction) => ({
+                onFocus: () => setFocusedTransaction(transaction),
+                onBlur: () => setFocusedTransaction(null),
+            }),
+        },
+        {
+            key: "draft",
+            content: (
+                <TransactionsTableRow
+                    transaction={emptyTransaction}
+                    accountInputFormatter={accountsSelectorInputFormatter}
+                    categoryInputFormatter={categoriesSelectorInputFormatter}
+                    draft
+                />
+            ),
+        },
+    ];
+
     return (
         <StyledTransactionTable>
-            <Table
-                data={transactions}
-                header={
-                    <TableRow>
-                        <TableHeaderCell sticky="top">Date</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Account</TableHeaderCell>
-                        <TableHeaderCell sticky="top">Category</TableHeaderCell>
-                        <TableHeaderCell sticky="top">
-                            Description
-                        </TableHeaderCell>
-                        <TableHeaderCell sticky="top" horAlign="center">
-                            Amount
-                        </TableHeaderCell>
-                        <TableHeaderCell sticky="top"></TableHeaderCell>
-                    </TableRow>
-                }
-                body={(transaction: Transaction) => (
-                    <TransactionsTableRow
-                        key={transaction.id}
-                        transaction={transaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                    />
-                )}
-                postRow={
-                    <TransactionsTableRow
-                        transaction={emptyTransaction}
-                        accountInputFormatter={accountsSelectorInputFormatter}
-                        categoryInputFormatter={
-                            categoriesSelectorInputFormatter
-                        }
-                        draft
-                    />
-                }
-            />
+            <Table columns={columns} stickyHeaderRows={1} rows={rows} />
         </StyledTransactionTable>
     );
 };

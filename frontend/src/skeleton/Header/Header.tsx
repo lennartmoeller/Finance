@@ -17,12 +17,7 @@ const Header: React.FC = () => {
 
     return (
         <StyledHeader>
-            <Icon
-                key={route?.icon}
-                id={`fa-light ${route?.icon}`}
-                opacity={0.7}
-                size={28}
-            />
+            <Icon key={route?.icon} id={`fa-light ${route?.icon}`} opacity={0.7} size={28} />
             <StyledTitle>{headline ?? route?.label ?? ""}</StyledTitle>
             {actions && <StyledActions>{actions}</StyledActions>}
         </StyledHeader>

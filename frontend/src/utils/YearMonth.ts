@@ -19,18 +19,12 @@ class YearMonth {
     }
 
     public lengthOfMonth(): number {
-        return new Date(
-            this.year.getValue(),
-            this.month.getValue(),
-            0,
-        ).getDate();
+        return new Date(this.year.getValue(), this.month.getValue(), 0).getDate();
     }
 
     public monthsTo(other: YearMonth): number {
-        const thisTotalMonths =
-            this.year.getValue() * 12 + this.month.getValue();
-        const otherTotalMonths =
-            other.getYear().getValue() * 12 + other.getMonth().getValue();
+        const thisTotalMonths = this.year.getValue() * 12 + this.month.getValue();
+        const otherTotalMonths = other.getYear().getValue() * 12 + other.getMonth().getValue();
         return otherTotalMonths - thisTotalMonths;
     }
 
@@ -60,10 +54,7 @@ class YearMonth {
 
     public static fromString(value: string): YearMonth {
         const parts = value.split("-");
-        return new YearMonth(
-            Year.fromString(parts[0]),
-            Month.fromString(parts[1]),
-        );
+        return new YearMonth(Year.fromString(parts[0]), Month.fromString(parts[1]));
     }
 
     public static toString(yearMonth: YearMonth): string {

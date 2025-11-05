@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
 import com.lennartmoeller.finance.service.TransactionService;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -29,28 +28,14 @@ class TransactionControllerTest {
     private TransactionController controller;
 
     @Test
-    void shouldReturnFilteredTransactions() {
-        List<Long> aIds = List.of(1L, 2L);
-        List<Long> cIds = List.of(3L);
-        List<YearMonth> months = List.of(YearMonth.of(2024, 1));
+    void shouldReturnAllTransactions() {
         List<TransactionDTO> list = List.of(new TransactionDTO());
-        when(service.findFiltered(aIds, cIds, months, true)).thenReturn(list);
+        when(service.findAll()).thenReturn(list);
 
-        List<TransactionDTO> result = controller.getTransactions(aIds, cIds, months, true);
+        List<TransactionDTO> result = controller.getTransactions();
 
         assertThat(result).isEqualTo(list);
-        verify(service).findFiltered(aIds, cIds, months, true);
-    }
-
-    @Test
-    void shouldReturnTransactionsWhenParametersAreNull() {
-        List<TransactionDTO> list = List.of(new TransactionDTO());
-        when(service.findFiltered(null, null, null, null)).thenReturn(list);
-
-        List<TransactionDTO> result = controller.getTransactions(null, null, null, null);
-
-        assertThat(result).isEqualTo(list);
-        verify(service).findFiltered(null, null, null, null);
+        verify(service).findAll();
     }
 
     @Test

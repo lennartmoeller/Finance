@@ -24,10 +24,7 @@ class YearQuarter {
 
     public static fromString(value: string): YearQuarter {
         const parts = value.split("-");
-        return new YearQuarter(
-            Year.fromString(parts[0]),
-            Quarter.fromString(parts[1]),
-        );
+        return new YearQuarter(Year.fromString(parts[0]), Quarter.fromString(parts[1]));
     }
 
     public static fromDate(date: Date): YearQuarter {

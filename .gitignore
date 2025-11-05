@@ -15,4 +15,7 @@
 /env/
 
 # Coding Agents Settings
-.claude/
+/.claude/**
+!/.claude/agents/
+!/.claude/agents/**
+.plans/

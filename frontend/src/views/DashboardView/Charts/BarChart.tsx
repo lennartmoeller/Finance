@@ -25,15 +25,7 @@ export interface BarChartDataPoint<T extends string | number | symbol> {
     data: Record<T, number>;
 }
 
-ChartJS.register(
-    BarController,
-    BarElement,
-    CategoryScale,
-    Filler,
-    LineElement,
-    LinearScale,
-    PointElement,
-);
+ChartJS.register(BarController, BarElement, CategoryScale, Filler, LineElement, LinearScale, PointElement);
 
 const getChartData = <T extends string | number | symbol>(
     data: Array<BarChartDataPoint<T>>,
@@ -96,9 +88,7 @@ const getChartOptions = (
     return merge(chartOptions, custom);
 };
 
-const getChartPlugins = (
-    setHoveredIndex: (hoverIndex: number | null) => void,
-): Plugin<"bar">[] => {
+const getChartPlugins = (setHoveredIndex: (hoverIndex: number | null) => void): Plugin<"bar">[] => {
     return [
         {
             id: "resetHoveredIndex",
@@ -118,19 +108,11 @@ interface BarChartProps<T extends string | number | symbol> {
     title: string;
 }
 
-const BarChart = <T extends string | number | symbol>({
-    data,
-    labels,
-    options,
-    title,
-}: BarChartProps<T>) => {
+const BarChart = <T extends string | number | symbol>({ data, labels, options, title }: BarChartProps<T>) => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const chartData = useMemo(() => getChartData(data, labels), [data, labels]);
-    const chartOptions = useMemo(
-        () => getChartOptions(options ?? {}, setHoveredIndex),
-        [options],
-    );
+    const chartOptions = useMemo(() => getChartOptions(options ?? {}, setHoveredIndex), [options]);
     const chartPlugins = getChartPlugins(setHoveredIndex);
 
     return (
@@ -142,8 +124,7 @@ const BarChart = <T extends string | number | symbol>({
             }}
         >
             {(() => {
-                const point: BarChartDataPoint<T> =
-                    data[hoveredIndex ?? data.length - 1];
+                const point: BarChartDataPoint<T> = data[hoveredIndex ?? data.length - 1];
                 return (
                     <div
                         style={{
@@ -164,9 +145,7 @@ const BarChart = <T extends string | number | symbol>({
                             >
                                 {title}
                             </div>
-                            <div style={{ fontSize: "13px" }}>
-                                {point.label}
-                            </div>
+                            <div style={{ fontSize: "13px" }}>{point.label}</div>
                         </div>
                         <div
                             style={{
@@ -244,11 +223,7 @@ const BarChart = <T extends string | number | symbol>({
                 );
             })()}
 
-            <Bar
-                data={chartData}
-                options={chartOptions}
-                plugins={chartPlugins}
-            />
+            <Bar data={chartData} options={chartOptions} plugins={chartPlugins} />
         </div>
     );
 };

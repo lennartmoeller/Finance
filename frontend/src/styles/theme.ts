@@ -34,6 +34,9 @@ const theme = {
             backgroundColor: "#fafafa",
             fontWeight: "bold",
         },
+        filter: {
+            backgroundColor: "#f8f8f8",
+        },
         body: {
             backgroundColor: "white",
             fontWeight: "normal",

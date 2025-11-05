@@ -30,15 +30,11 @@ const useStatsMode = createPersistentStore<
     storage: {
         storeInUrl: false,
         storeInLocalStorage: true,
-        serialize: (
-            state: TransactionFilterStateData,
-        ): TransactionFilterStateDataSerialized => ({
+        serialize: (state: TransactionFilterStateData): TransactionFilterStateDataSerialized => ({
             smoothed: state.smoothed ? "true" : "false",
             merged: state.merged ? "true" : "false",
         }),
-        parse: (
-            packedValue: TransactionFilterStateDataSerialized,
-        ): TransactionFilterStateData => ({
+        parse: (packedValue: TransactionFilterStateDataSerialized): TransactionFilterStateData => ({
             smoothed: packedValue.smoothed === "true",
             merged: packedValue.merged === "true",
         }),

@@ -2,10 +2,8 @@ package com.lennartmoeller.finance.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.lennartmoeller.finance.dto.TransactionDTO;
-import com.lennartmoeller.finance.mapper.CategoryMapperImpl;
 import com.lennartmoeller.finance.mapper.TargetMapperImpl;
 import com.lennartmoeller.finance.mapper.TransactionMapperImpl;
 import com.lennartmoeller.finance.model.Account;
@@ -16,7 +14,6 @@ import com.lennartmoeller.finance.repository.AccountRepository;
 import com.lennartmoeller.finance.repository.CategoryRepository;
 import com.lennartmoeller.finance.repository.TransactionRepository;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,19 +77,6 @@ class TransactionServiceIntegrationTest {
     }
 
     @Test
-    void findFilteredFiltersBySubcategoriesAndPinned() {
-        Transaction t1 = saveTx(account, parent, LocalDate.of(2024, 1, 1), true);
-        Transaction t2 = saveTx(account, child, LocalDate.of(2024, 1, 2), true);
-        saveTx(account, child, LocalDate.of(2024, 1, 3), false);
-
-        List<TransactionDTO> result = service.findFiltered(
-                List.of(account.getId()), List.of(parent.getId()), List.of(YearMonth.of(2024, 1)), true);
-
-        assertThat(result).extracting(TransactionDTO::getId).containsExactly(t1.getId(), t2.getId());
-        verifyNoInteractions(suggestionService);
-    }
-
-    @Test
     void savePersistsTransactionAndCallsSuggestionService() {
         TransactionDTO dto = new TransactionDTO();
         dto.setAccountId(account.getId());
@@ -135,21 +119,14 @@ class TransactionServiceIntegrationTest {
         TransactionService transactionService(
                 AccountRepository accountRepository,
                 CategoryRepository categoryRepository,
-                CategoryService categoryService,
                 TransactionLinkSuggestionService suggestionService,
                 TransactionRepository transactionRepository) {
             return new TransactionService(
                     accountRepository,
                     categoryRepository,
-                    categoryService,
                     suggestionService,
                     new TransactionMapperImpl(),
                     transactionRepository);
-        }
-
-        @Bean
-        CategoryService categoryService(CategoryRepository categoryRepository) {
-            return new CategoryService(new CategoryMapperImpl(), categoryRepository);
         }
 
         @Bean

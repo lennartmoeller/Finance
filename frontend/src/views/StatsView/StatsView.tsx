@@ -19,25 +19,13 @@ const StatsView: React.FC = () => {
                 <>
                     {smoothed && (
                         <Switch
-                            content={(checked) => (
-                                <Icon
-                                    id="fa-solid fa-merge"
-                                    opacity={checked ? 1 : 0.5}
-                                    size={30}
-                                />
-                            )}
+                            content={(checked) => <Icon id="fa-solid fa-merge" opacity={checked ? 1 : 0.5} size={30} />}
                             initial={merged}
                             onChange={setMerged}
                         />
                     )}
                     <Switch
-                        content={(checked) => (
-                            <Icon
-                                id="fa-solid fa-blender"
-                                opacity={checked ? 1 : 0.5}
-                                size={30}
-                            />
-                        )}
+                        content={(checked) => <Icon id="fa-solid fa-blender" opacity={checked ? 1 : 0.5} size={30} />}
                         initial={smoothed}
                         onChange={setSmoothed}
                     />
@@ -52,11 +40,7 @@ const StatsView: React.FC = () => {
 
     return (
         <StyledStatsView>
-            <StatsTable
-                stats={stats.data}
-                merged={merged}
-                smoothed={smoothed}
-            />
+            <StatsTable stats={stats.data} merged={merged} smoothed={smoothed} />
         </StyledStatsView>
     );
 };

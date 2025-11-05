@@ -24,8 +24,7 @@ const StyledAccountItem = styled.div<StyledAccountItemProps>`
     align-items: center;
     width: 300px;
     padding: 15px 20px;
-    border: ${(props) =>
-        `${props.theme.border.width}px solid ${getSelectionBorderColor(props)}`};
+    border: ${(props) => `${props.theme.border.width}px solid ${getSelectionBorderColor(props)}`};
     background-color: ${getSelectionBackground};
 `;
 

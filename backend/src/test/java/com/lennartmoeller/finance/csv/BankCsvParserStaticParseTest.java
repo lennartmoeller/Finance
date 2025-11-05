@@ -1,6 +1,7 @@
+package com.lennartmoeller.finance.csv;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.lennartmoeller.finance.csv.BankCsvParser;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

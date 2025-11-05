@@ -21,15 +21,11 @@ export interface MonthlyCategoryStatsDTO {
     endDate: string | null;
 }
 
-export const monthlyCategoryStatsMapper: TypeMapper<
-    MonthlyCategoryStats,
-    MonthlyCategoryStatsDTO
-> = {
+export const monthlyCategoryStatsMapper: TypeMapper<MonthlyCategoryStats, MonthlyCategoryStatsDTO> = {
     fromDTO: (dto: MonthlyCategoryStatsDTO) => ({
         stats: Object.entries(dto.stats).reduce(
             (acc, [key, value]) => {
-                acc[key as TransactionType] =
-                    transactionTypeStatsMapper.fromDTO(value);
+                acc[key as TransactionType] = transactionTypeStatsMapper.fromDTO(value);
                 return acc;
             },
             {} as Record<TransactionType, TransactionTypeStats>,
@@ -41,8 +37,7 @@ export const monthlyCategoryStatsMapper: TypeMapper<
     toDTO: (model: MonthlyCategoryStats) => ({
         stats: Object.entries(model.stats).reduce(
             (acc, [key, value]) => {
-                acc[key as TransactionType] =
-                    transactionTypeStatsMapper.toDTO(value);
+                acc[key as TransactionType] = transactionTypeStatsMapper.toDTO(value);
                 return acc;
             },
             {} as Record<TransactionType, TransactionTypeStatsDTO>,

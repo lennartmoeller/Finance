@@ -18,14 +18,8 @@ const Sidebar: React.FC = () => {
                 {Object.entries(routes).map(([path, { icon, label }]) => (
                     <Link key={path} to={path}>
                         <StyledSidebarButton>
-                            <Icon
-                                id={`fa-light ${icon}`}
-                                opacity={0.7}
-                                size={24}
-                            />
-                            <StyledSidebarButtonLabel>
-                                {label}
-                            </StyledSidebarButtonLabel>
+                            <Icon id={`fa-light ${icon}`} opacity={0.7} size={24} />
+                            <StyledSidebarButtonLabel>{label}</StyledSidebarButtonLabel>
                         </StyledSidebarButton>
                     </Link>
                 ))}

@@ -43,10 +43,7 @@ const Tooltip: React.FC<TooltipProps> = ({ x, y, children }) => {
 
     return (
         <>
-            <div
-                ref={refs.setReference}
-                style={{ position: "absolute", left: x, top: y }}
-            />
+            <div ref={refs.setReference} style={{ position: "absolute", left: x, top: y }} />
             <StyledTooltipContainer
                 ref={refs.setFloating}
                 $position={strategy}

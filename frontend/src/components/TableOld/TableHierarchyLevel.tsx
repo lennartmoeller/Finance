@@ -1,16 +1,13 @@
 import React, { ReactNode, useContext, useState } from "react";
 
-import HierarchyContext from "@/components/Table/context/HierarchyContext";
+import HierarchyContext from "@/components/TableOld/context/HierarchyContext";
 
 interface TableBodyRowGroupProps {
     initiallyOpen?: boolean;
     children: ReactNode;
 }
 
-const TableHierarchyLevel: React.FC<TableBodyRowGroupProps> = ({
-    initiallyOpen,
-    children,
-}) => {
+const TableHierarchyLevel: React.FC<TableBodyRowGroupProps> = ({ initiallyOpen, children }) => {
     const childrenVisibleState = useState<boolean>(initiallyOpen ?? true);
     const hasChildrenState = useState<boolean>(false);
 

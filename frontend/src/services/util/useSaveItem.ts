@@ -7,16 +7,12 @@ import { ExtURL } from "@/utils/ExtURL";
 export interface UseSaveItemOptions<Body, Item> {
     url: ExtURL;
     converter: (item: Item) => Body;
-    invalidateQueryUrls?:
-        | Array<ExtURL>
-        | ((item: Item) => Array<ExtURL> | undefined);
+    invalidateQueryUrls?: Array<ExtURL> | ((item: Item) => Array<ExtURL> | undefined);
 }
 
 export type UseSaveItemResult<T> = (item: T) => Promise<void>;
 
-const useSaveItem = <Body, Item>(
-    options: UseSaveItemOptions<Body, Item>,
-): UseSaveItemResult<Item> => {
+const useSaveItem = <Body, Item>(options: UseSaveItemOptions<Body, Item>): UseSaveItemResult<Item> => {
     const queryClient = useQueryClient();
 
     const useSaveItemResult = useMutation({

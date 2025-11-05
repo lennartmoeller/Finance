@@ -11,9 +11,7 @@ module.exports = (env, argv) => {
         output: {
             path: path.resolve(__dirname, "dist"),
             filename: isProd ? "[name].[contenthash].js" : "[name].js",
-            chunkFilename: isProd
-                ? "[name].[contenthash].chunk.js"
-                : "[name].chunk.js",
+            chunkFilename: isProd ? "[name].[contenthash].chunk.js" : "[name].chunk.js",
             clean: true,
         },
         resolve: {
@@ -35,10 +33,7 @@ module.exports = (env, argv) => {
                     use: {
                         loader: "babel-loader",
                         options: {
-                            presets: [
-                                "@babel/preset-env",
-                                "@babel/preset-react",
-                            ],
+                            presets: ["@babel/preset-env", "@babel/preset-react"],
                             plugins: ["babel-plugin-styled-components"],
                         },
                     },

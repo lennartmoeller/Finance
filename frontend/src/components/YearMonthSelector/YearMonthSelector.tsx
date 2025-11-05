@@ -12,19 +12,13 @@ export interface ButtonProps {
     next: () => void;
 }
 
-const YearMonthSelector: React.FC<ButtonProps> = ({
-    value,
-    previous,
-    next,
-}) => {
+const YearMonthSelector: React.FC<ButtonProps> = ({ value, previous, next }) => {
     return (
         <StyledYearMonthSelector>
             <Button onClick={previous}>
                 <Icon id={"fa-solid fa-chevron-left"} />
             </Button>
-            <StyledYearMonthSelectorLabel>
-                {value.toLabel()}
-            </StyledYearMonthSelectorLabel>
+            <StyledYearMonthSelectorLabel>{value.toLabel()}</StyledYearMonthSelectorLabel>
             <Button onClick={next}>
                 <Icon id={"fa-solid fa-chevron-right"} />
             </Button>

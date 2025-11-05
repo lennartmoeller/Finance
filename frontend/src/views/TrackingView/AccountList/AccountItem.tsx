@@ -17,9 +17,7 @@ function AccountItemComponent({ account, balance, isSelected }: AccountProps) {
     return (
         <StyledAccountItem $isSelected={isSelected}>
             <StyledAccountItemLabel>{account.label}</StyledAccountItemLabel>
-            <StyledAccountItemBalance>
-                {getEuroString(balance)}
-            </StyledAccountItemBalance>
+            <StyledAccountItemBalance>{getEuroString(balance)}</StyledAccountItemBalance>
         </StyledAccountItem>
     );
 }

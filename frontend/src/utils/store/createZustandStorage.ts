@@ -4,10 +4,7 @@ import { ExtURL } from "@/utils/ExtURL";
 
 export type Serialized = string | Record<string, string>;
 
-export interface CreateZustandStorageOptions<
-    STATE,
-    SERIALIZED extends Serialized,
-> {
+export interface CreateZustandStorageOptions<STATE, SERIALIZED extends Serialized> {
     storeInUrl?: boolean;
     storeInLocalStorage?: boolean;
     serialize?: (state: STATE) => SERIALIZED;
