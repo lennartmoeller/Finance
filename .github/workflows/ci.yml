@@ -83,6 +83,7 @@ jobs:
       - name: Run Programmatic Checks
         run: |
           cd frontend
+          npm run check
           npm run lint
           npm run format
       - name: Ensure Working Tree Clean

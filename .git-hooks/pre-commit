@@ -8,6 +8,7 @@ frontend_dir="$repo_root/frontend"
 
 backend_format_status=0
 backend_test_status=0
+frontend_check_status=0
 frontend_lint_status=0
 frontend_format_status=0
 
@@ -31,6 +32,9 @@ cd "$repo_root" || exit 1
 if [ -d "$frontend_dir" ]; then
     cd "$frontend_dir" || exit 1
 
+    npm run check >/dev/null 2>&1
+    frontend_check_status=$?
+
     npm run lint >/dev/null 2>&1
     frontend_lint_status=$?
 
@@ -38,6 +42,7 @@ if [ -d "$frontend_dir" ]; then
     frontend_format_status=$?
 else
     echo "❌ Frontend directory not found"
+    frontend_check_status=1
     frontend_lint_status=1
     frontend_format_status=1
 fi
@@ -56,6 +61,12 @@ else
     echo "❌ Backend tests failed"
 fi
 
+if [ $frontend_check_status -eq 0 ]; then
+    echo "✅ Frontend type check passed"
+else
+    echo "❌ Frontend type check failed"
+fi
+
 if [ $frontend_lint_status -eq 0 ]; then
     echo "✅ Frontend lint passed"
 else
@@ -70,6 +81,7 @@ fi
 
 if [ $backend_format_status -ne 0 ] \
     || [ $backend_test_status -ne 0 ] \
+    || [ $frontend_check_status -ne 0 ] \
     || [ $frontend_lint_status -ne 0 ] \
     || [ $frontend_format_status -ne 0 ]; then
     exit 1
