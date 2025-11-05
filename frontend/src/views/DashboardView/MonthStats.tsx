@@ -14,10 +14,7 @@ const MonthStats: React.FC = () => {
         <>
             <h2>{monthStats.yearMonth.toLabel()}</h2>
             <Goal
-                performance={
-                    monthStats.balanceChange.smoothed /
-                    monthStats.balanceChangeTarget.smoothed
-                }
+                performance={monthStats.balanceChange.smoothed / monthStats.balanceChangeTarget.smoothed}
                 label={"Savings Goal"}
                 sublabel={
                     getEuroString(monthStats.balanceChange.smoothed) +
@@ -28,17 +25,11 @@ const MonthStats: React.FC = () => {
             <Goal
                 performance={monthStats.deposits / monthStats.depositsTarget}
                 label={"Deposits Goal"}
-                sublabel={
-                    getEuroString(monthStats.deposits) +
-                    " / " +
-                    getEuroString(monthStats.depositsTarget)
-                }
+                sublabel={getEuroString(monthStats.deposits) + " / " + getEuroString(monthStats.depositsTarget)}
             />
             <div>-</div>
             <div>Leftovers:</div>
-            <div>
-                {getEuroString(monthStats.balanceChangeDeviation.smoothed)}
-            </div>
+            <div>{getEuroString(monthStats.balanceChangeDeviation.smoothed)}</div>
         </>
     );
 };

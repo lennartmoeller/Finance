@@ -9,14 +9,8 @@ import { Nullable } from "@/utils/types";
 interface FormOptions<I extends object> {
     initial: Nullable<I>;
     onSuccess?: (item: I) => Promise<Nullable<I> | void>;
-    onError?: (
-        item: Nullable<I>,
-        errors: ItemErrors<I>,
-    ) => Promise<Nullable<I> | void>;
-    onSettled?: (
-        item: Nullable<I>,
-        errors: ItemErrors<I>,
-    ) => Promise<Nullable<I> | void>;
+    onError?: (item: Nullable<I>, errors: ItemErrors<I>) => Promise<Nullable<I> | void>;
+    onSettled?: (item: Nullable<I>, errors: ItemErrors<I>) => Promise<Nullable<I> | void>;
     resetOnSuccess?: boolean;
 }
 
@@ -44,37 +38,21 @@ const useForm = <I extends object>({
     onSettled,
     resetOnSuccess = false,
 }: FormOptions<I>): RegisterFunction<I> => {
-    const formFieldStateGetters = useRef(
-        new Map<keyof I, () => FormFieldState<I[keyof I] | null>>(),
-    );
+    const formFieldStateGetters = useRef(new Map<keyof I, () => FormFieldState<I[keyof I] | null>>());
 
     return <P extends keyof I>(property: P) => {
-        const register = (
-            getFormFieldState: () => FormFieldState<I[P] | null>,
-        ) => {
-            formFieldStateGetters.current.set(
-                property,
-                getFormFieldState as () => FormFieldState<I[keyof I] | null>,
-            );
+        const register = (getFormFieldState: () => FormFieldState<I[P] | null>) => {
+            formFieldStateGetters.current.set(property, getFormFieldState as () => FormFieldState<I[keyof I] | null>);
         };
 
         const onChange = async (): Promise<void> => {
-            const formFieldStates: Map<
-                keyof I,
-                FormFieldState<I[keyof I] | null>
-            > = new Map();
-            formFieldStateGetters.current.forEach(
-                (getFormFieldState, property) => {
-                    formFieldStates.set(property, getFormFieldState());
-                },
-            );
+            const formFieldStates: Map<keyof I, FormFieldState<I[keyof I] | null>> = new Map();
+            formFieldStateGetters.current.forEach((getFormFieldState, property) => {
+                formFieldStates.set(property, getFormFieldState());
+            });
 
             // check if any form field has focus
-            if (
-                Array.from(formFieldStates.values()).some(
-                    ({ hasFocus }) => hasFocus,
-                )
-            ) {
+            if (Array.from(formFieldStates.values()).some(({ hasFocus }) => hasFocus)) {
                 return;
             }
 

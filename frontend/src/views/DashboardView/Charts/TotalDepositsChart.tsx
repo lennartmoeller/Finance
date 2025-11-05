@@ -1,9 +1,7 @@
 import React from "react";
 
 import { useMonthlySavingStats } from "@/services/monthlySavingStats";
-import LineChart, {
-    LineChartDataPoint,
-} from "@/views/DashboardView/Charts/LineChart";
+import LineChart, { LineChartDataPoint } from "@/views/DashboardView/Charts/LineChart";
 
 const TotalDepositsChart: React.FC = () => {
     const { data: statsData } = useMonthlySavingStats();

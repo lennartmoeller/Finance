@@ -14,18 +14,17 @@ export interface CategoryStatsDTO {
     children: Array<CategoryStatsDTO>;
 }
 
-export const categoryStatsMapper: TypeMapper<CategoryStats, CategoryStatsDTO> =
-    {
-        fromDTO: (dto: CategoryStatsDTO) => ({
-            category: categoryMapper.fromDTO(dto.category),
-            stats: rowStatsMapper.fromDTO(dto.stats),
-            children: dto.children.map(categoryStatsMapper.fromDTO),
-        }),
-        toDTO: (model: CategoryStats) => ({
-            category: categoryMapper.toDTO(model.category),
-            stats: rowStatsMapper.toDTO(model.stats),
-            children: model.children.map(categoryStatsMapper.toDTO),
-        }),
-    };
+export const categoryStatsMapper: TypeMapper<CategoryStats, CategoryStatsDTO> = {
+    fromDTO: (dto: CategoryStatsDTO) => ({
+        category: categoryMapper.fromDTO(dto.category),
+        stats: rowStatsMapper.fromDTO(dto.stats),
+        children: dto.children.map(categoryStatsMapper.fromDTO),
+    }),
+    toDTO: (model: CategoryStats) => ({
+        category: categoryMapper.toDTO(model.category),
+        stats: rowStatsMapper.toDTO(model.stats),
+        children: model.children.map(categoryStatsMapper.toDTO),
+    }),
+};
 
 export default CategoryStats;

@@ -14,27 +14,16 @@ interface MoneyTableCellProps {
     smoothed: boolean;
 }
 
-const MoneyTableCell: React.FC<MoneyTableCellProps> = ({
-    columnCount = 1,
-    headerLevel,
-    stats,
-    smoothed,
-}) => {
+const MoneyTableCell: React.FC<MoneyTableCellProps> = ({ columnCount = 1, headerLevel, stats, smoothed }) => {
     const statsMetricKey: "raw" | "smoothed" = smoothed ? "smoothed" : "raw";
     const centsValue: number = stats.surplus[statsMetricKey] * columnCount;
     const euroString: string = getEuroString(centsValue, 12);
     const performance: number | undefined = stats.performance?.[statsMetricKey];
 
     return (
-        <TableBodyCell
-            colspan={columnCount}
-            headerLevel={headerLevel}
-            horAlign="center"
-        >
+        <TableBodyCell colspan={columnCount} headerLevel={headerLevel} horAlign="center">
             <StyledMoneyTableCell>
-                <StyledMoneyString $zero={centsValue === 0}>
-                    {euroString}
-                </StyledMoneyString>
+                <StyledMoneyString $zero={centsValue === 0}>{euroString}</StyledMoneyString>
                 <PerformanceArrow performance={performance} />
             </StyledMoneyTableCell>
         </TableBodyCell>

@@ -1,6 +1,4 @@
-import InputFormatter, {
-    InputFormatterOptions,
-} from "@/components/Form/InputFormatter/InputFormatter";
+import InputFormatter, { InputFormatterOptions } from "@/components/Form/InputFormatter/InputFormatter";
 import InputState from "@/components/Form/types/InputState";
 
 interface GermanDateInputFormatterOptions extends InputFormatterOptions {
@@ -14,17 +12,11 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
 
     constructor(options: GermanDateInputFormatterOptions = {}) {
         super(options);
-        if (
-            options.defaultYear !== undefined &&
-            options.defaultYear.toString().length !== 4
-        ) {
+        if (options.defaultYear !== undefined && options.defaultYear.toString().length !== 4) {
             throw new Error("Invalid default year");
         }
         this.defaultYear = options.defaultYear;
-        if (
-            options.defaultMonth !== undefined &&
-            (options.defaultMonth < 1 || options.defaultMonth > 12)
-        ) {
+        if (options.defaultMonth !== undefined && (options.defaultMonth < 1 || options.defaultMonth > 12)) {
             throw new Error("Invalid default month");
         }
         this.defaultMonth = options.defaultMonth;
@@ -47,9 +39,7 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
     }
 
     public stringToValue(string: string): Date | null {
-        const match = RegExp(/^([x\d]{2})\.([x\d]{2})\.([x\d]{4})$/).exec(
-            string,
-        );
+        const match = RegExp(/^([x\d]{2})\.([x\d]{2})\.([x\d]{4})$/).exec(string);
         if (!match) {
             return null;
         }
@@ -62,15 +52,9 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
         const monthNumber: number = parseInt(monthString, 10) - 1;
         const yearNumber: number = parseInt(yearString, 10);
 
-        const date: Date = new Date(
-            Date.UTC(yearNumber, monthNumber, dayNumber),
-        );
+        const date: Date = new Date(Date.UTC(yearNumber, monthNumber, dayNumber));
 
-        if (
-            date.getFullYear() !== yearNumber ||
-            date.getMonth() !== monthNumber ||
-            date.getDate() !== dayNumber
-        ) {
+        if (date.getFullYear() !== yearNumber || date.getMonth() !== monthNumber || date.getDate() !== dayNumber) {
             return null;
         }
         return date;
@@ -116,19 +100,11 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
                 }
                 if ((month ?? "") !== "") {
                     const monthNumber: number = parseInt(month);
-                    if (
-                        month.length > 2 ||
-                        isNaN(monthNumber) ||
-                        monthNumber > 12
-                    ) {
+                    if (month.length > 2 || isNaN(monthNumber) || monthNumber > 12) {
                         return before;
                     }
                     const year: string | undefined = parts[2] ?? undefined;
-                    if (
-                        month.length === 2 ||
-                        monthNumber > 1 ||
-                        year !== undefined
-                    ) {
+                    if (month.length === 2 || monthNumber > 1 || year !== undefined) {
                         value += month.padStart(2, "0") + ".";
                     } else {
                         value += month;
@@ -153,21 +129,12 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
         };
     }
 
-    private getPrediction = (
-        value: string,
-    ): { label: string; value: Date | null } => {
+    private getPrediction = (value: string): { label: string; value: Date | null } => {
         const parts: Array<string> = value.split(".");
 
         parts[0] = (parts[0] || "xx").padEnd(2, "x");
-        parts[1] = (
-            parts[1] ||
-            this.defaultMonth?.toString().padStart(2, "0") ||
-            "xx"
-        ).padEnd(2, "x");
-        parts[2] = (parts[2] || this.defaultYear?.toString() || "xxxx").padEnd(
-            4,
-            "x",
-        );
+        parts[1] = (parts[1] || this.defaultMonth?.toString().padStart(2, "0") || "xx").padEnd(2, "x");
+        parts[2] = (parts[2] || this.defaultYear?.toString() || "xxxx").padEnd(4, "x");
 
         const predictionLabel: string = parts.join(".");
         return {

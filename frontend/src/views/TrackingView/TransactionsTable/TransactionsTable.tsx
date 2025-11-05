@@ -11,7 +11,6 @@ import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
 import { ensureArray, filterDuplicates } from "@/utils/array";
-import { expandCategoryIds } from "@/utils/categoryHierarchy";
 import YearMonth from "@/utils/YearMonth";
 import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
@@ -119,9 +118,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 property: "categoryIds",
                 inputFormatter: categoriesFilterInputFormatter,
                 filterFunction: (categoryIds: number[], transaction: Transaction) => {
-                    const expandedCategoryIds = expandCategoryIds(categoryIds, categories);
+                    if (categoryIds.length === 0) {
+                        return true;
+                    }
+                    const result = new Set<number>(categoryIds);
+                    const addChildrenRecursively = (parentId: number): void => {
+                        const children = categories.filter((cat) => cat.parentId === parentId);
+                        for (const child of children) {
+                            result.add(child.id);
+                            addChildrenRecursively(child.id);
+                        }
+                    };
+                    for (const id of categoryIds) {
+                        addChildrenRecursively(id);
+                    }
+                    const expandedCategoryIds = Array.from(result);
                     if (!expandedCategoryIds) return true;
-
                     return expandedCategoryIds.includes(transaction.categoryId);
                 },
                 initialValue: categoryIds.length > 0 ? categoryIds : null,

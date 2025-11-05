@@ -1,10 +1,7 @@
 import { create, StateCreator } from "zustand";
 import { persist } from "zustand/middleware";
 
-import createZustandStorage, {
-    CreateZustandStorageOptions,
-    Serialized,
-} from "@/utils/store/createZustandStorage";
+import createZustandStorage, { CreateZustandStorageOptions, Serialized } from "@/utils/store/createZustandStorage";
 
 type PersistentStoreOptions<STATE, STATEDATA, SERIALIZED extends Serialized> = {
     name: string;

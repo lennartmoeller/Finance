@@ -10,11 +10,7 @@ type InputFieldProps<T> = InputProps<T> & {
     width?: number;
 };
 
-const InputField = <T,>({
-    label,
-    width,
-    ...inputProps
-}: InputFieldProps<T>) => {
+const InputField = <T,>({ label, width, ...inputProps }: InputFieldProps<T>) => {
     return (
         <StyledInputFieldContainer>
             {label && <StyledInputFieldLabel>{label}</StyledInputFieldLabel>}

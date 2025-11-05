@@ -13,21 +13,12 @@ const AccountList: React.FC = () => {
     const { accountIds } = useTransactionFilter();
     const { focusedTransaction } = useFocusedTransaction();
 
-    if (accounts.isLoading || accountBalances.isLoading)
-        return <div>Loading...</div>;
+    if (accounts.isLoading || accountBalances.isLoading) return <div>Loading...</div>;
     if (accounts.error || accountBalances.error)
-        return (
-            <div>
-                Error:{" "}
-                {accounts.error?.message ?? accountBalances.error?.message}
-            </div>
-        );
-    if (!accounts.data || !accountBalances.data)
-        return <div>No data available</div>;
+        return <div>Error: {accounts.error?.message ?? accountBalances.error?.message}</div>;
+    if (!accounts.data || !accountBalances.data) return <div>No data available</div>;
 
-    const accountMap = new Map(
-        accounts.data.map((account) => [account.id, account]),
-    );
+    const accountMap = new Map(accounts.data.map((account) => [account.id, account]));
 
     return (
         <StyledAccountList>
@@ -36,14 +27,7 @@ const AccountList: React.FC = () => {
                 const isSelected = focusedTransaction
                     ? focusedTransaction.accountId === accountId
                     : accountIds.includes(accountId);
-                return (
-                    <AccountItem
-                        key={account.id}
-                        account={account}
-                        balance={balance}
-                        isSelected={isSelected}
-                    />
-                );
+                return <AccountItem key={account.id} account={account} balance={balance} isSelected={isSelected} />;
             })}
         </StyledAccountList>
     );

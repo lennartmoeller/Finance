@@ -12,27 +12,20 @@ import Skeleton from "@/skeleton/Skeleton";
 import GlobalStyles from "@/styles/GlobalStyles";
 import theme from "@/styles/theme";
 
-const root = ReactDOM.createRoot(
-    document.getElementById("root") as HTMLElement,
-);
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 
 const AppRoutes = () =>
     useRoutes([
         {
             path: "/",
             element: <Skeleton />,
-            children: Object.entries(routes).map(
-                ([path, { element }]): RouteObject => ({ path, element }),
-            ),
+            children: Object.entries(routes).map(([path, { element }]): RouteObject => ({ path, element })),
         },
     ]);
 
 root.render(
     <React.StrictMode>
-        <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{ persister }}
-        >
+        <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
             <ThemeProvider theme={theme}>
                 <GlobalStyles />
                 <BrowserRouter>

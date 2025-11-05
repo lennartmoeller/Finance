@@ -25,8 +25,7 @@ const StyledInputField = styled.div<{
         border-color: ${({ theme }) => theme.colors.accent};
         border-width: ${({ theme }) => theme.border.widthFocus}px;
         padding: ${({ theme }) => {
-            const borderIncrease: number =
-                theme.border.widthFocus - theme.border.width;
+            const borderIncrease: number = theme.border.widthFocus - theme.border.width;
             return `${paddingVertical - borderIncrease}px ${paddingHorizontal - borderIncrease}px`;
         }};
     }

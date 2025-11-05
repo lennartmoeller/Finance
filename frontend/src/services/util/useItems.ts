@@ -14,9 +14,7 @@ export interface UseItemsResult<Data> {
     isLoading: boolean;
 }
 
-const useItems = <Body, Data>(
-    options: UseItemsOptions<Body, Data>,
-): UseItemsResult<Data> => {
+const useItems = <Body, Data>(options: UseItemsOptions<Body, Data>): UseItemsResult<Data> => {
     const urlString: string = options.url.toString();
 
     const useQueryResult = useQuery({
@@ -28,9 +26,7 @@ const useItems = <Body, Data>(
     });
 
     return {
-        data: useQueryResult.data
-            ? options.converter(useQueryResult.data)
-            : undefined,
+        data: useQueryResult.data ? options.converter(useQueryResult.data) : undefined,
         error: useQueryResult.error ?? undefined,
         isLoading: useQueryResult.isLoading,
     };

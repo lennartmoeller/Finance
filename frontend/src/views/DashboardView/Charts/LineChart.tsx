@@ -28,10 +28,7 @@ export interface LineChartDataPoint {
 
 ChartJS.register(CategoryScale, Filler, LineElement, LinearScale, PointElement);
 
-const getDecimatedData = (
-    data: Array<LineChartDataPoint>,
-    chartWidth: number,
-): Array<LineChartDataPoint> => {
+const getDecimatedData = (data: Array<LineChartDataPoint>, chartWidth: number): Array<LineChartDataPoint> => {
     const samples: number = Math.round(chartWidth / 2);
 
     if (data.length <= samples || data.length <= 2 || samples <= 2) {
@@ -61,8 +58,7 @@ const getDecimatedData = (
         let totalWeight: number = 0;
 
         for (let j: number = startIdx; j <= endIdx; j++) {
-            const weight: number =
-                j === startIdx ? startWeight : j === endIdx ? endWeight : 1;
+            const weight: number = j === startIdx ? startWeight : j === endIdx ? endWeight : 1;
             totalValue += data[j].value * weight;
             totalTarget += data[j].target * weight;
             totalWeight += weight;
@@ -71,9 +67,7 @@ const getDecimatedData = (
         const avgValue: number = totalValue / totalWeight;
         const avgTarget: number = totalTarget / totalWeight;
 
-        const labelIndex: number = Math.round(
-            (startIndexDec + endIndexDec) / 2,
-        );
+        const labelIndex: number = Math.round((startIndexDec + endIndexDec) / 2);
 
         result.push({
             label: data[labelIndex].label,
@@ -104,10 +98,7 @@ function getGridStepSize(min: number, max: number): number {
     return 0;
 }
 
-const getChartData = (
-    decimatedData: Array<LineChartDataPoint>,
-    onlyPositive: boolean,
-): ChartData<"line"> => ({
+const getChartData = (decimatedData: Array<LineChartDataPoint>, onlyPositive: boolean): ChartData<"line"> => ({
     datasets: [
         {
             label: "Value",
@@ -117,15 +108,9 @@ const getChartData = (
                 if (!onlyPositive) {
                     return "rgba(0, 0, 0, 0)";
                 }
-                const ctx: CanvasRenderingContext2D =
-                    scriptableContext.chart.ctx;
+                const ctx: CanvasRenderingContext2D = scriptableContext.chart.ctx;
                 const height: number = scriptableContext.chart.height;
-                const gradient: CanvasGradient = ctx.createLinearGradient(
-                    0,
-                    0,
-                    0,
-                    height,
-                );
+                const gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 0, height);
                 gradient.addColorStop(0, "rgba(76, 175, 80, 0.4)");
                 gradient.addColorStop(1, "rgba(76, 175, 80, 0)");
                 return gradient;
@@ -221,9 +206,7 @@ const getChartOptions = (
     return merge(chartOptions, custom);
 };
 
-const getChartPlugins = (
-    setHoveredIndex: (hoverIndex: number | null) => void,
-): Plugin<"line">[] => {
+const getChartPlugins = (setHoveredIndex: (hoverIndex: number | null) => void): Plugin<"line">[] => {
     return [
         {
             id: "resetHoveredIndex",
@@ -236,9 +219,7 @@ const getChartPlugins = (
     ];
 };
 
-const getDimensions = (
-    data: Array<LineChartDataPoint>,
-): { yMin: number; yMax: number; gridStepSize: number } => {
+const getDimensions = (data: Array<LineChartDataPoint>): { yMin: number; yMax: number; gridStepSize: number } => {
     const { yMinDp, yMaxDp } = data.reduce(
         (acc, point) => ({
             yMinDp: Math.min(acc.yMinDp, point.value, point.target),
@@ -279,35 +260,19 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, title }) => {
 
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-    const { yMin, yMax, gridStepSize, onlyPositive, targetAlwaysZero } =
-        useMemo(() => {
-            const dimensions = getDimensions(data);
-            return {
-                ...dimensions,
-                onlyPositive: dimensions.yMin >= 0,
-                targetAlwaysZero: data.every(
-                    (dp: LineChartDataPoint) => dp.target === 0,
-                ),
-            };
-        }, [data]);
+    const { yMin, yMax, gridStepSize, onlyPositive, targetAlwaysZero } = useMemo(() => {
+        const dimensions = getDimensions(data);
+        return {
+            ...dimensions,
+            onlyPositive: dimensions.yMin >= 0,
+            targetAlwaysZero: data.every((dp: LineChartDataPoint) => dp.target === 0),
+        };
+    }, [data]);
 
-    const decimatedData = useMemo(
-        () => getDecimatedData(data, chartWidth),
-        [data, chartWidth],
-    );
-    const chartData = useMemo(
-        () => getChartData(decimatedData, onlyPositive),
-        [decimatedData, onlyPositive],
-    );
+    const decimatedData = useMemo(() => getDecimatedData(data, chartWidth), [data, chartWidth]);
+    const chartData = useMemo(() => getChartData(decimatedData, onlyPositive), [decimatedData, onlyPositive]);
     const chartOptions = useMemo(
-        () =>
-            getChartOptions(
-                yMin,
-                yMax,
-                gridStepSize,
-                options ?? {},
-                setHoveredIndex,
-            ),
+        () => getChartOptions(yMin, yMax, gridStepSize, options ?? {}, setHoveredIndex),
         [yMin, yMax, gridStepSize, options],
     );
     const chartPlugins = getChartPlugins(setHoveredIndex);
@@ -322,8 +287,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, title }) => {
             }}
         >
             {(() => {
-                const point: LineChartDataPoint =
-                    decimatedData[hoveredIndex ?? decimatedData.length - 1];
+                const point: LineChartDataPoint = decimatedData[hoveredIndex ?? decimatedData.length - 1];
                 return (
                     <div
                         style={{
@@ -344,9 +308,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, title }) => {
                             >
                                 {title}
                             </div>
-                            <div style={{ fontSize: "13px" }}>
-                                {point.label}
-                            </div>
+                            <div style={{ fontSize: "13px" }}>{point.label}</div>
                         </div>
                         <div
                             style={{
@@ -418,9 +380,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, title }) => {
                                                 textAlign: "center",
                                             }}
                                         >
-                                            {getEuroString(
-                                                point.value - point.target,
-                                            )}
+                                            {getEuroString(point.value - point.target)}
                                         </div>
                                     </div>
                                 </>
@@ -430,12 +390,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, options, title }) => {
                 );
             })()}
 
-            <Line
-                key={chartWidth}
-                data={chartData}
-                options={chartOptions}
-                plugins={chartPlugins}
-            />
+            <Line key={chartWidth} data={chartData} options={chartOptions} plugins={chartPlugins} />
         </div>
     );
 };

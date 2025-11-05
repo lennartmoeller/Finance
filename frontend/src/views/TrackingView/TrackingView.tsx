@@ -19,14 +19,9 @@ const TrackingView: React.FC = () => {
     const categories = useCategories();
     const transactions = useTransactions();
 
-    if (accounts.isLoading || categories.isLoading)
-        return <div>Loading...</div>;
+    if (accounts.isLoading || categories.isLoading) return <div>Loading...</div>;
     if (accounts.error || categories.error)
-        return (
-            <div>
-                Error: {accounts.error?.message ?? categories.error?.message}
-            </div>
-        );
+        return <div>Error: {accounts.error?.message ?? categories.error?.message}</div>;
     if (!accounts.data || !categories.data) return <div>No data available</div>;
 
     return (

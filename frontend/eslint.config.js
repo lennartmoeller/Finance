@@ -55,10 +55,7 @@ export default [
             import: importPlugin,
         },
         rules: {
-            "sort-imports": [
-                "error",
-                { ignoreCase: true, ignoreDeclarationSort: true },
-            ],
+            "sort-imports": ["error", { ignoreCase: true, ignoreDeclarationSort: true }],
             "import/order": [
                 "error",
                 {
@@ -79,10 +76,7 @@ export default [
                     alphabetize: { order: "asc", caseInsensitive: true },
                 },
             ],
-            "@typescript-eslint/ban-ts-comment": [
-                "error",
-                { "ts-ignore": "allow-with-description" },
-            ],
+            "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": "allow-with-description" }],
             "react/prop-types": "off",
             semi: ["error", "always"],
             quotes: ["error", "double"],

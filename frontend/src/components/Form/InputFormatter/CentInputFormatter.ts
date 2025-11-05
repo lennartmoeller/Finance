@@ -10,9 +10,7 @@ class CentInputFormatter extends InputFormatter<number> {
         const isNegative = cents < 0;
         const absoluteCents = Math.abs(cents);
 
-        const formattedValue = (absoluteCents / 100)
-            .toFixed(2)
-            .replace(".", ",");
+        const formattedValue = (absoluteCents / 100).toFixed(2).replace(".", ",");
         return isNegative ? `-${formattedValue}` : formattedValue;
     }
 
@@ -27,10 +25,7 @@ class CentInputFormatter extends InputFormatter<number> {
         return Math.round(floatValue * 100);
     }
 
-    public onChange(
-        before: InputState<number>,
-        after: string,
-    ): InputState<number> {
+    public onChange(before: InputState<number>, after: string): InputState<number> {
         let cleanedValue = after;
 
         // Replace "." with ","
@@ -58,10 +53,7 @@ class CentInputFormatter extends InputFormatter<number> {
 
         // Limit decimal places to 2
         const decimalSeparatorIndex = cleanedValue.indexOf(",");
-        if (
-            decimalSeparatorIndex >= 0 &&
-            cleanedValue.length - decimalSeparatorIndex > 3
-        ) {
+        if (decimalSeparatorIndex >= 0 && cleanedValue.length - decimalSeparatorIndex > 3) {
             return before;
         }
 

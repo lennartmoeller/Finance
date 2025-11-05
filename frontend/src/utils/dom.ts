@@ -1,13 +1,10 @@
-export const measureTextWidth = (
-    text: string,
-    referenceElement: HTMLElement,
-): number => {
+export const measureTextWidth = (text: string, referenceElement: HTMLElement): number => {
     const tempSpan = document.createElement("span");
     tempSpan.style.visibility = "hidden";
     tempSpan.style.position = "absolute";
     tempSpan.style.whiteSpace = "pre";
 
-    const computedStyle = window.getComputedStyle(referenceElement);
+    const computedStyle = globalThis.getComputedStyle(referenceElement);
     tempSpan.style.font = computedStyle.font;
     tempSpan.style.fontSize = computedStyle.fontSize;
     tempSpan.style.fontFamily = computedStyle.fontFamily;
@@ -17,7 +14,7 @@ export const measureTextWidth = (
     tempSpan.textContent = text;
     document.body.appendChild(tempSpan);
     const width = tempSpan.offsetWidth;
-    document.body.removeChild(tempSpan);
+    tempSpan.remove();
 
     return width;
 };

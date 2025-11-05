@@ -41,32 +41,16 @@ const useTransactionFilter = createPersistentStore<
     storage: {
         storeInUrl: true,
         storeInLocalStorage: true,
-        serialize: (
-            state: TransactionFilterStateData,
-        ): TransactionFilterStateDataSerialized => ({
-            accountIds:
-                state.accountIds.length > 0
-                    ? state.accountIds.join(",")
-                    : undefined,
-            categoryIds:
-                state.categoryIds.length > 0
-                    ? state.categoryIds.join(",")
-                    : undefined,
-            yearMonths:
-                state.yearMonths.length > 0
-                    ? state.yearMonths.map(YearMonth.toString).join(",")
-                    : undefined,
-            description:
-                state.description.length > 0 ? state.description : undefined,
+        serialize: (state: TransactionFilterStateData): TransactionFilterStateDataSerialized => ({
+            accountIds: state.accountIds.length > 0 ? state.accountIds.join(",") : undefined,
+            categoryIds: state.categoryIds.length > 0 ? state.categoryIds.join(",") : undefined,
+            yearMonths: state.yearMonths.length > 0 ? state.yearMonths.map(YearMonth.toString).join(",") : undefined,
+            description: state.description.length > 0 ? state.description : undefined,
         }),
-        parse: (
-            packedValue: TransactionFilterStateDataSerialized,
-        ): TransactionFilterStateData => ({
+        parse: (packedValue: TransactionFilterStateDataSerialized): TransactionFilterStateData => ({
             accountIds: packedValue.accountIds?.split(",").map(Number) ?? [],
             categoryIds: packedValue.categoryIds?.split(",").map(Number) ?? [],
-            yearMonths:
-                packedValue.yearMonths?.split(",").map(YearMonth.fromString) ??
-                [],
+            yearMonths: packedValue.yearMonths?.split(",").map(YearMonth.fromString) ?? [],
             description: packedValue.description ?? "",
         }),
     },

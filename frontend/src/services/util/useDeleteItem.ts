@@ -6,16 +6,12 @@ import { ExtURL } from "@/utils/ExtURL";
 
 export interface UseDeleteItemOptions<Item> {
     url: ExtURL;
-    invalidateQueryUrls?:
-        | Array<ExtURL>
-        | ((item: Item) => Array<ExtURL> | undefined);
+    invalidateQueryUrls?: Array<ExtURL> | ((item: Item) => Array<ExtURL> | undefined);
 }
 
 export type UseDeleteItemResult<T> = (item: T) => Promise<void>;
 
-const useDeleteItem = <Item extends { id: number }>(
-    options: UseDeleteItemOptions<Item>,
-): UseDeleteItemResult<Item> => {
+const useDeleteItem = <Item extends { id: number }>(options: UseDeleteItemOptions<Item>): UseDeleteItemResult<Item> => {
     const queryClient = useQueryClient();
 
     const useDeleteItemResult = useMutation({
