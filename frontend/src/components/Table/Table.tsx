@@ -29,7 +29,6 @@ interface TableProps<TData = unknown> {
 const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = [] }: TableProps<TData>) => {
     const parentRef = useRef<HTMLDivElement>(null);
     const theme = useTheme();
-    const filterBackgroundColor = theme.table.filter.backgroundColor;
 
     const { hasFilters, registerFilter, filterData } = useTableFilters<TData>({
         columns,
@@ -41,7 +40,7 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
         (column: TableColumn<TData>) => {
             if (column.filter) {
                 return (
-                    <TableCell key={column.key} as="td" backgroundColor={filterBackgroundColor}>
+                    <TableCell key={column.key} as="td" backgroundColor={theme.table.filter.backgroundColor}>
                         <Input
                             {...registerFilter(column.filter.property)}
                             inputFormatter={column.filter.inputFormatter}
@@ -49,9 +48,9 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
                     </TableCell>
                 );
             }
-            return <TableHeaderCell key={column.key} backgroundColor={filterBackgroundColor} />;
+            return <TableHeaderCell key={column.key} backgroundColor={theme.table.filter.backgroundColor} />;
         },
-        [filterBackgroundColor, registerFilter],
+        [registerFilter, theme.table.filter.backgroundColor],
     );
 
     const headerRow = useMemo(
@@ -123,12 +122,10 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
     const headerRows = useMemo(() => allRows.slice(0, effectiveStickyHeaderRows), [allRows, effectiveStickyHeaderRows]);
     const bodyRows = useMemo(() => allRows.slice(effectiveStickyHeaderRows), [allRows, effectiveStickyHeaderRows]);
 
-    const estimateSize = useCallback(() => 50, []);
-
     const virtualizer = useVirtualizer({
         count: bodyRows.length,
         getScrollElement: () => parentRef.current,
-        estimateSize,
+        estimateSize: () => 50,
         overscan: 50,
     });
 
