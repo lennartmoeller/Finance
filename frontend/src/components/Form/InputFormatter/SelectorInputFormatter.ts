@@ -1,9 +1,5 @@
-import BaseSelectorInputFormatter, {
-    SelectorInputFormatterOptions,
-} from "@/components/Form/InputFormatter/BaseSelectorInputFormatter";
+import BaseSelectorInputFormatter from "@/components/Form/InputFormatter/BaseSelectorInputFormatter";
 import InputState from "@/components/Form/types/InputState";
-
-export { SelectorInputFormatterOptions };
 
 class SelectorInputFormatter<
     T extends Record<K, number> & Record<L, string>,
@@ -11,9 +7,7 @@ class SelectorInputFormatter<
     L extends keyof T & string,
 > extends BaseSelectorInputFormatter<T, K, L, T[K]> {
     public valueToString(value: T[K] | null): string {
-        const option: T | undefined = this.options.find(
-            (option) => option[this.idProperty] === value,
-        );
+        const option: T | undefined = this.options.find((option) => option[this.idProperty] === value);
         return option ? option[this.labelProperty] : "";
     }
 
@@ -35,10 +29,7 @@ class SelectorInputFormatter<
         if (prediction) {
             return {
                 ...result,
-                value: (prediction[this.labelProperty] as string).slice(
-                    0,
-                    after.length,
-                ),
+                value: (prediction[this.labelProperty] as string).slice(0, after.length),
                 prediction: {
                     label: prediction[this.labelProperty],
                     value: prediction[this.idProperty],
@@ -47,10 +38,6 @@ class SelectorInputFormatter<
         }
 
         return result;
-    }
-
-    public findPrediction(search: string): T | null {
-        return this.getPrediction(search);
     }
 }
 

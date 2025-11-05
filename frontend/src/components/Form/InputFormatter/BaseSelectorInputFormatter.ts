@@ -1,11 +1,8 @@
 import Fuse from "fuse.js";
 
-import InputFormatter, {
-    InputFormatterOptions,
-} from "@/components/Form/InputFormatter/InputFormatter";
+import InputFormatter, { InputFormatterOptions } from "@/components/Form/InputFormatter/InputFormatter";
 
-export interface SelectorInputFormatterOptions<T, K, L>
-    extends InputFormatterOptions {
+export interface SelectorInputFormatterOptions<T, K, L> extends InputFormatterOptions {
     options: Array<T>;
     idProperty: K;
     labelProperty: L;
@@ -17,8 +14,6 @@ abstract class BaseSelectorInputFormatter<
     L extends keyof T & string,
     V,
 > extends InputFormatter<V> {
-    protected static readonly FUSE_SCORE_THRESHOLD = 0.5;
-
     protected readonly options: Array<T>;
     protected readonly idProperty: K;
     protected readonly labelProperty: L;
@@ -37,9 +32,7 @@ abstract class BaseSelectorInputFormatter<
 
     protected getPrediction(search: string): T | null {
         const prediction = this.fuse.search(search).find((result) => {
-            if (
-                result.score! > BaseSelectorInputFormatter.FUSE_SCORE_THRESHOLD
-            ) {
+            if (result.score! > 0.5) {
                 return false;
             }
             const targetString: string = result.item[this.labelProperty];
