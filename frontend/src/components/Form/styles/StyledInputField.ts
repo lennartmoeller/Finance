@@ -6,8 +6,7 @@ const StyledInputField = styled.input<{
 }>`
     all: unset;
     z-index: 1;
-    width: ${({ $reducedWidth }) =>
-        $reducedWidth ? `calc(100% - ${$reducedWidth}px)` : "100%"};
+    width: ${({ $reducedWidth }) => ($reducedWidth ? `calc(100% - ${$reducedWidth}px)` : "100%")};
     box-sizing: border-box;
     text-align: ${({ $textAlign }) => $textAlign || "left"};
 `;

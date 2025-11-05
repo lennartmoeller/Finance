@@ -5,9 +5,8 @@ const StyledInputFieldPlaceholder = styled.div<{
 }>`
     position: absolute;
     top: 0;
-    left: ${({ $leftOffset }) =>
-        $leftOffset !== undefined ? `${$leftOffset}px` : "auto"};
-    right: ${({ $leftOffset }) => ($leftOffset !== undefined ? "auto" : "0")};
+    left: ${({ $leftOffset }) => ($leftOffset === undefined ? "auto" : `${$leftOffset}px`)};
+    right: ${({ $leftOffset }) => ($leftOffset === undefined ? "0" : "auto")};
     bottom: 0;
     pointer-events: none;
     white-space: nowrap;
