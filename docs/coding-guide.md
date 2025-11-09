@@ -1,6 +1,6 @@
-# Coding Agents Instructions
+# Coding Guide
 
-This file provides comprehensive guidance for AI agents working with this codebase.
+This file provides comprehensive guidance for developers working with this codebase.
 
 ## Technology Overview
 
@@ -124,50 +124,3 @@ There are no coding guidelines yet. Please follow common best practices.
 ### React
 
 There are no coding guidelines yet. Please follow common best practices.
-
-## Restrictions 
-
-Code splitting is optimized as far as possible - vendor splitting works, but route-based splitting cannot be implemented further with the current setup.
-
-## Pull Request Guidelines
-
-When an AI agent helps create a PR, please ensure it:
-
-1. Follows the Conventional Commits specification (https://www.conventionalcommits.org)
-2. Includes a clear description of the changes
-3. References any related issues that the PR addresses
-4. Ensures all tests pass for generated code
-5. Keeps PRs focused on a single concern
-
-## Programmatic Checks
-
-After generating code changes, run the following checks to ensure code quality and correctness:
-
-### Backend
-
-```bash
-cd backend
-chmod +x ./mvnw
-
-# apply code formatting
-./mvnw spotless:apply
-
-# check tests and aim for 100% test coverage
-./mvnw test
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm ci
-
-# check for TypeScript errors
-npm run check
-
-# lint and fix the codebase
-npm run lint
-
-# apply code formatting
-npm run format
-```
