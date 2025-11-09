@@ -8,14 +8,14 @@
 .idea/
 
 # VSCode
-.vscode/settings.json
+.vscode/
 
-# Environment files
+# environment files
 *.env
 /env/
 
-# Coding Agents Settings
-/.claude/**
-!/.claude/agents/
-!/.claude/agents/**
+# coding agents
+.claude/**
+!.claude/agents/
+!.claude/agents/**
 .plans/
