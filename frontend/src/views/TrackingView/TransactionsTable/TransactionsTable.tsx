@@ -9,7 +9,7 @@ import Table from "@/components/Table/Table";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
 import Transaction, { emptyTransaction } from "@/types/Transaction";
-import { ensureArray, filterDuplicates } from "@/utils/array";
+import { filterDuplicates } from "@/utils/array";
 import YearMonth from "@/utils/YearMonth";
 import useFocusedTransaction from "@/views/TrackingView/stores/useFocusedTransaction";
 import useTransactionFilter from "@/views/TrackingView/stores/useTransactionFilter";
@@ -102,11 +102,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "accountIds",
                 inputFormatter: accountsFilterInputFormatter,
-                filterFunction: (accountIds: number[], transaction: Transaction) => {
-                    return accountIds.includes(transaction.accountId);
-                },
-                initialValue: accountIds.length > 0 ? accountIds : null,
-                onChange: (value: number[] | null) => setAccountIds(ensureArray(value)),
+                filterFunction: (accountId: number, transaction: Transaction) => accountId === transaction.accountId,
+                initialValue: accountIds.length > 0 ? accountIds[0] : null,
+                onChange: (value: number | null) => setAccountIds(value === null ? [] : [value]),
             },
         },
         {
@@ -116,11 +114,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             filter: {
                 property: "categoryIds",
                 inputFormatter: categoriesFilterInputFormatter,
-                filterFunction: (categoryIds: number[], transaction: Transaction) => {
-                    if (categoryIds.length === 0) {
-                        return true;
-                    }
-                    const result = new Set<number>(categoryIds);
+                filterFunction: (categoryId: number, transaction: Transaction) => {
+                    const result = new Set<number>([categoryId]);
                     const addChildrenRecursively = (parentId: number): void => {
                         const children = categories.filter((cat) => cat.parentId === parentId);
                         for (const child of children) {
@@ -128,15 +123,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                             addChildrenRecursively(child.id);
                         }
                     };
-                    for (const id of categoryIds) {
-                        addChildrenRecursively(id);
-                    }
+                    addChildrenRecursively(categoryId);
                     const expandedCategoryIds = Array.from(result);
-                    if (!expandedCategoryIds) return true;
                     return expandedCategoryIds.includes(transaction.categoryId);
                 },
-                initialValue: categoryIds.length > 0 ? categoryIds : null,
-                onChange: (value: number[] | null) => setCategoryIds(ensureArray(value)),
+                initialValue: categoryIds.length > 0 ? categoryIds[0] : null,
+                onChange: (value: number | null) => setCategoryIds(value === null ? [] : [value]),
             },
         },
         {
