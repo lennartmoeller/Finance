@@ -5,6 +5,7 @@ const StyledCellContent = styled.div<{
     $padding?: string;
     $horAlign?: "left" | "center" | "right";
     $vertAlign?: "top" | "center" | "bottom";
+    $fontWeight?: string;
 }>`
     padding: ${({ $padding }) => $padding ?? "4px 8px"};
     display: flex;
@@ -30,6 +31,7 @@ const StyledCellContent = styled.div<{
     }};
     width: 100%;
     font-weight: ${(props) => {
+        if (props.$fontWeight) return props.$fontWeight;
         const cellType: "header1" | "header2" | "body" = props.$headerLevel ? `header${props.$headerLevel}` : "body";
         return props.theme.table[cellType].fontWeight;
     }};

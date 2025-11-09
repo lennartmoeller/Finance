@@ -4,10 +4,10 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useTheme } from "styled-components";
 
 import Input from "@/components/Form/Input";
+import TableSectionContext from "@/components/Table/context/TableSectionContext";
 import useTableFilters from "@/components/Table/hooks/useTableFilters";
 import StyledTable from "@/components/Table/styles/StyledTable";
 import TableCell from "@/components/Table/TableCell";
-import TableHeaderCell from "@/components/Table/TableHeaderCell";
 import TableColumn from "@/components/Table/types/TableColumn";
 import { memo } from "@/utils/react";
 
@@ -40,7 +40,11 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
         (column: TableColumn<TData>) => {
             if (column.filter) {
                 return (
-                    <TableCell key={column.key} as="td" backgroundColor={theme.table.filter.backgroundColor}>
+                    <TableCell
+                        key={column.key}
+                        backgroundColor={theme.table.filter.backgroundColor}
+                        fontWeight={theme.table.filter.fontWeight}
+                    >
                         <Input
                             {...registerFilter(column.filter.property)}
                             inputFormatter={column.filter.inputFormatter}
@@ -48,9 +52,15 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
                     </TableCell>
                 );
             }
-            return <TableHeaderCell key={column.key} backgroundColor={theme.table.filter.backgroundColor} />;
+            return (
+                <TableCell
+                    key={column.key}
+                    backgroundColor={theme.table.filter.backgroundColor}
+                    fontWeight={theme.table.filter.fontWeight}
+                />
+            );
         },
-        [registerFilter, theme.table.filter.backgroundColor],
+        [registerFilter, theme.table.filter.backgroundColor, theme.table.filter.fontWeight],
     );
 
     const headerRow = useMemo(
@@ -61,9 +71,9 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
                       content: (
                           <>
                               {columns.map((column) => (
-                                  <TableHeaderCell key={column.key} {...column.header?.props}>
+                                  <TableCell key={column.key} {...column.header?.props}>
                                       {column.header?.name ?? ""}
-                                  </TableHeaderCell>
+                                  </TableCell>
                               ))}
                           </>
                       ),
@@ -135,6 +145,9 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
 
     const spacerColSpan = columns?.length ?? 9999;
 
+    const headerContextValue = useMemo(() => ({ isHeader: true }), []);
+    const bodyContextValue = useMemo(() => ({ isHeader: false }), []);
+
     return (
         <div ref={parentRef} style={{ overflow: "auto", flex: 1 }}>
             <StyledTable>
@@ -148,46 +161,50 @@ const Table = memo(<TData = unknown,>({ columns, stickyHeaderRows = 0, rows = []
 
                 {headerRows.length > 0 && (
                     <thead>
-                        {headerRows.map((rowData) => (
-                            <tr key={rowData.key} {...rowData.properties}>
-                                {rowData.content}
-                            </tr>
-                        ))}
+                        <TableSectionContext.Provider value={headerContextValue}>
+                            {headerRows.map((rowData) => (
+                                <tr key={rowData.key} {...rowData.properties}>
+                                    {rowData.content}
+                                </tr>
+                            ))}
+                        </TableSectionContext.Provider>
                     </thead>
                 )}
 
                 <tbody>
-                    {paddingTop > 0 && (
-                        <tr aria-hidden="true">
-                            <td colSpan={spacerColSpan} style={{ height: paddingTop, padding: 0 }} />
-                        </tr>
-                    )}
-
-                    {items.map((virtualRow) => {
-                        const data = bodyRows[virtualRow.index];
-                        return (
-                            <tr
-                                key={data.key}
-                                data-index={virtualRow.index}
-                                ref={virtualizer.measureElement}
-                                {...data.properties}
-                            >
-                                {data.content}
+                    <TableSectionContext.Provider value={bodyContextValue}>
+                        {paddingTop > 0 && (
+                            <tr aria-hidden="true">
+                                <td colSpan={spacerColSpan} style={{ height: paddingTop, padding: 0 }} />
                             </tr>
-                        );
-                    })}
+                        )}
 
-                    {paddingBottom > 0 && (
-                        <tr aria-hidden="true">
-                            <td
-                                colSpan={spacerColSpan}
-                                style={{
-                                    height: paddingBottom,
-                                    padding: 0,
-                                }}
-                            />
-                        </tr>
-                    )}
+                        {items.map((virtualRow) => {
+                            const data = bodyRows[virtualRow.index];
+                            return (
+                                <tr
+                                    key={data.key}
+                                    data-index={virtualRow.index}
+                                    ref={virtualizer.measureElement}
+                                    {...data.properties}
+                                >
+                                    {data.content}
+                                </tr>
+                            );
+                        })}
+
+                        {paddingBottom > 0 && (
+                            <tr aria-hidden="true">
+                                <td
+                                    colSpan={spacerColSpan}
+                                    style={{
+                                        height: paddingBottom,
+                                        padding: 0,
+                                    }}
+                                />
+                            </tr>
+                        )}
+                    </TableSectionContext.Provider>
                 </tbody>
             </StyledTable>
         </div>

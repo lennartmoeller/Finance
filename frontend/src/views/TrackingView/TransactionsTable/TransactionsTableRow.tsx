@@ -8,7 +8,7 @@ import GermanDateInputFormatter from "@/components/Form/InputFormatter/GermanDat
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Icon from "@/components/Icon/Icon";
-import TableBodyCell from "@/components/Table/TableBodyCell";
+import TableCell from "@/components/Table/TableCell";
 import { useDeleteTransaction, useSaveTransaction } from "@/services/transactions";
 import Account from "@/types/Account";
 import Category from "@/types/Category";
@@ -56,28 +56,28 @@ const TransactionsTableRow: React.FC<TransactionsTableRowProps> = ({
 
     return (
         <>
-            <TableBodyCell>
+            <TableCell>
                 <Input {...register("date")} inputFormatter={dateInputFormatter} autoFocus={draft} />
-            </TableBodyCell>
-            <TableBodyCell>
+            </TableCell>
+            <TableCell>
                 <Input {...register("accountId")} inputFormatter={accountInputFormatter} />
-            </TableBodyCell>
-            <TableBodyCell>
+            </TableCell>
+            <TableCell>
                 <Input {...register("categoryId")} inputFormatter={categoryInputFormatter} />
-            </TableBodyCell>
-            <TableBodyCell>
+            </TableCell>
+            <TableCell>
                 <Input {...register("description")} inputFormatter={descriptionInputFormatter} />
-            </TableBodyCell>
-            <TableBodyCell horAlign="right">
+            </TableCell>
+            <TableCell horAlign="right">
                 <Input {...register("amount")} inputFormatter={amountInputFormatter} textAlign="right" />
-            </TableBodyCell>
-            <TableBodyCell horAlign="center">
+            </TableCell>
+            <TableCell horAlign="center">
                 {!draft && (
                     <Button onClick={() => deleteTransaction(transaction as Transaction)}>
                         <Icon id="fa-solid fa-trash" color="red" />
                     </Button>
                 )}
-            </TableBodyCell>
+            </TableCell>
         </>
     );
 };
