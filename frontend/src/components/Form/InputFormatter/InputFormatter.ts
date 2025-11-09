@@ -39,7 +39,7 @@ abstract class InputFormatter<V> {
         };
     }
 
-    public onChange(before: InputState<V>, after: string): InputState<V> {
+    public onChange(_before: InputState<V>, after: string): InputState<V> {
         return {
             errors: [], // reset errors on change
             prediction: undefined, // prediction will be calculated by InputFormatter implementation

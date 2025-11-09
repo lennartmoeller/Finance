@@ -3,7 +3,6 @@ import React, { useMemo } from "react";
 import Fuse from "fuse.js";
 
 import GermanYearMonthInputFormatter from "@/components/Form/InputFormatter/GermanYearMonthInputFormatter";
-import MultiSelectorInputFormatter from "@/components/Form/InputFormatter/MultiSelectorInputFormatter";
 import SelectorInputFormatter from "@/components/Form/InputFormatter/SelectorInputFormatter";
 import StringInputFormatter from "@/components/Form/InputFormatter/StringInputFormatter";
 import Table from "@/components/Table/Table";
@@ -66,12 +65,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     const yearMonthFilterInputFormatter = new GermanYearMonthInputFormatter({
         defaultYear: new Date().getFullYear(),
     });
-    const accountsFilterInputFormatter = new MultiSelectorInputFormatter({
+    const accountsFilterInputFormatter = new SelectorInputFormatter({
         options: accounts,
         idProperty: "id",
         labelProperty: "label",
     });
-    const categoriesFilterInputFormatter = new MultiSelectorInputFormatter({
+    const categoriesFilterInputFormatter = new SelectorInputFormatter({
         options: leafCategories,
         idProperty: "id",
         labelProperty: "label",

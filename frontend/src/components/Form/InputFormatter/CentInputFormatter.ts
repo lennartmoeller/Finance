@@ -21,7 +21,7 @@ class CentInputFormatter extends InputFormatter<number> {
             return null;
         }
 
-        const floatValue = parseFloat(normalizedValue);
+        const floatValue = Number.parseFloat(normalizedValue);
         return Math.round(floatValue * 100);
     }
 
@@ -29,7 +29,7 @@ class CentInputFormatter extends InputFormatter<number> {
         let cleanedValue = after;
 
         // Replace "." with ","
-        cleanedValue = cleanedValue.replace(/\./g, ",");
+        cleanedValue = cleanedValue.replaceAll(".", ",");
 
         // Ensure valid characters: digits, comma, minus
         if (/[^\d,-]/.test(cleanedValue)) {
@@ -42,7 +42,7 @@ class CentInputFormatter extends InputFormatter<number> {
         }
 
         // Ensure minus is at the beginning
-        if (cleanedValue.slice(1).indexOf("-") !== -1) {
+        if (cleanedValue.slice(1).includes("-")) {
             return before;
         }
 
@@ -59,7 +59,7 @@ class CentInputFormatter extends InputFormatter<number> {
 
         // Insert "0" before ","
         if (/^-?,/.test(cleanedValue)) {
-            cleanedValue = cleanedValue.replace(/^(-?),/, "$10,");
+            cleanedValue = cleanedValue.replace(/^(-?),/, "$1" + "0,");
         }
 
         return super.onChange(before, cleanedValue);

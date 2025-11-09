@@ -34,7 +34,7 @@ class GermanYearMonthInputFormatter extends InputFormatter<YearMonth> {
     }
 
     public stringToValue(string: string): YearMonth | null {
-        const match = RegExp(/^([x\d]{2})\.([x\d]{4})$/).exec(string);
+        const match = new RegExp(/^([x\d]{2})\.([x\d]{4})$/).exec(string);
         if (!match) {
             return null;
         }
@@ -42,10 +42,10 @@ class GermanYearMonthInputFormatter extends InputFormatter<YearMonth> {
         const monthString: string = match[1].replace("x", "");
         const yearString: string = match[2].replace("x", "");
 
-        const monthNumber: number = parseInt(monthString, 10);
-        const yearNumber: number = parseInt(yearString, 10);
+        const monthNumber: number = Number.parseInt(monthString, 10);
+        const yearNumber: number = Number.parseInt(yearString, 10);
 
-        if (isNaN(monthNumber) || isNaN(yearNumber) || monthNumber < 1 || monthNumber > 12) {
+        if (Number.isNaN(monthNumber) || Number.isNaN(yearNumber) || monthNumber < 1 || monthNumber > 12) {
             return null;
         }
 
@@ -77,8 +77,8 @@ class GermanYearMonthInputFormatter extends InputFormatter<YearMonth> {
 
             const month: string = parts[0];
             if (month !== "") {
-                const monthNumber: number = parseInt(month);
-                if (month.length > 2 || isNaN(monthNumber) || monthNumber > 12) {
+                const monthNumber: number = Number.parseInt(month);
+                if (month.length > 2 || Number.isNaN(monthNumber) || monthNumber > 12) {
                     return before;
                 }
                 const year: string | undefined = parts[1] ?? undefined;
@@ -88,8 +88,8 @@ class GermanYearMonthInputFormatter extends InputFormatter<YearMonth> {
                     value += month;
                 }
                 if ((year ?? "") !== "") {
-                    const yearNumber: number = parseInt(year);
-                    if (year.length > 4 || isNaN(yearNumber)) {
+                    const yearNumber: number = Number.parseInt(year);
+                    if (year.length > 4 || Number.isNaN(yearNumber)) {
                         return before;
                     }
                     value += year;
@@ -106,7 +106,7 @@ class GermanYearMonthInputFormatter extends InputFormatter<YearMonth> {
         };
     }
 
-    private getPrediction = (value: string): { label: string; value: YearMonth | null } => {
+    private readonly getPrediction = (value: string): { label: string; value: YearMonth | null } => {
         const parts: Array<string> = value.split(".");
 
         parts[0] = (parts[0] || "xx").padEnd(2, "x");

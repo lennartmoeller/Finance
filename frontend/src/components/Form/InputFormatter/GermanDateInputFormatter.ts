@@ -39,7 +39,7 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
     }
 
     public stringToValue(string: string): Date | null {
-        const match = RegExp(/^([x\d]{2})\.([x\d]{2})\.([x\d]{4})$/).exec(string);
+        const match = new RegExp(/^([x\d]{2})\.([x\d]{2})\.([x\d]{4})$/).exec(string);
         if (!match) {
             return null;
         }
@@ -48,9 +48,9 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
         const monthString: string = match[2].replace("x", "");
         const yearString: string = match[3].replace("x", "");
 
-        const dayNumber: number = parseInt(dayString, 10);
-        const monthNumber: number = parseInt(monthString, 10) - 1;
-        const yearNumber: number = parseInt(yearString, 10);
+        const dayNumber: number = Number.parseInt(dayString, 10);
+        const monthNumber: number = Number.parseInt(monthString, 10) - 1;
+        const yearNumber: number = Number.parseInt(yearString, 10);
 
         const date: Date = new Date(Date.UTC(yearNumber, monthNumber, dayNumber));
 
@@ -88,8 +88,8 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
 
             const day: string = parts[0];
             if (day !== "") {
-                const dayNumber: number = parseInt(day);
-                if (day.length > 2 || isNaN(dayNumber) || dayNumber > 31) {
+                const dayNumber: number = Number.parseInt(day);
+                if (day.length > 2 || Number.isNaN(dayNumber) || dayNumber > 31) {
                     return before;
                 }
                 const month: string | undefined = parts[1] ?? undefined;
@@ -99,8 +99,8 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
                     value += day;
                 }
                 if ((month ?? "") !== "") {
-                    const monthNumber: number = parseInt(month);
-                    if (month.length > 2 || isNaN(monthNumber) || monthNumber > 12) {
+                    const monthNumber: number = Number.parseInt(month);
+                    if (month.length > 2 || Number.isNaN(monthNumber) || monthNumber > 12) {
                         return before;
                     }
                     const year: string | undefined = parts[2] ?? undefined;
@@ -110,8 +110,8 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
                         value += month;
                     }
                     if ((year ?? "") !== "") {
-                        const yearNumber: number = parseInt(year);
-                        if (year.length > 4 || isNaN(yearNumber)) {
+                        const yearNumber: number = Number.parseInt(year);
+                        if (year.length > 4 || Number.isNaN(yearNumber)) {
                             return before;
                         }
                         value += year;
@@ -129,7 +129,7 @@ class GermanDateInputFormatter extends InputFormatter<Date> {
         };
     }
 
-    private getPrediction = (value: string): { label: string; value: Date | null } => {
+    private readonly getPrediction = (value: string): { label: string; value: Date | null } => {
         const parts: Array<string> = value.split(".");
 
         parts[0] = (parts[0] || "xx").padEnd(2, "x");
