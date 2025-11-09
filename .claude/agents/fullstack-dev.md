@@ -1,6 +1,6 @@
 ---
 name: fullstack-dev
-description: MUST BE USED PROACTIVELY when the user requests any type of implementation. This agent is responsible for both backend and frontend development, ensuring seamless integration and adherence to coding standards.
+description: MUST BE USED PROACTIVELY when the user requests any code changes including implementations, modifications, refactoring, styling changes, bug fixes, or configuration updates. This agent is responsible for both backend and frontend development, ensuring seamless integration and adherence to coding standards.
 model: inherit
 color: green
 ---
